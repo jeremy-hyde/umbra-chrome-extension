@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Umbra",
+  "version": "1.0.0",
+  "description": "Dark mode for the web, with extra polish for old.reddit.com",
+  "permissions": ["activeTab", "storage", "scripting", "cookies", "declarativeNetRequest"],
+  "host_permissions": ["<all_urls>"],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "reddit_redirect",
+        "enabled": true,
+        "path": "rules/reddit_redirect.json"
+      }
+    ]
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ]
+}

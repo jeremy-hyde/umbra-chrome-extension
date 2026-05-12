@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 200px;
+      background: #1a1a1b;
+      color: #d7dadc;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 20px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    h1 { font-size: 13px; font-weight: 600; letter-spacing: 3px; color: #818384; }
+
+    #power-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid #343536;
+      background: #111112;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    #power-btn svg { width: 36px; height: 36px; }
+    #power-btn .ring { fill: none; stroke: #343536; stroke-width: 3; transition: stroke 0.2s; }
+    #power-btn .stem { fill: none; stroke: #343536; stroke-width: 3; stroke-linecap: round; transition: stroke 0.2s; }
+
+    #power-btn.on { border-color: #4fbdba; box-shadow: 0 0 18px #4fbdba44; }
+    #power-btn.on .ring { stroke: #4fbdba; }
+    #power-btn.on .stem { stroke: #4fbdba; }
+
+    #status {
+      font-size: 11px;
+      color: #818384;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: -8px;
+    }
+    #status.on { color: #4fbdba; }
+
+    #site-label {
+      font-size: 10px;
+      color: #4a4a4b;
+      margin-top: -8px;
+    }
+
+    .divider {
+      width: 100%;
+      border: none;
+      border-top: 1px solid #2a2a2b;
+    }
+
+    .counters {
+      width: 100%;
+      display: flex;
+      gap: 8px;
+    }
+    .counter {
+      flex: 1;
+      background: #272729;
+      border: 1px solid #343536;
+      border-radius: 6px;
+      padding: 8px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .counter-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #d7dadc;
+      line-height: 1;
+    }
+    .counter-value.has-data { color: #e06c75; }
+    .counter-label {
+      font-size: 9px;
+      color: #818384;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    #clear-btn {
+      width: 100%;
+      padding: 9px;
+      background: #272729;
+      border: 1px solid #343536;
+      border-radius: 6px;
+      color: #818384;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    #clear-btn:hover { border-color: #e06c75; color: #e06c75; background: #1e1617; }
+    #clear-btn.cleared { border-color: #4fbdba; color: #4fbdba; background: #111918; }
+
+    #about-link {
+      font-size: 10px;
+      color: #4a4a4b;
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      transition: color 0.15s;
+    }
+    #about-link:hover { color: #818384; }
+  </style>
+</head>
+<body>
+  <h1>UMBRA</h1>
+
+  <button id="power-btn" title="Toggle dark mode">
+    <svg viewBox="0 0 40 40">
+      <path class="ring" d="M20 8 A14 14 0 1 1 19.99 8" stroke-dasharray="72 10" stroke-dashoffset="-5"/>
+      <line class="stem" x1="20" y1="4" x2="20" y2="16"/>
+    </svg>
+  </button>
+
+  <div id="status">Off</div>
+  <div id="site-label"></div>
+
+  <hr class="divider">
+
+  <div class="counters">
+    <div class="counter">
+      <span class="counter-value" id="cookie-count">—</span>
+      <span class="counter-label">Cookies</span>
+    </div>
+    <div class="counter">
+      <span class="counter-value" id="storage-count">—</span>
+      <span class="counter-label">Storage</span>
+    </div>
+  </div>
+
+  <button id="clear-btn">Clear Site Data</button>
+
+  <a id="about-link" href="about.html" target="_blank">site effects &amp; coverage</a>
+
+  <script src="popup.js"></script>
+</body>
+</html>

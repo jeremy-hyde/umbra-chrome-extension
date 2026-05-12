@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Umbra — Site Effects</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 360px;
+      background: #1a1a1b;
+      color: #d7dadc;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    header {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+    h1 { font-size: 13px; font-weight: 600; letter-spacing: 3px; color: #818384; }
+    header span { font-size: 11px; color: #4a4a4b; letter-spacing: 1px; text-transform: uppercase; }
+
+    .site-card {
+      background: #272729;
+      border: 1px solid #343536;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .site-header {
+      padding: 10px 14px;
+      border-bottom: 1px solid #343536;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .site-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #4fbdba;
+      letter-spacing: 0.5px;
+    }
+    .site-badge {
+      margin-left: auto;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 3px;
+      border: 1px solid;
+    }
+    .badge-custom { color: #ff6314; border-color: #ff631444; background: #1e130e; }
+    .badge-enhanced { color: #4fbdba; border-color: #4fbdba44; background: #0e1918; }
+    .badge-generic { color: #818384; border-color: #34353688; background: #1e1e1f; }
+
+    ul {
+      list-style: none;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    li {
+      font-size: 11px;
+      color: #818384;
+      padding-left: 14px;
+      position: relative;
+      line-height: 1.5;
+    }
+    li::before {
+      content: '·';
+      position: absolute;
+      left: 4px;
+      color: #4a4a4b;
+    }
+    li strong { color: #d7dadc; font-weight: 500; }
+
+    .fallback-note {
+      font-size: 10px;
+      color: #4a4a4b;
+      text-align: center;
+      letter-spacing: 0.5px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>UMBRA</h1>
+    <span>Site Effects</span>
+  </header>
+
+  <div class="site-card">
+    <div class="site-header">
+      <span class="site-name">old.reddit.com</span>
+      <span class="site-badge badge-custom">Custom</span>
+    </div>
+    <ul>
+      <li>Full <strong>dark theme</strong> — background, sidebar, header, dropdowns</li>
+      <li><strong>Links</strong> recolored teal (<code>#4fbdba</code>)</li>
+      <li><strong>Upvote/downvote arrows</strong> use orange and purple accents</li>
+      <li><strong>Code blocks</strong> use dark background with orange text</li>
+      <li><strong>Inputs</strong> styled with dark fill and light text</li>
+    </ul>
+  </div>
+
+  <div class="site-card">
+    <div class="site-header">
+      <span class="site-name">github.com</span>
+      <span class="site-badge badge-enhanced">Enhanced</span>
+    </div>
+    <ul>
+      <li><strong>Invert + hue-rotate</strong> filter for dark mode (images/videos re-inverted)</li>
+      <li><strong>Issue content area</strong> is wider (max-width 1600px, always on)</li>
+      <li><strong>Issue metadata sidebar</strong> narrowed to 240px to give more room to comments</li>
+      <li><strong>PR conversation content area</strong> is wider (max-width 1200px, always on)</li>
+    </ul>
+  </div>
+
+  <div class="site-card">
+    <div class="site-header">
+      <span class="site-name">All other sites</span>
+      <span class="site-badge badge-generic">Generic</span>
+    </div>
+    <ul>
+      <li><strong>CSS invert + hue-rotate(180deg)</strong> applied to the whole page</li>
+      <li><strong>Images, videos, iframes, canvas, SVGs</strong> are counter-inverted to preserve original colors</li>
+    </ul>
+  </div>
+
+  <p class="fallback-note">Effects only apply when Umbra is toggled <strong style="color:#4fbdba">on</strong>.</p>
+</body>
+</html>

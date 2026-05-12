@@ -1,0 +1,797 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - link "Skip to content" [ref=e4] [cursor=pointer]:
+      - /url: "#start-of-content"
+    - banner [ref=e6]:
+      - heading "Navigation Menu" [level=2] [ref=e7]
+      - generic [ref=e8]:
+        - link "Homepage" [ref=e10] [cursor=pointer]:
+          - /url: /
+          - img [ref=e11]
+        - generic [ref=e13]:
+          - navigation "Global" [ref=e16]:
+            - list [ref=e17]:
+              - listitem [ref=e18]:
+                - button "Platform" [ref=e20] [cursor=pointer]:
+                  - text: Platform
+                  - img [ref=e21]
+              - listitem [ref=e23]:
+                - button "Solutions" [ref=e25] [cursor=pointer]:
+                  - text: Solutions
+                  - img [ref=e26]
+              - listitem [ref=e28]:
+                - button "Resources" [ref=e30] [cursor=pointer]:
+                  - text: Resources
+                  - img [ref=e31]
+              - listitem [ref=e33]:
+                - button "Open Source" [ref=e35] [cursor=pointer]:
+                  - text: Open Source
+                  - img [ref=e36]
+              - listitem [ref=e38]:
+                - button "Enterprise" [ref=e40] [cursor=pointer]:
+                  - text: Enterprise
+                  - img [ref=e41]
+              - listitem [ref=e43]:
+                - link "Pricing" [ref=e44] [cursor=pointer]:
+                  - /url: https://github.com/pricing
+                  - generic [ref=e45]: Pricing
+          - generic [ref=e46]:
+            - button "Search or jump to…" [ref=e49] [cursor=pointer]:
+              - img [ref=e51]
+              - generic [ref=e53]: Search or jump to...
+              - img [ref=e55]
+            - link "Sign in" [ref=e59] [cursor=pointer]:
+              - /url: /login?return_to=https%3A%2F%2Fgithub.com%2Fmicrosoft%2Fvscode%2Fpull%2F200000%2F
+            - link "Sign up" [ref=e60] [cursor=pointer]:
+              - /url: /signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F%3Cuser-name%3E%2F%3Crepo-name%3E%2Fvoltron%2Fpull_requests_fragments%2Fpull_request_layout&source=header-repo&source_repo=microsoft%2Fvscode
+            - button "Appearance settings" [ref=e63] [cursor=pointer]:
+              - img
+  - main [ref=e67]:
+    - generic [ref=e68]:
+      - generic [ref=e69]:
+        - generic [ref=e71]:
+          - img [ref=e72]
+          - link "microsoft" [ref=e75] [cursor=pointer]:
+            - /url: /microsoft
+          - generic [ref=e76]: /
+          - strong [ref=e77]:
+            - link "vscode" [ref=e78] [cursor=pointer]:
+              - /url: /microsoft/vscode
+          - generic [ref=e79]: Public
+        - generic [ref=e80]:
+          - list:
+            - listitem [ref=e81]:
+              - link "You must be signed in to change notification settings" [ref=e82] [cursor=pointer]:
+                - /url: /login?return_to=%2Fmicrosoft%2Fvscode
+                - img [ref=e83]
+                - text: Notifications
+            - listitem [ref=e85]:
+              - link "Fork 39.8k" [ref=e86] [cursor=pointer]:
+                - /url: /login?return_to=%2Fmicrosoft%2Fvscode
+                - img [ref=e87]
+                - text: Fork
+                - generic "39,777" [ref=e89]: 39.8k
+            - listitem [ref=e90]:
+              - link "You must be signed in to star a repository" [ref=e92] [cursor=pointer]:
+                - /url: /login?return_to=%2Fmicrosoft%2Fvscode
+                - img [ref=e93]
+                - text: Star
+                - generic "184823 users starred this repository" [ref=e95]: 185k
+      - navigation "Repository" [ref=e96]:
+        - list [ref=e97]:
+          - listitem [ref=e98]:
+            - link "Code" [ref=e99] [cursor=pointer]:
+              - /url: /microsoft/vscode
+              - img [ref=e100]
+              - generic [ref=e102]: Code
+          - listitem [ref=e103]:
+            - link "Issues 5k+" [ref=e104] [cursor=pointer]:
+              - /url: /microsoft/vscode/issues
+              - img [ref=e105]
+              - generic [ref=e108]: Issues
+              - generic "5,000+" [ref=e109]: 5k+
+          - listitem [ref=e110]:
+            - link "Pull requests 1.9k" [ref=e111] [cursor=pointer]:
+              - /url: /microsoft/vscode/pulls
+              - img [ref=e112]
+              - generic [ref=e114]: Pull requests
+              - generic "1,949" [ref=e115]: 1.9k
+          - listitem [ref=e116]:
+            - link "Actions" [ref=e117] [cursor=pointer]:
+              - /url: /microsoft/vscode/actions
+              - img [ref=e118]
+              - generic [ref=e120]: Actions
+          - listitem [ref=e121]:
+            - link "Projects" [ref=e122] [cursor=pointer]:
+              - /url: /microsoft/vscode/projects
+              - img [ref=e123]
+              - generic [ref=e125]: Projects
+          - listitem [ref=e126]:
+            - link "Models" [ref=e127] [cursor=pointer]:
+              - /url: /microsoft/vscode/models
+              - img [ref=e128]
+              - generic [ref=e130]: Models
+          - listitem [ref=e131]:
+            - link "Wiki" [ref=e132] [cursor=pointer]:
+              - /url: /microsoft/vscode/wiki
+              - img [ref=e133]
+              - generic [ref=e135]: Wiki
+          - listitem [ref=e136]:
+            - link "Security and quality 23" [ref=e137] [cursor=pointer]:
+              - /url: /microsoft/vscode/security
+              - img [ref=e138]
+              - generic [ref=e140]: Security and quality
+              - generic "23" [ref=e141]
+          - listitem [ref=e142]:
+            - link "Insights" [ref=e143] [cursor=pointer]:
+              - /url: /microsoft/vscode/pulse
+              - img [ref=e144]
+              - generic [ref=e146]: Insights
+    - generic [ref=e153]:
+      - generic [ref=e156]:
+        - 'heading "Apply font-variation-settings to the suggestion widget (fix #199954) #200000" [level=1] [ref=e158]':
+          - generic [ref=e159]:
+            - text: Apply
+            - code [ref=e160]: font-variation-settings
+            - text: "to the suggestion widget (fix #199954)"
+          - generic [ref=e162]: "#200000"
+        - generic [ref=e165]:
+          - generic [ref=e167]:
+            - img "Pull request" [ref=e168]
+            - text: Merged
+          - generic [ref=e171]:
+            - link "jrieken" [ref=e172] [cursor=pointer]:
+              - /url: /jrieken
+            - text: merged 2 commits into
+            - generic [ref=e173]:
+              - link "microsoft:main" [ref=e174] [cursor=pointer]:
+                - /url: /microsoft/vscode/tree/main
+              - generic [ref=e175]: from
+              - generic [ref=e176]:
+                - link "chengluyu:fix/font-variation-settings-on-suggestions" [ref=e177] [cursor=pointer]:
+                  - /url: /chengluyu/vscode/tree/fix/font-variation-settings-on-suggestions
+                - button "Copy head branch name to clipboard" [ref=e178] [cursor=pointer]:
+                  - img [ref=e179]
+            - generic "Jun 6, 2025, 8:51 AM GMT+2" [ref=e182]: Jun 6, 2025on Jun 6, 2025
+        - generic [ref=e183]:
+          - generic [ref=e185]:
+            - generic [ref=e186]: "+2"
+            - generic [ref=e187]: "Lines changed: 2 additions & 0 deletions"
+          - navigation "Pull request navigation tabs" [ref=e196]:
+            - tablist [ref=e197]:
+              - tab "Conversation (5)" [selected] [ref=e198] [cursor=pointer]:
+                - img [ref=e199]
+                - text: Conversation
+                - generic [ref=e201]: "5"
+                - generic [ref=e202]: (5)
+              - tab "Commits (2)" [ref=e203] [cursor=pointer]:
+                - img [ref=e204]
+                - text: Commits
+                - generic [ref=e206]: "2"
+                - generic [ref=e207]: (2)
+              - tab "Checks (6)" [ref=e208] [cursor=pointer]:
+                - img [ref=e209]
+                - text: Checks
+                - generic [ref=e211]: "6"
+                - generic [ref=e212]: (6)
+              - tab "Files changed (1)" [ref=e213] [cursor=pointer]:
+                - img [ref=e214]
+                - text: Files changed
+                - generic [ref=e216]: "1"
+                - generic [ref=e217]: (1)
+      - generic [ref=e222]:
+        - generic [ref=e224]:
+          - heading "Conversation" [level=2] [ref=e225]
+          - generic [ref=e226]:
+            - generic [ref=e227]:
+              - generic [ref=e229]:
+                - link "@chengluyu" [ref=e230] [cursor=pointer]:
+                  - /url: /chengluyu
+                  - img "@chengluyu" [ref=e231]
+                - generic [ref=e233]:
+                  - generic [ref=e234]:
+                    - generic [ref=e235]:
+                      - group [ref=e237]:
+                        - button "Show options" [ref=e238] [cursor=pointer]:
+                          - img "Show options" [ref=e241]
+                      - generic "This user has previously committed to the vscode repository." [ref=e244]:
+                        - generic [ref=e245]: Contributor
+                    - heading "chengluyu commented Dec 5, 2023on Dec 5, 2023" [level=3] [ref=e246]:
+                      - generic [ref=e247]:
+                        - strong [ref=e248]:
+                          - link "chengluyu" [ref=e249] [cursor=pointer]:
+                            - /url: /chengluyu
+                        - text: commented
+                        - link "Dec 5, 2023on Dec 5, 2023" [ref=e250] [cursor=pointer]:
+                          - /url: "#issue-2025089863"
+                  - generic [ref=e254]:
+                    - paragraph [ref=e255]:
+                      - text: Hello, this is a very small change, which only modifies one line, to solve the issue raised in
+                      - link "#199954" [ref=e256] [cursor=pointer]:
+                        - /url: https://github.com/microsoft/vscode/issues/199954
+                      - text: .
+                    - paragraph [ref=e257]:
+                      - text: The background of this PR is that, in my previous
+                      - link "#153968" [ref=e258] [cursor=pointer]:
+                        - /url: https://github.com/microsoft/vscode/pull/153968
+                      - text: ", I added a new setting to support variable fonts. However, I recently found that the related setting has not been applied to the code completion list (or"
+                      - emphasis [ref=e259]: suggestion widget
+                      - text: ", according to the source code). I have located the bug and raised this PR."
+                  - generic [ref=e263]:
+                    - 'button "thumbs up (1): chengluyu, 01:13AM on December 05, 2023" [disabled] [ref=e264]':
+                      - img "+1" [ref=e266]
+                      - generic [ref=e267]: "1"
+                    - 'button "rocket (1): chengluyu, 01:13AM on December 05, 2023" [disabled] [ref=e268]':
+                      - img "rocket" [ref=e270]
+                      - generic [ref=e271]: "1"
+                    - 'button "eyes (1): chengluyu, 01:13AM on December 05, 2023" [disabled] [ref=e272]':
+                      - img "eyes" [ref=e274]
+                      - generic [ref=e275]: "1"
+              - generic [ref=e276]:
+                - generic [ref=e280]:
+                  - img [ref=e282]
+                  - generic [ref=e287]:
+                    - link "@chengluyu" [ref=e290] [cursor=pointer]:
+                      - /url: /chengluyu
+                      - img "@chengluyu" [ref=e291]
+                    - code [ref=e293]:
+                      - link "Apply font-variation-settings to suggestWidgetRenderer" [ref=e294] [cursor=pointer]:
+                        - /url: /microsoft/vscode/pull/200000/commits/e43413a838c1b470fc234d8361a09501c9d6c3a6
+                        - text: Apply
+                        - code [ref=e295]: font-variation-settings
+                        - text: to
+                        - code [ref=e296]: suggestWidgetRenderer
+                    - code [ref=e306]:
+                      - link "e43413a" [ref=e307] [cursor=pointer]:
+                        - /url: /microsoft/vscode/pull/200000/commits/e43413a838c1b470fc234d8361a09501c9d6c3a6
+                - generic [ref=e309]:
+                  - img [ref=e311]
+                  - generic [ref=e313]:
+                    - link "@vscodenpa" [ref=e314] [cursor=pointer]:
+                      - /url: /vscodenpa
+                      - img "@vscodenpa" [ref=e315]
+                    - link "vscodenpa" [ref=e316] [cursor=pointer]:
+                      - /url: /vscodenpa
+                    - text: assigned
+                    - link "jrieken" [ref=e317] [cursor=pointer]:
+                      - /url: /jrieken
+                    - link "Dec 5, 2023on Dec 5, 2023" [ref=e318] [cursor=pointer]:
+                      - /url: "#event-11146682320"
+                - generic [ref=e320]:
+                  - link "@eleanorjboyd" [ref=e322] [cursor=pointer]:
+                    - /url: /eleanorjboyd
+                    - img "@eleanorjboyd" [ref=e323]
+                  - generic [ref=e325]:
+                    - generic [ref=e326]:
+                      - generic [ref=e327]:
+                        - group [ref=e329]:
+                          - button "Show options" [ref=e330] [cursor=pointer]:
+                            - img "Show options" [ref=e333]
+                        - generic "This user is a member of the microsoft organization." [ref=e336]:
+                          - generic [ref=e337]: Member
+                      - heading "eleanorjboyd commented Dec 5, 2023on Dec 5, 2023" [level=3] [ref=e338]:
+                        - generic [ref=e339]:
+                          - strong [ref=e340]:
+                            - link "eleanorjboyd" [ref=e341] [cursor=pointer]:
+                              - /url: /eleanorjboyd
+                          - text: commented
+                          - link "Dec 5, 2023on Dec 5, 2023" [ref=e342] [cursor=pointer]:
+                            - /url: "#issuecomment-1839929201"
+                    - generic [ref=e343]:
+                      - table [ref=e345]:
+                        - rowgroup [ref=e346]:
+                          - row "Congrats! You are the 200,000 issue on the VS Code repo! 🎉" [ref=e347]:
+                            - cell "Congrats! You are the 200,000 issue on the VS Code repo! 🎉" [ref=e348]:
+                              - paragraph [ref=e349]: Congrats! You are the 200,000 issue on the VS Code repo! 🎉
+                      - button "react with laugh" [disabled] [ref=e355]:
+                        - img "smile" [ref=e357]
+                        - generic [ref=e358]: "8"
+                - generic [ref=e359]:
+                  - generic [ref=e360]:
+                    - img [ref=e362]
+                    - generic [ref=e364]:
+                      - link "@chengluyu" [ref=e365] [cursor=pointer]:
+                        - /url: /chengluyu
+                        - img "@chengluyu" [ref=e366]
+                      - link "chengluyu" [ref=e367] [cursor=pointer]:
+                        - /url: /chengluyu
+                      - text: changed the title
+                      - deletion [ref=e368]:
+                        - text: Apply
+                        - code [ref=e369]: font-variation-settings
+                        - text: to the suggestion widget
+                      - insertion [ref=e370]:
+                        - text: Apply
+                        - code [ref=e371]: font-variation-settings
+                        - text: "to the suggestion widget (fixes #199954)"
+                      - link "Dec 5, 2023on Dec 5, 2023" [ref=e372] [cursor=pointer]:
+                        - /url: "#event-11148906189"
+                  - generic [ref=e373]:
+                    - img [ref=e375]
+                    - generic [ref=e377]:
+                      - link "@chengluyu" [ref=e378] [cursor=pointer]:
+                        - /url: /chengluyu
+                        - img "@chengluyu" [ref=e379]
+                      - link "chengluyu" [ref=e380] [cursor=pointer]:
+                        - /url: /chengluyu
+                      - text: changed the title
+                      - deletion [ref=e381]:
+                        - text: Apply
+                        - code [ref=e382]: font-variation-settings
+                        - text: "to the suggestion widget (fixes #199954)"
+                      - insertion [ref=e383]:
+                        - text: Apply
+                        - code [ref=e384]: font-variation-settings
+                        - text: "to the suggestion widget (fix #199954)"
+                      - link "Dec 5, 2023on Dec 5, 2023" [ref=e385] [cursor=pointer]:
+                        - /url: "#event-11150952027"
+                - generic [ref=e387]:
+                  - link "@Nirmal4G" [ref=e389] [cursor=pointer]:
+                    - /url: /Nirmal4G
+                    - img "@Nirmal4G" [ref=e390]
+                  - generic [ref=e392]:
+                    - generic [ref=e393]:
+                      - group [ref=e396]:
+                        - button "Show options" [ref=e397] [cursor=pointer]:
+                          - img "Show options" [ref=e400]
+                      - heading "Nirmal4G commented Jul 8, 2024on Jul 8, 2024" [level=3] [ref=e402]:
+                        - generic [ref=e403]:
+                          - strong [ref=e404]:
+                            - link "Nirmal4G" [ref=e405] [cursor=pointer]:
+                              - /url: /Nirmal4G
+                          - text: commented
+                          - link "Jul 8, 2024on Jul 8, 2024" [ref=e406] [cursor=pointer]:
+                            - /url: "#issuecomment-2212942231"
+                    - generic [ref=e407]:
+                      - table [ref=e409]:
+                        - rowgroup [ref=e410]:
+                          - row "I'm hitting this. It's such a simple fix. Any reason, this is not merged yet?" [ref=e411]:
+                            - cell "I'm hitting this. It's such a simple fix. Any reason, this is not merged yet?" [ref=e412]:
+                              - paragraph [ref=e413]: I'm hitting this. It's such a simple fix. Any reason, this is not merged yet?
+                      - button "react with thumbs up" [disabled] [ref=e419]:
+                        - img "+1" [ref=e421]
+                        - generic [ref=e422]: "1"
+                - generic [ref=e426]:
+                  - link "Nirmal4G" [ref=e427] [cursor=pointer]:
+                    - /url: /Nirmal4G
+                    - img "Nirmal4G" [ref=e428]
+                  - generic "Only reviews by reviewers with write access count toward mergeability" [ref=e429]:
+                    - img [ref=e430]
+                  - generic [ref=e432]:
+                    - generic [ref=e433]:
+                      - strong [ref=e434]:
+                        - link "Nirmal4G" [ref=e435] [cursor=pointer]:
+                          - /url: /Nirmal4G
+                      - text: approved these changes
+                      - link "Jul 8, 2024on Jul 8, 2024" [ref=e437] [cursor=pointer]:
+                        - /url: "#pullrequestreview-2162172342"
+                    - link "View reviewed changes" [ref=e439] [cursor=pointer]:
+                      - /url: /microsoft/vscode/pull/200000/files/9ed10330f92962e92c6b121fd0cf6588268e89a8
+                      - generic [ref=e441]: View reviewed changes
+                - generic [ref=e445]:
+                  - link "Nirmal4G" [ref=e446] [cursor=pointer]:
+                    - /url: /Nirmal4G
+                    - img "Nirmal4G" [ref=e447]
+                  - generic "Only reviews by reviewers with write access count toward mergeability" [ref=e448]:
+                    - img [ref=e449]
+                  - generic [ref=e451]:
+                    - generic [ref=e452]:
+                      - strong [ref=e453]:
+                        - link "Nirmal4G" [ref=e454] [cursor=pointer]:
+                          - /url: /Nirmal4G
+                      - text: approved these changes
+                      - link "Jul 8, 2024on Jul 8, 2024" [ref=e456] [cursor=pointer]:
+                        - /url: "#pullrequestreview-2162172841"
+                    - link "View reviewed changes" [ref=e458] [cursor=pointer]:
+                      - /url: /microsoft/vscode/pull/200000/files/9ed10330f92962e92c6b121fd0cf6588268e89a8
+                      - generic [ref=e460]: View reviewed changes
+                - generic [ref=e463]:
+                  - generic [ref=e464]:
+                    - link "Sahilcrossml" [ref=e465] [cursor=pointer]:
+                      - /url: /Sahilcrossml
+                      - img "Sahilcrossml" [ref=e466]
+                    - generic "Only reviews by reviewers with write access count toward mergeability" [ref=e467]:
+                      - img [ref=e468]
+                    - generic [ref=e470]:
+                      - generic [ref=e471]:
+                        - strong [ref=e472]:
+                          - link "Sahilcrossml" [ref=e473] [cursor=pointer]:
+                            - /url: /Sahilcrossml
+                        - text: reviewed
+                        - link "Jun 6, 2025on Jun 6, 2025" [ref=e475] [cursor=pointer]:
+                          - /url: "#pullrequestreview-2903908986"
+                      - link "View reviewed changes" [ref=e477] [cursor=pointer]:
+                        - /url: /microsoft/vscode/pull/200000/files/e43413a838c1b470fc234d8361a09501c9d6c3a6
+                        - generic [ref=e479]: View reviewed changes
+                  - generic [ref=e482]:
+                    - generic [ref=e483]:
+                      - group [ref=e486]:
+                        - button "Show options" [ref=e487] [cursor=pointer]:
+                          - img "Show options" [ref=e490]
+                      - heading "Sahilcrossml left a comment" [level=3] [ref=e492]:
+                        - generic [ref=e493]:
+                          - strong [ref=e494]:
+                            - link "Sahilcrossml" [ref=e495] [cursor=pointer]:
+                              - /url: /Sahilcrossml
+                          - text: left a comment
+                    - generic [ref=e498]:
+                      - heading "🎯 Overall Assessment" [level=2] [ref=e499]
+                      - list [ref=e500]:
+                        - listitem [ref=e501]:
+                          - strong [ref=e502]: Recommendation
+                          - text: ": APPROVE"
+                        - listitem [ref=e503]:
+                          - strong [ref=e504]: Summary
+                          - text: ": This PR introduces a minor change to apply"
+                          - code [ref=e505]: font-variation-settings
+                          - text: to the suggestion widget, addressing issue
+                          - link "#199954" [ref=e506] [cursor=pointer]:
+                            - /url: https://github.com/microsoft/vscode/issues/199954
+                          - text: . The change enhances the rendering of the suggestion widget by utilizing variable font settings, which were previously not applied.
+                      - heading "📋 Code Changes Analysis" [level=2] [ref=e507]
+                      - heading "📁 src/vs/editor/contrib/suggest/browser/suggestWidgetRenderer.ts" [level=3] [ref=e508]
+                      - paragraph [ref=e509]:
+                        - strong [ref=e510]: Changes
+                        - text: ": 2 additions, 0 deletions"
+                      - paragraph [ref=e511]:
+                        - strong [ref=e512]: Old vs New Code Comparison
+                        - text: ":"
+                      - generic [ref=e513]:
+                        - generic [ref=e514]: // Old Code const fontFeatureSettings = fontInfo.fontFeatureSettings; // New Code const fontVariationSettings = fontInfo.fontVariationSettings;
+                        - button "Copy code to clipboard" [ref=e516] [cursor=pointer]:
+                          - img [ref=e517]
+                      - generic [ref=e520]:
+                        - generic [ref=e521]: // Old Code main.style.fontFeatureSettings = fontFeatureSettings; // New Code main.style.fontVariationSettings = fontVariationSettings;
+                        - button "Copy code to clipboard" [ref=e523] [cursor=pointer]:
+                          - img [ref=e524]
+                      - paragraph [ref=e527]:
+                        - strong [ref=e528]: Specific Issues Found
+                        - text: ":"
+                      - list [ref=e529]:
+                        - listitem [ref=e530]:
+                          - strong [ref=e531]: Line 131
+                          - text: ": The addition of"
+                          - code [ref=e532]: const fontVariationSettings = fontInfo.fontVariationSettings;
+                          - text: is appropriate and correctly retrieves the variable font settings.
+                        - listitem [ref=e533]:
+                          - strong [ref=e534]: Line 145
+                          - text: ": The line"
+                          - code [ref=e535]: main.style.fontVariationSettings = fontVariationSettings;
+                          - text: correctly applies the variable font settings to the suggestion widget.
+                      - paragraph [ref=e536]:
+                        - strong [ref=e537]: Suggested Fixes
+                        - text: ": No fixes are necessary as the changes are correct and align with the intended functionality."
+                      - heading "🔍 Detailed Findings" [level=2] [ref=e538]
+                      - heading "Critical Issues (if any)" [level=3] [ref=e539]
+                      - list [ref=e540]:
+                        - listitem [ref=e541]: None identified.
+                      - heading "Moderate Issues (if any)" [level=3] [ref=e542]
+                      - list [ref=e543]:
+                        - listitem [ref=e544]: None identified.
+                      - heading "Minor Suggestions (if any)" [level=3] [ref=e545]
+                      - list [ref=e546]:
+                        - listitem [ref=e547]:
+                          - text: Consider adding a comment above the new lines to explain the purpose of
+                          - code [ref=e548]: fontVariationSettings
+                          - text: "for future maintainers. For example:"
+                      - generic [ref=e549]:
+                        - generic [ref=e550]: // Retrieve and apply variable font settings for better typography support const fontVariationSettings = fontInfo.fontVariationSettings; main.style.fontVariationSettings = fontVariationSettings;
+                        - button "Copy code to clipboard" [ref=e552] [cursor=pointer]:
+                          - img [ref=e553]
+                      - heading "✅ Positive Aspects" [level=2] [ref=e556]
+                      - list [ref=e557]:
+                        - listitem [ref=e558]:
+                          - text: The change is straightforward and effectively addresses the issue raised in
+                          - link "#199954" [ref=e559] [cursor=pointer]:
+                            - /url: https://github.com/microsoft/vscode/issues/199954
+                          - text: .
+                        - listitem [ref=e560]: The code is clean and follows existing conventions.
+                        - listitem [ref=e561]: The addition of variable font settings enhances the visual quality of the suggestion widget.
+                      - heading "🚀 Recommendations" [level=2] [ref=e562]
+                      - list [ref=e563]:
+                        - listitem [ref=e564]: Ensure that the changes are tested across different variable fonts to confirm that the settings are applied correctly and that there are no regressions in the appearance of the suggestion widget.
+                        - listitem [ref=e565]: Consider documenting the new setting in the project’s documentation to inform users about the support for variable fonts in the suggestion widget.
+                - generic [ref=e567]:
+                  - img [ref=e569]
+                  - generic [ref=e571]:
+                    - link "@jrieken" [ref=e572] [cursor=pointer]:
+                      - /url: /jrieken
+                      - img "@jrieken" [ref=e573]
+                    - link "jrieken" [ref=e574] [cursor=pointer]:
+                      - /url: /jrieken
+                    - text: added this to the
+                    - link "June 2025" [ref=e575] [cursor=pointer]:
+                      - /url: /microsoft/vscode/milestone/308
+                    - text: milestone
+                    - link "Jun 6, 2025on Jun 6, 2025" [ref=e576] [cursor=pointer]:
+                      - /url: "#event-18017194774"
+                - generic [ref=e580]:
+                  - img [ref=e582]
+                  - generic [ref=e587]:
+                    - link "@jrieken" [ref=e590] [cursor=pointer]:
+                      - /url: /jrieken
+                      - img "@jrieken" [ref=e591]
+                    - code [ref=e593]:
+                      - link "Merge branch 'main' into fix/font-variation-settings-on-suggestions" [ref=e594] [cursor=pointer]:
+                        - /url: /microsoft/vscode/pull/200000/commits/9ed10330f92962e92c6b121fd0cf6588268e89a8
+                    - code [ref=e604]:
+                      - link "9ed1033" [ref=e605] [cursor=pointer]:
+                        - /url: /microsoft/vscode/pull/200000/commits/9ed10330f92962e92c6b121fd0cf6588268e89a8
+                - generic [ref=e608]:
+                  - generic [ref=e609]:
+                    - link "jrieken" [ref=e610] [cursor=pointer]:
+                      - /url: /jrieken
+                      - img "jrieken" [ref=e611]
+                    - img [ref=e613]
+                    - generic [ref=e615]:
+                      - generic [ref=e616]:
+                        - strong [ref=e617]:
+                          - link "jrieken" [ref=e618] [cursor=pointer]:
+                            - /url: /jrieken
+                        - text: approved these changes
+                        - link "Jun 6, 2025on Jun 6, 2025" [ref=e620] [cursor=pointer]:
+                          - /url: "#pullrequestreview-2903934527"
+                      - link "View reviewed changes" [ref=e622] [cursor=pointer]:
+                        - /url: /microsoft/vscode/pull/200000/files/9ed10330f92962e92c6b121fd0cf6588268e89a8
+                        - generic [ref=e624]: View reviewed changes
+                  - generic [ref=e627]:
+                    - generic [ref=e628]:
+                      - generic [ref=e629]:
+                        - group [ref=e631]:
+                          - button "Show options" [ref=e632] [cursor=pointer]:
+                            - img "Show options" [ref=e635]
+                        - generic "This user is a member of the microsoft organization." [ref=e638]:
+                          - generic [ref=e639]: Member
+                      - heading "jrieken left a comment" [level=3] [ref=e640]:
+                        - generic [ref=e641]:
+                          - strong [ref=e642]:
+                            - link "jrieken" [ref=e643] [cursor=pointer]:
+                              - /url: /jrieken
+                          - text: left a comment
+                    - paragraph [ref=e647]:
+                      - text: lgtm, tho I also wonder if suggest should just use
+                      - code [ref=e648]: ICodeEditor#applyFontInfo
+                      - text: so that all font tweaks are applied by default
+                    - 'button "hooray (1): jrieken, 06:34AM on June 06, 2025" [disabled] [ref=e653]':
+                      - img "tada" [ref=e655]
+                      - generic [ref=e656]: "1"
+                - generic [ref=e660]:
+                  - link "lszomoru" [ref=e661] [cursor=pointer]:
+                    - /url: /lszomoru
+                    - img "lszomoru" [ref=e662]
+                  - img [ref=e664]
+                  - generic [ref=e666]:
+                    - generic [ref=e667]:
+                      - strong [ref=e668]:
+                        - link "lszomoru" [ref=e669] [cursor=pointer]:
+                          - /url: /lszomoru
+                      - text: approved these changes
+                      - link "Jun 6, 2025on Jun 6, 2025" [ref=e671] [cursor=pointer]:
+                        - /url: "#pullrequestreview-2903937954"
+                    - link "View reviewed changes" [ref=e673] [cursor=pointer]:
+                      - /url: /microsoft/vscode/pull/200000/files/9ed10330f92962e92c6b121fd0cf6588268e89a8
+                      - generic [ref=e675]: View reviewed changes
+                - generic [ref=e677]:
+                  - img [ref=e679]
+                  - generic [ref=e681]:
+                    - button "View details" [ref=e682] [cursor=pointer]
+                    - link "@jrieken" [ref=e683] [cursor=pointer]:
+                      - /url: /jrieken
+                      - img "@jrieken" [ref=e684]
+                    - link "jrieken" [ref=e685] [cursor=pointer]:
+                      - /url: /jrieken
+                    - text: merged commit
+                    - link "b3bc713" [ref=e686] [cursor=pointer]:
+                      - /url: /microsoft/vscode/commit/b3bc71355043aca29b7c5f18f10dcac30818da72
+                      - code [ref=e687]: b3bc713
+                    - text: into
+                    - generic [ref=e689]: microsoft:main
+                    - link "Jun 6, 2025on Jun 6, 2025" [ref=e690] [cursor=pointer]:
+                      - /url: https://github.com/microsoft/vscode/pull/200000#event-18017500547
+                    - generic [ref=e691]: 7 checks passed
+                - generic [ref=e694]:
+                  - link "@siwenwang0803" [ref=e696] [cursor=pointer]:
+                    - /url: /siwenwang0803
+                    - img "@siwenwang0803" [ref=e697]
+                  - generic [ref=e699]:
+                    - generic [ref=e700]:
+                      - group [ref=e703]:
+                        - button "Show options" [ref=e704] [cursor=pointer]:
+                          - img "Show options" [ref=e707]
+                      - heading "siwenwang0803 commented Jun 29, 2025on Jun 29, 2025" [level=3] [ref=e709]:
+                        - generic [ref=e710]:
+                          - strong [ref=e711]:
+                            - link "siwenwang0803" [ref=e712] [cursor=pointer]:
+                              - /url: /siwenwang0803
+                          - text: commented
+                          - link "Jun 29, 2025on Jun 29, 2025" [ref=e713] [cursor=pointer]:
+                            - /url: "#issuecomment-3016268476"
+                    - table [ref=e716]:
+                      - rowgroup [ref=e717]:
+                        - 'row "🤖 Secure-PR-Guard AI Code Review Analysis completed at: 2025-06-28 20:38:55 UTC PR: #200000 🟡 Risk Assessment: MEDIUM Total Issues Found: 2 Security Issues: 0 🟢 Low Priority Issues Line 135 (length): Line exceeds 120 characters with the addition of ''const fontVariationSettings = fontInfo.fontVariationSettings;''. Line 149 (style): Missing semicolon at the end of the statement ''main.style.fontVariationSettings = fontVariationSettings''. 🔗 Powered by Secure-PR-Guard | 🛡️ OWASP LLM Top 10 Compliant This is an automated review. Please verify critical security findings manually." [ref=e718]':
+                          - 'cell "🤖 Secure-PR-Guard AI Code Review Analysis completed at: 2025-06-28 20:38:55 UTC PR: #200000 🟡 Risk Assessment: MEDIUM Total Issues Found: 2 Security Issues: 0 🟢 Low Priority Issues Line 135 (length): Line exceeds 120 characters with the addition of ''const fontVariationSettings = fontInfo.fontVariationSettings;''. Line 149 (style): Missing semicolon at the end of the statement ''main.style.fontVariationSettings = fontVariationSettings''. 🔗 Powered by Secure-PR-Guard | 🛡️ OWASP LLM Top 10 Compliant This is an automated review. Please verify critical security findings manually." [ref=e719]':
+                            - heading "🤖 Secure-PR-Guard AI Code Review" [level=2] [ref=e720]
+                            - paragraph [ref=e721]:
+                              - strong [ref=e722]: "Analysis completed at:"
+                              - text: 2025-06-28 20:38:55 UTC
+                              - strong [ref=e723]: "PR:"
+                              - link "#200000" [ref=e724] [cursor=pointer]:
+                                - /url: https://github.com/microsoft/vscode/pull/200000
+                            - 'heading "🟡 Risk Assessment: MEDIUM" [level=3] [ref=e725]':
+                              - text: "🟡 Risk Assessment:"
+                              - strong [ref=e726]: MEDIUM
+                            - list [ref=e727]:
+                              - listitem [ref=e728]:
+                                - strong [ref=e729]: "Total Issues Found:"
+                                - text: "2"
+                              - listitem [ref=e730]:
+                                - strong [ref=e731]: "Security Issues:"
+                                - text: "0"
+                            - heading "🟢 Low Priority Issues" [level=3] [ref=e732]
+                            - list [ref=e733]:
+                              - listitem [ref=e734]:
+                                - strong [ref=e735]: Line 135
+                                - text: "(length): Line exceeds 120 characters with the addition of 'const fontVariationSettings = fontInfo.fontVariationSettings;'."
+                              - listitem [ref=e736]:
+                                - strong [ref=e737]: Line 149
+                                - text: "(style): Missing semicolon at the end of the statement 'main.style.fontVariationSettings = fontVariationSettings'."
+                            - separator [ref=e738]
+                            - paragraph [ref=e739]:
+                              - text: 🔗
+                              - strong [ref=e740]: Powered by Secure-PR-Guard
+                              - text: "| 🛡️"
+                              - strong [ref=e741]: OWASP LLM Top 10 Compliant
+                            - paragraph [ref=e742]:
+                              - emphasis [ref=e743]: This is an automated review. Please verify critical security findings manually.
+                - generic [ref=e745]:
+                  - img [ref=e747]
+                  - generic [ref=e749]:
+                    - link "@vs-code-engineering" [ref=e750] [cursor=pointer]:
+                      - /url: /apps/vs-code-engineering
+                      - img "@vs-code-engineering" [ref=e751]
+                    - link "vs-code-engineering" [ref=e752] [cursor=pointer]:
+                      - /url: /apps/vs-code-engineering
+                    - generic [ref=e753]: Bot
+                    - text: locked and limited conversation to collaborators
+                    - link "Jul 22, 2025on Jul 23, 2025" [ref=e754] [cursor=pointer]:
+                      - /url: "#event-18762483417"
+            - generic [ref=e758]:
+              - link "Sign up for free" [ref=e759] [cursor=pointer]:
+                - /url: /join?source=comment-repo
+              - strong [ref=e760]: to subscribe to this conversation on GitHub
+              - text: . Already have an account?
+              - link "Sign in" [ref=e761] [cursor=pointer]:
+                - /url: /login?return_to=https%3A%2F%2Fgithub.com%2Fmicrosoft%2Fvscode%2Fpull%2F200000%2F
+              - text: .
+        - generic [ref=e765]:
+          - form "Select reviewers" [ref=e767]:
+            - heading "Reviewers" [level=3] [ref=e768]
+            - generic [ref=e769]:
+              - paragraph [ref=e770]:
+                - generic [ref=e771]:
+                  - link "@jrieken" [ref=e772] [cursor=pointer]:
+                    - /url: /jrieken
+                    - img "@jrieken" [ref=e773]
+                  - link "jrieken" [ref=e774] [cursor=pointer]:
+                    - /url: /jrieken
+                - link "jrieken approved these changes" [ref=e775] [cursor=pointer]:
+                  - /url: /microsoft/vscode/pull/200000/files/9ed10330f92962e92c6b121fd0cf6588268e89a8
+                  - img [ref=e777]
+              - paragraph [ref=e779]:
+                - generic [ref=e780]:
+                  - link "@lszomoru" [ref=e781] [cursor=pointer]:
+                    - /url: /lszomoru
+                    - img "@lszomoru" [ref=e782]
+                  - link "lszomoru" [ref=e783] [cursor=pointer]:
+                    - /url: /lszomoru
+                - link "lszomoru approved these changes" [ref=e784] [cursor=pointer]:
+                  - /url: /microsoft/vscode/pull/200000/files/9ed10330f92962e92c6b121fd0cf6588268e89a8
+                  - img [ref=e786]
+              - group [ref=e788]:
+                - generic "+2 more reviewers" [ref=e789] [cursor=pointer]:
+                  - text: +2 more reviewers
+                  - img [ref=e791]
+                - paragraph [ref=e794]:
+                  - generic [ref=e795]:
+                    - link "@Sahilcrossml" [ref=e796] [cursor=pointer]:
+                      - /url: /Sahilcrossml
+                      - img "@Sahilcrossml" [ref=e797]
+                    - link "Sahilcrossml" [ref=e798] [cursor=pointer]:
+                      - /url: /Sahilcrossml
+                  - link "Sahilcrossml left review comments" [ref=e799] [cursor=pointer]:
+                    - /url: /microsoft/vscode/pull/200000/files/e43413a838c1b470fc234d8361a09501c9d6c3a6
+                    - img [ref=e801]
+                - paragraph [ref=e804]:
+                  - generic [ref=e805]:
+                    - link "@Nirmal4G" [ref=e806] [cursor=pointer]:
+                      - /url: /Nirmal4G
+                      - img "@Nirmal4G" [ref=e807]
+                    - link "Nirmal4G" [ref=e808] [cursor=pointer]:
+                      - /url: /Nirmal4G
+                  - link "Nirmal4G approved these changes" [ref=e809] [cursor=pointer]:
+                    - /url: /microsoft/vscode/pull/200000/files/9ed10330f92962e92c6b121fd0cf6588268e89a8
+                    - img [ref=e811]
+          - form "Select assignees" [ref=e814]:
+            - heading "Assignees" [level=3] [ref=e815]
+            - paragraph [ref=e817]:
+              - generic [ref=e818]:
+                - link "@jrieken" [ref=e819] [cursor=pointer]:
+                  - /url: /jrieken
+                  - img "@jrieken" [ref=e820]
+                - link "jrieken" [ref=e821] [cursor=pointer]:
+                  - /url: /jrieken
+          - generic [ref=e822]:
+            - heading "Labels" [level=3] [ref=e823]
+            - generic [ref=e824]: None yet
+          - form "Select projects" [ref=e826]:
+            - heading "Projects" [level=3] [ref=e827]
+            - text: None yet
+          - form "Select milestones" [ref=e829]:
+            - heading "Milestone" [level=3] [ref=e830]
+            - link "June 2025" [ref=e833] [cursor=pointer]:
+              - /url: /microsoft/vscode/milestone/308
+              - strong [ref=e834]: June 2025
+          - form "Link issues" [ref=e840]:
+            - heading "Development" [level=3] [ref=e841]
+            - paragraph [ref=e842]: Successfully merging this pull request may close these issues.
+            - paragraph [ref=e844]: None yet
+          - generic [ref=e846]:
+            - heading "7 participants" [level=3] [ref=e847]
+            - generic [ref=e848]:
+              - link "@chengluyu" [ref=e849] [cursor=pointer]:
+                - /url: /chengluyu
+                - img "@chengluyu" [ref=e850]
+              - link "@eleanorjboyd" [ref=e851] [cursor=pointer]:
+                - /url: /eleanorjboyd
+                - img "@eleanorjboyd" [ref=e852]
+              - link "@Nirmal4G" [ref=e853] [cursor=pointer]:
+                - /url: /Nirmal4G
+                - img "@Nirmal4G" [ref=e854]
+              - link "@siwenwang0803" [ref=e855] [cursor=pointer]:
+                - /url: /siwenwang0803
+                - img "@siwenwang0803" [ref=e856]
+              - link "@jrieken" [ref=e857] [cursor=pointer]:
+                - /url: /jrieken
+                - img "@jrieken" [ref=e858]
+              - link "@lszomoru" [ref=e859] [cursor=pointer]:
+                - /url: /lszomoru
+                - img "@lszomoru" [ref=e860]
+              - link "@Sahilcrossml" [ref=e861] [cursor=pointer]:
+                - /url: /Sahilcrossml
+                - img "@Sahilcrossml" [ref=e862]
+  - contentinfo [ref=e863]:
+    - heading "Footer" [level=2] [ref=e864]
+    - generic [ref=e865]:
+      - generic [ref=e866]:
+        - link "GitHub Homepage" [ref=e867] [cursor=pointer]:
+          - /url: https://github.com
+          - img [ref=e868]
+        - generic [ref=e870]: © 2026 GitHub, Inc.
+      - navigation "Footer" [ref=e871]:
+        - heading "Footer navigation" [level=3] [ref=e872]
+        - list "Footer navigation" [ref=e873]:
+          - listitem [ref=e874]:
+            - link "Terms" [ref=e875] [cursor=pointer]:
+              - /url: https://docs.github.com/site-policy/github-terms/github-terms-of-service
+          - listitem [ref=e876]:
+            - link "Privacy" [ref=e877] [cursor=pointer]:
+              - /url: https://docs.github.com/site-policy/privacy-policies/github-privacy-statement
+          - listitem [ref=e878]:
+            - link "Security" [ref=e879] [cursor=pointer]:
+              - /url: https://github.com/security
+          - listitem [ref=e880]:
+            - link "Status" [ref=e881] [cursor=pointer]:
+              - /url: https://www.githubstatus.com/
+          - listitem [ref=e882]:
+            - link "Community" [ref=e883] [cursor=pointer]:
+              - /url: https://github.community/
+          - listitem [ref=e884]:
+            - link "Docs" [ref=e885] [cursor=pointer]:
+              - /url: https://docs.github.com/
+          - listitem [ref=e886]:
+            - link "Contact" [ref=e887] [cursor=pointer]:
+              - /url: https://support.github.com?tags=dotcom-footer
+          - listitem [ref=e888]:
+            - button "Manage cookies" [ref=e890] [cursor=pointer]
+          - listitem [ref=e891]:
+            - button "Do not share my personal information" [ref=e893] [cursor=pointer]

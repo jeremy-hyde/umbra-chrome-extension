@@ -1,0 +1,488 @@
+- generic [ref=e2]:
+  - generic:
+    - generic:
+      - tooltip "This user has previously committed to the anthropic-sdk-python repository."
+    - generic:
+      - tooltip "This user has previously committed to the anthropic-sdk-python repository."
+  - generic [ref=e3]:
+    - link "Skip to content" [ref=e4] [cursor=pointer]:
+      - /url: "#start-of-content"
+    - banner [ref=e6]:
+      - heading "Navigation Menu" [level=2] [ref=e7]
+      - generic [ref=e8]:
+        - link "Homepage" [ref=e10] [cursor=pointer]:
+          - /url: /
+          - img [ref=e11]
+        - generic [ref=e13]:
+          - navigation "Global" [ref=e16]:
+            - list [ref=e17]:
+              - listitem [ref=e18]:
+                - button "Platform" [ref=e20] [cursor=pointer]:
+                  - text: Platform
+                  - img [ref=e21]
+              - listitem [ref=e23]:
+                - button "Solutions" [ref=e25] [cursor=pointer]:
+                  - text: Solutions
+                  - img [ref=e26]
+              - listitem [ref=e28]:
+                - button "Resources" [ref=e30] [cursor=pointer]:
+                  - text: Resources
+                  - img [ref=e31]
+              - listitem [ref=e33]:
+                - button "Open Source" [ref=e35] [cursor=pointer]:
+                  - text: Open Source
+                  - img [ref=e36]
+              - listitem [ref=e38]:
+                - button "Enterprise" [ref=e40] [cursor=pointer]:
+                  - text: Enterprise
+                  - img [ref=e41]
+              - listitem [ref=e43]:
+                - link "Pricing" [ref=e44] [cursor=pointer]:
+                  - /url: https://github.com/pricing
+                  - generic [ref=e45]: Pricing
+          - generic [ref=e46]:
+            - button "Search or jump to…" [ref=e49] [cursor=pointer]:
+              - img [ref=e51]
+            - link "Sign in" [ref=e54] [cursor=pointer]:
+              - /url: /login?return_to=https%3A%2F%2Fgithub.com%2Fanthropics%2Fanthropic-sdk-python%2Fissues%2F1
+            - link "Sign up" [ref=e55] [cursor=pointer]:
+              - /url: /signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F%3Cuser-name%3E%2F%3Crepo-name%3E%2Fvoltron%2Fissues_fragments%2Fissue_layout&source=header-repo&source_repo=anthropics%2Fanthropic-sdk-python
+            - button "Appearance settings" [ref=e58] [cursor=pointer]:
+              - img
+  - main [ref=e62]:
+    - generic [ref=e63]:
+      - generic [ref=e64]:
+        - generic [ref=e66]:
+          - img [ref=e67]
+          - link "anthropics" [ref=e70] [cursor=pointer]:
+            - /url: /anthropics
+          - generic [ref=e71]: /
+          - strong [ref=e72]:
+            - link "anthropic-sdk-python" [ref=e73] [cursor=pointer]:
+              - /url: /anthropics/anthropic-sdk-python
+          - generic [ref=e74]: Public
+        - generic [ref=e75]:
+          - list:
+            - listitem [ref=e76]:
+              - link "You must be signed in to change notification settings" [ref=e77] [cursor=pointer]:
+                - /url: /login?return_to=%2Fanthropics%2Fanthropic-sdk-python
+                - img [ref=e78]
+                - text: Notifications
+            - listitem [ref=e80]:
+              - link "Fork 662" [ref=e81] [cursor=pointer]:
+                - /url: /login?return_to=%2Fanthropics%2Fanthropic-sdk-python
+                - img [ref=e82]
+                - text: Fork
+                - generic "662" [ref=e84]
+            - listitem [ref=e85]:
+              - link "You must be signed in to star a repository" [ref=e87] [cursor=pointer]:
+                - /url: /login?return_to=%2Fanthropics%2Fanthropic-sdk-python
+                - img [ref=e88]
+                - text: Star
+                - generic "3405 users starred this repository" [ref=e90]: 3.4k
+      - navigation "Repository" [ref=e91]:
+        - list [ref=e92]:
+          - listitem [ref=e93]:
+            - link "Code" [ref=e94] [cursor=pointer]:
+              - /url: /anthropics/anthropic-sdk-python
+              - img [ref=e95]
+              - generic [ref=e97]: Code
+          - listitem [ref=e98]:
+            - link "Issues 99" [ref=e99] [cursor=pointer]:
+              - /url: /anthropics/anthropic-sdk-python/issues
+              - img [ref=e100]
+              - generic [ref=e103]: Issues
+              - generic "99" [ref=e104]
+          - listitem [ref=e105]:
+            - link "Pull requests 124" [ref=e106] [cursor=pointer]:
+              - /url: /anthropics/anthropic-sdk-python/pulls
+              - img [ref=e107]
+              - generic [ref=e109]: Pull requests
+              - generic "124" [ref=e110]
+          - listitem [ref=e111]:
+            - link "Discussions" [ref=e112] [cursor=pointer]:
+              - /url: /anthropics/anthropic-sdk-python/discussions
+              - img [ref=e113]
+              - generic [ref=e115]: Discussions
+          - listitem [ref=e116]:
+            - link "Actions" [ref=e117] [cursor=pointer]:
+              - /url: /anthropics/anthropic-sdk-python/actions
+              - img [ref=e118]
+              - generic [ref=e120]: Actions
+          - listitem [ref=e121]:
+            - link "Security and quality 2" [ref=e122] [cursor=pointer]:
+              - /url: /anthropics/anthropic-sdk-python/security
+              - img [ref=e123]
+              - generic [ref=e125]: Security and quality
+              - generic "2" [ref=e126]
+          - listitem [ref=e127]:
+            - link "Insights" [ref=e128] [cursor=pointer]:
+              - /url: /anthropics/anthropic-sdk-python/pulse
+              - img [ref=e129]
+              - generic [ref=e131]: Insights
+    - generic [ref=e139]:
+      - region "Header" [ref=e141]:
+        - generic [ref=e142]:
+          - 'heading "Find API Key on anthropic.com #1" [level=1] [ref=e144]'
+          - generic [ref=e146]:
+            - link "New issue" [ref=e148] [cursor=pointer]:
+              - /url: /login?return_to=https://github.com/anthropics/anthropic-sdk-python/issues/1
+              - generic [ref=e150]: New issue
+            - button "Copy link" [ref=e151] [cursor=pointer]:
+              - img [ref=e152]
+      - generic [ref=e160]:
+        - img "Issue" [ref=e161]
+        - text: Closed
+      - generic [ref=e165]:
+        - generic [ref=e166]:
+          - generic [ref=e168]:
+            - link "@ezzcodeezzlife's profile" [ref=e169] [cursor=pointer]:
+              - /url: https://github.com/ezzcodeezzlife
+              - img "@ezzcodeezzlife" [ref=e170]
+            - generic [ref=e171]:
+              - heading "Description" [level=2] [ref=e172]
+              - generic [ref=e174]:
+                - generic [ref=e176]:
+                  - generic [ref=e177]:
+                    - link "ezzcodeezzlife" [ref=e179] [cursor=pointer]:
+                      - /url: https://github.com/ezzcodeezzlife
+                    - generic [ref=e180]:
+                      - text: opened
+                      - link "on Jan 24, 2023on Jan 25, 2023" [ref=e181] [cursor=pointer]:
+                        - /url: https://github.com/anthropics/anthropic-sdk-python/issues/1#issue-1555804050
+                        - generic "Jan 25, 2023, 12:12 AM GMT+1" [ref=e182]: on Jan 24, 2023on Jan 25, 2023
+                  - generic [ref=e184]:
+                    - generic "This user has previously committed to the anthropic-sdk-python repository." [ref=e186]: Contributor
+                    - button "Issue body actions" [ref=e188] [cursor=pointer]:
+                      - img [ref=e189]
+                - generic [ref=e191]:
+                  - generic [ref=e193]:
+                    - paragraph [ref=e194]: Where can I find my API key?
+                    - paragraph [ref=e195]: Super interested in testing this out 🚀
+                  - toolbar "Reactions" [ref=e197]:
+                    - switch "👀 7 reactions" [ref=e198]:
+                      - generic [ref=e199]:
+                        - generic: 👀
+                        - generic [ref=e200]:
+                          - generic [ref=e201]: React with 👀
+                          - text: "7"
+          - generic [ref=e203]:
+            - generic [ref=e204]:
+              - heading "Activity" [level=2] [ref=e205]
+              - generic [ref=e206]:
+                - generic [ref=e207]:
+                  - link "@jacksonkernion's profile" [ref=e208] [cursor=pointer]:
+                    - /url: https://github.com/jacksonkernion
+                    - img "jacksonkernion" [ref=e209]
+                  - generic [ref=e216]:
+                    - generic [ref=e218]:
+                      - heading "jacksonkernion commented on Feb 10, 2023 on Feb 10, 2023" [level=3] [ref=e219]:
+                        - text: jacksonkernion commented
+                        - generic "Feb 10, 2023, 8:32 PM GMT+1" [ref=e220]: on Feb 10, 2023 on Feb 10, 2023
+                      - generic [ref=e221]:
+                        - link "jacksonkernion" [ref=e223] [cursor=pointer]:
+                          - /url: /jacksonkernion
+                        - generic [ref=e224]:
+                          - link "on Feb 10, 2023on Feb 10, 2023" [ref=e226] [cursor=pointer]:
+                            - /url: https://github.com/anthropics/anthropic-sdk-python/issues/1#issuecomment-1426247604
+                            - generic "Feb 10, 2023, 8:32 PM GMT+1" [ref=e227]: on Feb 10, 2023on Feb 10, 2023
+                          - generic [ref=e228]:
+                            - text: ·
+                            - generic [ref=e229]:
+                              - text: edited by
+                              - link "jacksonkernion" [ref=e230] [cursor=pointer]:
+                                - /url: https://github.com/jacksonkernion
+                      - generic [ref=e231]:
+                        - button "Open edits" [ref=e234] [cursor=pointer]:
+                          - generic [ref=e236]: Edits
+                          - generic:
+                            - img
+                        - generic [ref=e237]:
+                          - generic "This user has previously committed to the anthropic-sdk-python repository." [ref=e239]: Contributor
+                          - button "Actions for jacksonkernion's comment, 8:32 PM on February 10, 2023" [ref=e241] [cursor=pointer]:
+                            - img [ref=e242]
+                    - generic [ref=e244]:
+                      - paragraph [ref=e247]: Existing partners should talk to their contact
+                      - toolbar "Reactions" [ref=e248]:
+                        - switch "😕 1 reaction" [ref=e249]:
+                          - generic [ref=e250]:
+                            - generic: 😕
+                            - generic [ref=e251]:
+                              - generic [ref=e252]: React with 😕
+                              - text: "1"
+                - region "Events" [ref=e253]:
+                  - generic [ref=e260]:
+                    - img [ref=e264]
+                    - generic [ref=e268]:
+                      - link "jacksonkernion" [ref=e270] [cursor=pointer]:
+                        - /url: /jacksonkernion
+                        - generic [ref=e271]: jacksonkernion
+                      - text: closed this as
+                      - link "completed" [ref=e272] [cursor=pointer]:
+                        - /url: /anthropics/anthropic-sdk-python/issues?q=is%3Aissue%20state%3Aclosed%20archived%3Afalse%20reason%3Acompleted
+                      - link "on Feb 10, 2023on Feb 10, 2023" [ref=e273] [cursor=pointer]:
+                        - /url: https://github.com/anthropics/anthropic-sdk-python/issues/1#event-8493116445
+                        - generic "Feb 10, 2023, 8:32 PM GMT+1" [ref=e274]: on Feb 10, 2023on Feb 10, 2023
+                  - generic [ref=e278]:
+                    - img [ref=e282]
+                    - generic [ref=e284]:
+                      - generic [ref=e286]:
+                        - link "RobertCraigie" [ref=e288] [cursor=pointer]:
+                          - /url: /RobertCraigie
+                          - generic [ref=e289]: RobertCraigie
+                        - text: mentioned this
+                        - link "on Jun 10, 2025on Jun 10, 2025" [ref=e290] [cursor=pointer]:
+                          - /url: https://github.com/anthropics/anthropic-sdk-python/issues/1#event-2596540950
+                          - generic "Jun 10, 2025, 1:27 PM GMT+2" [ref=e291]: on Jun 10, 2025on Jun 10, 2025
+                      - region "Issues mentioned" [ref=e294]:
+                        - list [ref=e295]:
+                          - listitem [ref=e296]:
+                            - generic [ref=e297]:
+                              - img "Merged" [ref=e298]
+                              - 'link "fix(httpx): resolve conflict between default transport and proxy settings #969" [ref=e300] [cursor=pointer]':
+                                - /url: https://github.com/anthropics/anthropic-sdk-python/pull/969
+                                - text: "fix(httpx): resolve conflict between default transport and proxy settings"
+                                - generic [ref=e301]: "#969"
+                - generic [ref=e302]:
+                  - link "@Serhan-Asad's profile" [ref=e303] [cursor=pointer]:
+                    - /url: https://github.com/Serhan-Asad
+                    - img "Serhan-Asad" [ref=e304]
+                  - generic [ref=e311]:
+                    - generic [ref=e313]:
+                      - heading "Serhan-Asad commented on Jan 27, 2026 on Jan 27" [level=3] [ref=e314]:
+                        - text: Serhan-Asad commented
+                        - generic "Jan 27, 2026, 6:56 PM GMT+1" [ref=e315]: on Jan 27, 2026 on Jan 27
+                      - generic [ref=e316]:
+                        - link "Serhan-Asad" [ref=e318] [cursor=pointer]:
+                          - /url: /Serhan-Asad
+                        - link "on Jan 27, 2026on Jan 27" [ref=e321] [cursor=pointer]:
+                          - /url: https://github.com/anthropics/anthropic-sdk-python/issues/1#issuecomment-3806644563
+                          - generic "Jan 27, 2026, 6:56 PM GMT+1" [ref=e322]: on Jan 27, 2026on Jan 27
+                      - button "Actions for Serhan-Asad's comment, 6:56 PM on January 27" [ref=e326] [cursor=pointer]:
+                        - img [ref=e327]
+                    - generic [ref=e329]:
+                      - generic [ref=e331]:
+                        - 'heading "Step 1: Unit Test Execution (Cycle 1/5)" [level=2] [ref=e332]'
+                        - paragraph [ref=e333]:
+                          - strong [ref=e334]: "Status:"
+                          - text: No Unit Tests Found
+                        - heading "Analysis" [level=3] [ref=e335]
+                        - paragraph [ref=e336]:
+                          - text: This issue (
+                          - link "#1" [ref=e337] [cursor=pointer]:
+                            - /url: https://github.com/anthropics/anthropic-sdk-python/issues/1
+                          - text: ) does not appear to be a bug report created by
+                          - code [ref=e338]: pdd bug
+                          - text: ". The issue is a user question from 2023 asking \"Where can I find my API key?\" and does not contain:"
+                        - list [ref=e339]:
+                          - listitem [ref=e340]:
+                            - text: Unit test file paths (e.g.,
+                            - code [ref=e341]: tests/test_*.py
+                            - text: )
+                          - listitem [ref=e342]:
+                            - code [ref=e343]: "FILES_CREATED:"
+                            - text: markers
+                          - listitem [ref=e344]: Test code blocks
+                          - listitem [ref=e345]: Any test-related content
+                        - heading "Unit Tests Identified" [level=3] [ref=e346]
+                        - paragraph [ref=e347]: None - this is a user support question, not a bug report with associated unit tests.
+                        - heading "Initial Test Results" [level=3] [ref=e348]
+                        - list [ref=e349]:
+                          - listitem [ref=e350]: "Passed: N/A"
+                          - listitem [ref=e351]: "Failed: N/A"
+                        - heading "pdd fix Runs" [level=3] [ref=e352]
+                        - paragraph [ref=e353]: No pdd fix runs performed (no unit tests to fix).
+                        - heading "Final Test Results" [level=3] [ref=e354]
+                        - list [ref=e355]:
+                          - listitem [ref=e356]: "Passed: N/A"
+                          - listitem [ref=e357]: "Failed: N/A"
+                        - separator [ref=e358]
+                        - paragraph [ref=e359]:
+                          - strong [ref=e360]: "Note:"
+                          - text: This issue appears to be misidentified for the agentic e2e fix workflow. The workflow expects issues created by
+                          - code [ref=e361]: pdd bug
+                          - text: that contain unit tests to validate fixes. Issue
+                          - link "#1" [ref=e362] [cursor=pointer]:
+                            - /url: https://github.com/anthropics/anthropic-sdk-python/issues/1
+                          - text: is a legitimate user support question that was resolved via comments.
+                        - paragraph [ref=e363]:
+                          - emphasis [ref=e364]: "Cannot proceed to Step 2: E2E Test Check (no tests to validate)"
+                      - toolbar "Reactions"
+                - generic [ref=e365]:
+                  - link "@Serhan-Asad's profile" [ref=e366] [cursor=pointer]:
+                    - /url: https://github.com/Serhan-Asad
+                    - img "Serhan-Asad" [ref=e367]
+                  - generic [ref=e374]:
+                    - generic [ref=e376]:
+                      - heading "Serhan-Asad commented on Jan 27, 2026 on Jan 27" [level=3] [ref=e377]:
+                        - text: Serhan-Asad commented
+                        - generic "Jan 27, 2026, 6:56 PM GMT+1" [ref=e378]: on Jan 27, 2026 on Jan 27
+                      - generic [ref=e379]:
+                        - link "Serhan-Asad" [ref=e381] [cursor=pointer]:
+                          - /url: /Serhan-Asad
+                        - link "on Jan 27, 2026on Jan 27" [ref=e384] [cursor=pointer]:
+                          - /url: https://github.com/anthropics/anthropic-sdk-python/issues/1#issuecomment-3806645581
+                          - generic "Jan 27, 2026, 6:56 PM GMT+1" [ref=e385]: on Jan 27, 2026on Jan 27
+                      - button "Actions for Serhan-Asad's comment, 6:56 PM on January 27" [ref=e389] [cursor=pointer]:
+                        - img [ref=e390]
+                    - generic [ref=e392]:
+                      - generic [ref=e393]: No description provided.
+                      - toolbar "Reactions"
+                - generic [ref=e394]:
+                  - link "@Serhan-Asad's profile" [ref=e395] [cursor=pointer]:
+                    - /url: https://github.com/Serhan-Asad
+                    - img "Serhan-Asad" [ref=e396]
+                  - generic [ref=e403]:
+                    - generic [ref=e405]:
+                      - heading "Serhan-Asad commented on Jan 27, 2026 on Jan 27" [level=3] [ref=e406]:
+                        - text: Serhan-Asad commented
+                        - generic "Jan 27, 2026, 6:57 PM GMT+1" [ref=e407]: on Jan 27, 2026 on Jan 27
+                      - generic [ref=e408]:
+                        - link "Serhan-Asad" [ref=e410] [cursor=pointer]:
+                          - /url: /Serhan-Asad
+                        - link "on Jan 27, 2026on Jan 27" [ref=e413] [cursor=pointer]:
+                          - /url: https://github.com/anthropics/anthropic-sdk-python/issues/1#issuecomment-3806647335
+                          - generic "Jan 27, 2026, 6:57 PM GMT+1" [ref=e414]: on Jan 27, 2026on Jan 27
+                      - button "Actions for Serhan-Asad's comment, 6:57 PM on January 27" [ref=e418] [cursor=pointer]:
+                        - img [ref=e419]
+                    - generic [ref=e421]:
+                      - generic [ref=e423]:
+                        - 'heading "Step 2: E2E Test Check (Cycle 1)" [level=2] [ref=e424]'
+                        - paragraph [ref=e425]:
+                          - strong [ref=e426]: "Status:"
+                          - text: No E2E Tests Found
+                        - heading "Analysis" [level=3] [ref=e427]
+                        - paragraph [ref=e428]: "After analyzing the issue content and all comments, I found:"
+                        - list [ref=e429]:
+                          - listitem [ref=e430]:
+                            - strong [ref=e431]: No E2E Test Markers
+                            - text: ": The issue does not contain"
+                            - code [ref=e432]: "E2E_FILES_CREATED:"
+                            - text: markers from
+                            - code [ref=e433]: pdd bug
+                          - listitem [ref=e434]:
+                            - strong [ref=e435]: No Test File Paths
+                            - text: ": No references to test files like"
+                            - code [ref=e436]: tests/e2e/
+                            - text: ","
+                            - code [ref=e437]: tests/integration/
+                            - text: ", or"
+                            - code [ref=e438]: test_e2e_*.py
+                          - listitem [ref=e439]:
+                            - strong [ref=e440]: No Test Code
+                            - text: ": The issue body and comments contain no test code blocks"
+                        - heading "Issue Type" [level=3] [ref=e441]
+                        - paragraph [ref=e442]:
+                          - text: This is a user support question from 2023 ("Where can I find my API key?") that was resolved via comments. It is not a bug report generated by
+                          - code [ref=e443]: pdd bug
+                          - text: with associated e2e tests.
+                        - heading "E2E Tests Run" [level=3] [ref=e444]
+                        - paragraph [ref=e445]: None - no e2e tests found in the issue.
+                        - separator [ref=e446]
+                        - paragraph [ref=e447]:
+                          - strong [ref=e448]: "Conclusion:"
+                          - text: Cannot proceed with e2e test execution as this issue does not contain any e2e tests to run. The agentic e2e fix workflow expects issues created by
+                          - code [ref=e449]: pdd bug
+                          - text: that include test files to validate fixes.
+                        - paragraph [ref=e450]:
+                          - emphasis [ref=e451]: Workflow cannot continue - issue format mismatch
+                      - toolbar "Reactions"
+            - generic [ref=e452]:
+              - link "Sign up for free" [ref=e453] [cursor=pointer]:
+                - /url: /signup?return_to=https://github.com/anthropics/anthropic-sdk-python/issues/1
+                - generic [ref=e455]: Sign up for free
+              - generic [ref=e456]:
+                - strong [ref=e457]: to join this conversation on GitHub.
+                - text: Already have an account?
+              - link "Sign in to comment" [ref=e458] [cursor=pointer]:
+                - /url: /login?return_to=https://github.com/anthropics/anthropic-sdk-python/issues/1
+        - generic [ref=e460]:
+          - heading "Metadata" [level=2] [ref=e461]
+          - generic [ref=e463]:
+            - generic [ref=e465]:
+              - generic [ref=e466]:
+                - heading "Assignees" [level=3]
+              - generic [ref=e467]: No one assigned
+            - generic [ref=e469]:
+              - generic [ref=e470]:
+                - heading "Labels" [level=3]
+              - generic [ref=e471]: No labels
+            - generic [ref=e473]:
+              - generic [ref=e474]:
+                - heading "Type" [level=3]
+              - generic [ref=e475]: No type
+            - generic [ref=e476]:
+              - generic [ref=e478]:
+                - heading "Fields" [level=3] [ref=e479]
+                - link "Give feedback" [ref=e480] [cursor=pointer]:
+                  - /url: https://github.com/orgs/community/discussions/189141
+              - generic [ref=e482]: No fields configured for issues without a type.
+            - generic [ref=e484]:
+              - generic [ref=e485]:
+                - heading "Projects" [level=3]
+              - generic [ref=e486]: No projects
+            - generic [ref=e488]:
+              - generic [ref=e489]:
+                - heading "Milestone" [level=3]
+              - generic [ref=e490]: No milestone
+            - generic [ref=e492]:
+              - generic [ref=e493]:
+                - heading "Relationships" [level=3]
+              - generic [ref=e494]: None yet
+            - generic [ref=e495]:
+              - generic [ref=e497]:
+                - heading "Development" [level=3]
+              - generic [ref=e498]:
+                - generic [ref=e499]: No branches or pull requests
+                - list
+            - generic [ref=e500]:
+              - generic [ref=e502]:
+                - heading "Participants" [level=3]
+              - generic [ref=e505]:
+                - link "@jacksonkernion" [ref=e506] [cursor=pointer]:
+                  - /url: /jacksonkernion
+                  - img "@jacksonkernion" [ref=e507]
+                - link "@ezzcodeezzlife" [ref=e508] [cursor=pointer]:
+                  - /url: /ezzcodeezzlife
+                  - img "@ezzcodeezzlife" [ref=e509]
+                - link "@Serhan-Asad" [ref=e510] [cursor=pointer]:
+                  - /url: /Serhan-Asad
+                  - img "@Serhan-Asad" [ref=e511]
+            - heading "Issue actions" [level=2] [ref=e512]
+            - list
+  - contentinfo [ref=e513]:
+    - heading "Footer" [level=2] [ref=e514]
+    - generic [ref=e515]:
+      - generic [ref=e516]:
+        - link "GitHub Homepage" [ref=e517] [cursor=pointer]:
+          - /url: https://github.com
+          - img [ref=e518]
+        - generic [ref=e520]: © 2026 GitHub, Inc.
+      - navigation "Footer" [ref=e521]:
+        - heading "Footer navigation" [level=3] [ref=e522]
+        - list "Footer navigation" [ref=e523]:
+          - listitem [ref=e524]:
+            - link "Terms" [ref=e525] [cursor=pointer]:
+              - /url: https://docs.github.com/site-policy/github-terms/github-terms-of-service
+          - listitem [ref=e526]:
+            - link "Privacy" [ref=e527] [cursor=pointer]:
+              - /url: https://docs.github.com/site-policy/privacy-policies/github-privacy-statement
+          - listitem [ref=e528]:
+            - link "Security" [ref=e529] [cursor=pointer]:
+              - /url: https://github.com/security
+          - listitem [ref=e530]:
+            - link "Status" [ref=e531] [cursor=pointer]:
+              - /url: https://www.githubstatus.com/
+          - listitem [ref=e532]:
+            - link "Community" [ref=e533] [cursor=pointer]:
+              - /url: https://github.community/
+          - listitem [ref=e534]:
+            - link "Docs" [ref=e535] [cursor=pointer]:
+              - /url: https://docs.github.com/
+          - listitem [ref=e536]:
+            - link "Contact" [ref=e537] [cursor=pointer]:
+              - /url: https://support.github.com?tags=dotcom-footer
+          - listitem [ref=e538]:
+            - button "Manage cookies" [ref=e540] [cursor=pointer]
+          - listitem [ref=e541]:
+            - button "Do not share my personal information" [ref=e543] [cursor=pointer]
