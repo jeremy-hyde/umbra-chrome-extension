@@ -5,6 +5,7 @@ const siteLabel = document.getElementById('site-label');
 const cookieCount = document.getElementById('cookie-count');
 const storageCount = document.getElementById('storage-count');
 const clearBtn = document.getElementById('clear-btn');
+const suspendBtn = document.getElementById('suspend-btn');
 
 function setUI(enabled) {
   btn.classList.toggle('on', enabled);
@@ -93,4 +94,20 @@ chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
 
   // Clear button
   clearBtn.addEventListener('click', () => clearSiteData(tab));
+
+  // Suspend unpinned tabs button
+  suspendBtn.addEventListener('click', async () => {
+    const allTabs = await chrome.tabs.query({ currentWindow: true, pinned: false });
+    await Promise.all(
+      allTabs
+        .filter(t => t.id !== tab.id && t.url && !t.url.startsWith('chrome://') && !t.url.startsWith('chrome-extension://'))
+        .map(t => chrome.tabs.discard(t.id))
+    );
+    suspendBtn.textContent = `Suspended ${allTabs.length} Tab${allTabs.length !== 1 ? 's' : ''}`;
+    suspendBtn.classList.add('done');
+    setTimeout(() => {
+      suspendBtn.textContent = 'Suspend Unpinned Tabs';
+      suspendBtn.classList.remove('done');
+    }, 2000);
+  });
 });

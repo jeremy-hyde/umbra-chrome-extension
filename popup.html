@@ -105,6 +105,22 @@
     #clear-btn:hover { border-color: #e06c75; color: #e06c75; background: #1e1617; }
     #clear-btn.cleared { border-color: #4fbdba; color: #4fbdba; background: #111918; }
 
+    #suspend-btn {
+      width: 100%;
+      padding: 9px;
+      background: #272729;
+      border: 1px solid #343536;
+      border-radius: 6px;
+      color: #818384;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    #suspend-btn:hover { border-color: #c678dd; color: #c678dd; background: #1a1520; }
+    #suspend-btn.done { border-color: #4fbdba; color: #4fbdba; background: #111918; }
+
     #about-link {
       font-size: 10px;
       color: #4a4a4b;
@@ -142,6 +158,8 @@
   </div>
 
   <button id="clear-btn">Clear Site Data</button>
+
+  <button id="suspend-btn">Suspend Unpinned Tabs</button>
 
   <a id="about-link" href="about.html" target="_blank">site effects &amp; coverage</a>
 

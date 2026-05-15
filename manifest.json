@@ -3,7 +3,7 @@
   "name": "Umbra",
   "version": "1.0.0",
   "description": "Dark mode for the web, with extra polish for old.reddit.com",
-  "permissions": ["activeTab", "storage", "scripting", "cookies", "declarativeNetRequest"],
+  "permissions": ["activeTab", "tabs", "storage", "scripting", "cookies", "declarativeNetRequest"],
   "host_permissions": ["<all_urls>"],
   "declarative_net_request": {
     "rule_resources": [
