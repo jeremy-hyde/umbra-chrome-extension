@@ -9,8 +9,8 @@
       }
     },
     "condition": {
-      "regexFilter": "^https?://(www\\.)?reddit\\.com/",
-      "excludedInitiatorDomains": ["old.reddit.com"],
+      "regexFilter": "^https?://([a-z0-9-]+\\.)?reddit\\.com",
+      "excludedRequestDomains": ["old.reddit.com"],
       "resourceTypes": ["main_frame", "sub_frame"]
     }
   }
