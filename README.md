@@ -7,7 +7,7 @@ Mode sombre pour le web, avec des fonctionnalités avancées pour certains sites
 - **Mode sombre** sur tous les sites (inversion CSS)
 - **Thème personnalisé** pour old.reddit.com et github.com
 - **Redirection automatique** de reddit.com vers old.reddit.com
-- **Téléchargement de vidéos** sur skool.com (Mux, Loom, YouTube)
+- **Téléchargement de vidéos** sur skool.com et whop.com (Mux, Loom, YouTube)
 - **Suppression des cookies et du stockage** du site actif
 - **Suspension des onglets** non épinglés
 
@@ -62,9 +62,9 @@ de l'extension.
 
 ---
 
-## Télécharger des vidéos Skool
+## Télécharger des vidéos Skool / Whop
 
-L'extension ajoute un bouton **↓ Download** sur les players vidéo des pages skool.com.
+L'extension ajoute un bouton **↓ Download** sur les players vidéo des pages skool.com et whop.com.
 
 ### Prérequis : installer yt-dlp
 
@@ -87,7 +87,7 @@ Nécessite [Homebrew](https://brew.sh). Si tu ne l'as pas :
 
 ### Utilisation
 
-1. Va sur une page de cours skool.com contenant une vidéo
+1. Va sur une page de cours skool.com ou whop.com contenant une vidéo
 2. Clique sur le bouton **↓ Download** qui apparaît sur le player
 3. Copie la commande yt-dlp affichée
 4. Colle-la dans **PowerShell** (Windows) ou **Terminal** (Mac)
@@ -103,6 +103,6 @@ Nécessite [Homebrew](https://brew.sh). Si tu ne l'as pas :
 
 | Player                   | Support |
 |--------------------------|---------|
-| Mux (player natif Skool) | ✅       |
+| Mux (player natif Skool/Whop) | ✅       |
 | Loom                     | ✅       |
 | YouTube                  | ✅       |

@@ -3,7 +3,7 @@
   "name": "Umbra",
   "version": "1.0.0",
   "description": "Dark mode for the web, with extra polish for old.reddit.com",
-  "permissions": ["activeTab", "tabs", "storage", "scripting", "cookies", "declarativeNetRequest"],
+  "permissions": ["activeTab", "tabs", "storage", "scripting", "cookies", "downloads", "declarativeNetRequest", "processes"],
   "host_permissions": ["<all_urls>"],
   "declarative_net_request": {
     "rule_resources": [
@@ -31,6 +31,12 @@
     {
       "matches": ["https://skool.com/*", "https://*.skool.com/*"],
       "js": ["skool-intercept.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://whop.com/*", "https://*.whop.com/*"],
+      "js": ["whop-intercept.js"],
       "run_at": "document_start",
       "world": "MAIN"
     }
