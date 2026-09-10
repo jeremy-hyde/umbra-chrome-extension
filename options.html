@@ -39,6 +39,12 @@
     .behavior-body .toggle-row { display: flex; justify-content: space-between; align-items: center; color: #d7dadc; font-size: 13px; }
     .behavior-body .toggle-row input { accent-color: #4fbdba; width: 18px; height: 18px; }
     .provider-note { color: #818384; font-size: 11px; line-height: 1.5; }
+    .provider-help { padding: 14px; border: 1px solid #343536; border-radius: 8px; background: #151516; }
+    .provider-help p { margin: 0; color: #a5a7aa; font-size: 12px; line-height: 1.65; }
+    .provider-help p + p { margin-top: 8px; }
+    .provider-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .provider-links a { padding: 8px 10px; border: 1px solid #343536; border-radius: 6px; color: #4fbdba; font-size: 11px; text-decoration: none; }
+    .provider-links a:hover { border-color: #4fbdba; }
     .guide { margin-top: 20px; border: 1px solid #343536; border-radius: 12px; background: #1a1a1b; overflow: hidden; }
     .guide h2 { padding: 18px 20px; margin: 0; font-size: 16px; border-bottom: 1px solid #343536; }
     .guide-body { display: grid; gap: 18px; padding: 20px; }
@@ -69,6 +75,14 @@
       </div>
       <div class="provider-body">
         <div class="details"><span>Used for</span><strong>Instagram transcription</strong><span>Model</span><strong>Whisper Large V3 Turbo</strong><span>Endpoint</span><strong>OpenRouter Speech-to-Text</strong></div>
+        <div class="provider-help">
+          <p>OpenRouter sert d’intermédiaire entre Umbra et Whisper Large V3 Turbo. Il permet d’utiliser le modèle avec une seule clé API et facture chaque transcription sur les crédits du compte OpenRouter.</p>
+          <p>Crée un compte, ajoute des crédits, génère une clé API, puis colle-la ci-dessous. Pendant une transcription, Umbra envoie directement la clé et le média à OpenRouter. La clé reste enregistrée localement dans Chrome.</p>
+          <div class="provider-links">
+            <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">Créer une clé OpenRouter</a>
+            <a href="https://openrouter.ai/docs/api/reference/authentication" target="_blank" rel="noopener noreferrer">Documentation OpenRouter</a>
+          </div>
+        </div>
         <label>API key<input class="provider-key" type="password" autocomplete="off" spellcheck="false" placeholder="sk-or-v1-…"></label>
         <div class="actions"><button class="save-key" type="button">Save key</button><button class="remove-key danger" type="button">Remove key</button></div>
         <div class="message" aria-live="polite"></div>

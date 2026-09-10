@@ -16,52 +16,79 @@ Mode sombre pour le web, avec des fonctionnalités avancées pour certains sites
 
 ---
 
-## Installation en mode développeur (Chrome)
+## Installation en mode développeur dans Chrome
 
-### 1. Télécharger le code source
+Aucune compilation et aucune commande `npm` ne sont nécessaires. Chrome charge directement les fichiers du dépôt.
 
-Clone ou télécharge le dépôt sur ton ordinateur. Tu dois avoir le dossier du projet en local, par exemple :
+### 1. Télécharger le projet
 
+Avec Git :
+
+```bash
+git clone https://github.com/jeremy-hyde/umbra-chrome-extension.git
+cd umbra-chrome-extension
 ```
-C:\Users\TonNom\Dev\extensions_chrome   (Windows)
-~/Dev/extensions_chrome                  (Mac)
-```
 
-### 2. Ouvrir la page des extensions Chrome
+Sans Git :
 
-Dans la barre d'adresse de Chrome, tape :
+1. Ouvre la page GitHub du dépôt.
+2. Clique sur **Code**, puis sur **Download ZIP**.
+3. Décompresse le fichier ZIP dans un dossier permanent.
 
-```
+Ne supprime pas ce dossier après l'installation. Chrome lit l'extension directement depuis celui-ci.
+
+### 2. Ouvrir la gestion des extensions
+
+Saisis cette adresse dans la barre d'adresse de Chrome :
+
+```text
 chrome://extensions
 ```
 
-Appuie sur **Entrée**.
-
 ### 3. Activer le mode développeur
 
-En haut à droite de la page, active le bouton **Mode développeur**.
+Active **Mode développeur** en haut à droite de la page.
 
-### 4. Charger l'extension
+### 4. Charger Umbra
 
-Clique sur **Charger l'extension non empaquetée**, puis sélectionne le dossier du projet (celui qui contient le fichier
-`manifest.json`).
+1. Clique sur **Charger l'extension non empaquetée**.
+2. Sélectionne le dossier qui contient directement `manifest.json`.
+3. Confirme la sélection.
 
-L'extension apparaît alors dans la liste et l'icône Umbra s'affiche dans la barre d'outils Chrome.
+La carte **Umbra** doit maintenant apparaître dans `chrome://extensions`.
 
-### 5. Épingler l'icône (optionnel)
+> Si Chrome indique que `manifest.json` est introuvable, tu as sélectionné le mauvais dossier. Sélectionne le dossier de
+> l'extension et non le fichier ZIP ou son dossier parent.
 
-Clique sur l'icône puzzle 🧩 à droite de la barre d'adresse, puis clique sur l'épingle à côté d'**Umbra** pour la garder
-visible.
+### 5. Épingler Umbra dans la barre d'outils
+
+1. Clique sur le bouton des extensions à droite de la barre d'adresse.
+2. Trouve **Umbra** dans la liste.
+3. Clique sur l'épingle pour garder son bouton visible.
+
+### 6. Configurer l'extension
+
+Ouvre la fenêtre Umbra, puis clique sur l'engrenage en haut à droite. La page **Umbra Settings** permet de configurer la
+clé OpenRouter et le comportement des outils Instagram.
 
 ---
 
-## Mettre à jour l'extension après une modification
+## Mettre à jour l'extension en mode développeur
 
-Après avoir modifié des fichiers, retourne sur `chrome://extensions` et clique sur l'icône **↺ Recharger** sur la carte
-de l'extension.
+Après une modification locale :
 
-> Si tu modifies `manifest.json`, un rechargement complet est nécessaire (désactiver puis réactiver, ou cliquer sur
-> Recharger).
+1. Ouvre `chrome://extensions`.
+2. Clique sur **Recharger** sur la carte Umbra.
+3. Recharge aussi les onglets déjà ouverts qui utilisent Umbra.
+
+Après une mise à jour du dépôt avec Git :
+
+```bash
+git pull
+```
+
+Recharge ensuite l'extension et les pages concernées. Si Chrome affiche une erreur, ouvre **Erreurs** sur la carte Umbra
+pour afficher le fichier et la ligne responsables.
 
 ---
 
