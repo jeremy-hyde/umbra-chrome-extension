@@ -1,6 +1,5 @@
 const STORAGE_KEY = 'umbra_enabled';
-const btn = document.getElementById('power-btn');
-const status = document.getElementById('status');
+const btn = document.getElementById('power-toggle');
 const siteLabel = document.getElementById('site-label');
 const cookieCount = document.getElementById('cookie-count');
 const storageCount = document.getElementById('storage-count');
@@ -12,6 +11,19 @@ const colorPickBtn = document.getElementById('color-pick-btn');
 const colorHistory = document.getElementById('color-history');
 const colorSwatches = document.getElementById('color-swatches');
 const tabList = document.getElementById('tab-list');
+const siteTabs = [...document.querySelectorAll('.site-tab')];
+const tabPanels = [...document.querySelectorAll('.tab-panel')];
+const scopeButtons = [...document.querySelectorAll('.scope-btn')];
+const instagramItems = document.getElementById('instagram-items');
+const instagramDate = document.getElementById('instagram-date');
+const instagramCustomCount = document.getElementById('instagram-custom-count');
+const instagramCustomDate = document.getElementById('instagram-custom-date');
+const instagramItemsRow = document.getElementById('instagram-items-row');
+const instagramDateRow = document.getElementById('instagram-date-row');
+const instagramCustomCountRow = document.getElementById('instagram-custom-count-row');
+const instagramCustomDateRow = document.getElementById('instagram-custom-date-row');
+const openSettings = document.getElementById('gear-btn');
+let instagramScope = 'items';
 
 // ── Color history ──────────────────────────────────────────────────────
 function loadColorHistory() {
@@ -21,25 +33,38 @@ function loadColorHistory() {
   });
 }
 
+function normalizeHistoryColor(value) {
+  const match = String(value || '').trim().match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if (!match) return null;
+  const hex = match[1].length === 3 ? [...match[1]].map(character => character.repeat(2)).join('') : match[1];
+  return `#${hex.toUpperCase()}`;
+}
+
 function renderColorSwatches(history) {
-  if (!history.length) {
+  const colors = [...new Set((Array.isArray(history) ? history : []).map(normalizeHistoryColor).filter(Boolean))].slice(0, 10);
+  colorSwatches.replaceChildren();
+  if (!colors.length) {
     colorHistory.style.display = 'none';
     return;
   }
   colorHistory.style.display = '';
-  colorSwatches.innerHTML = history.map(hex => `
-    <div class="color-swatch-item" style="background:${hex};" data-hex="${hex}" title="${hex}">
-      <span class="copy-tooltip">${hex}</span>
-    </div>
-  `).join('');
 
-  // Click to copy
-  colorSwatches.querySelectorAll('.color-swatch-item').forEach(el => {
-    el.addEventListener('click', () => {
-      const hex = el.dataset.hex;
+  for (const hex of colors) {
+    const swatch = document.createElement('div');
+    swatch.className = 'color-swatch-item';
+    swatch.dataset.hex = hex;
+    swatch.title = hex;
+
+    const fill = document.createElement('span');
+    fill.className = 'color-swatch-fill';
+    fill.style.setProperty('background-color', hex, 'important');
+    const tooltip = document.createElement('span');
+    tooltip.className = 'copy-tooltip';
+    tooltip.textContent = hex;
+    swatch.append(fill, tooltip);
+
+    swatch.addEventListener('click', () => {
       navigator.clipboard.writeText(hex).catch(() => {});
-      // Brief flash feedback
-      const tooltip = el.querySelector('.copy-tooltip');
       tooltip.textContent = 'Copied!';
       tooltip.style.color = '#4fbdba';
       setTimeout(() => {
@@ -47,23 +72,22 @@ function renderColorSwatches(history) {
         tooltip.style.color = '';
       }, 1000);
     });
-  });
+
+    colorSwatches.appendChild(swatch);
+  }
 }
 
 // Listen for storage changes so history stays fresh when popup reopens
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'local' && changes.umbra_color_history) {
-    renderColorSwatches(changes.umbra_color_history.newValue || []);
-  }
+  if (area !== 'local') return;
+  if (changes.umbra_color_history) renderColorSwatches(changes.umbra_color_history.newValue || []);
 });
 
 // Load on open
 loadColorHistory();
 
 function setUI(enabled) {
-  btn.classList.toggle('on', enabled);
-  status.textContent = enabled ? 'On' : 'Off';
-  status.classList.toggle('on', enabled);
+  btn.checked = enabled;
 }
 
 function setCount(el, n) {
@@ -219,13 +243,10 @@ chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
   chrome.storage.local.get(STORAGE_KEY, (res) => {
     setUI(res[STORAGE_KEY] !== false);
   });
-  btn.addEventListener('click', () => {
-    chrome.storage.local.get(STORAGE_KEY, (res) => {
-      const enabled = !(res[STORAGE_KEY] !== false);
-      chrome.storage.local.set({ [STORAGE_KEY]: enabled });
-      chrome.tabs.sendMessage(tab.id, { type: 'umbra_toggle', enabled });
-      setUI(enabled);
-    });
+  btn.addEventListener('change', () => {
+    const enabled = btn.checked;
+    chrome.storage.local.set({ [STORAGE_KEY]: enabled });
+    chrome.tabs.sendMessage(tab.id, { type: 'umbra_toggle', enabled }).catch(() => {});
   });
 
   // Load counts
@@ -243,7 +264,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
   colorPickBtn.addEventListener('click', async () => {
     try {
       await chrome.tabs.sendMessage(tab.id, { type: 'umbra_color_picker' });
-      // Popup closes here — history will refresh on next open via storage listener
+      window.close();
     } catch (_) {
       colorPickBtn.textContent = '✗ Unavailable';
       colorPickBtn.style.borderColor = '#e06c75';
@@ -466,3 +487,100 @@ function truncate(str, len) {
 function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+
+function selectPopupTab(name, persist = true) {
+  siteTabs.forEach(tab => tab.classList.toggle('active', tab.dataset.tab === name));
+  tabPanels.forEach(panel => panel.classList.toggle('active', panel.dataset.panel === name));
+  if (persist) chrome.storage.local.set({ umbra_popup_tab: name });
+}
+
+siteTabs.forEach(tab => tab.addEventListener('click', () => selectPopupTab(tab.dataset.tab)));
+
+function updateInstagramScope(scope) {
+  instagramScope = scope;
+  scopeButtons.forEach(button => button.classList.toggle('active', button.dataset.scope === scope));
+  instagramItemsRow.style.display = scope === 'items' ? '' : 'none';
+  instagramDateRow.style.display = scope === 'dates' ? 'flex' : 'none';
+  instagramCustomCountRow.hidden = scope !== 'items' || instagramItems.value !== 'custom';
+  instagramCustomDateRow.hidden = scope !== 'dates' || instagramDate.value !== 'custom';
+  chrome.storage.local.set({ umbra_instagram_scope: scope });
+}
+
+scopeButtons.forEach(button => button.addEventListener('click', () => updateInstagramScope(button.dataset.scope)));
+instagramItems.addEventListener('change', () => {
+  instagramCustomCountRow.hidden = instagramItems.value !== 'custom';
+  chrome.storage.local.set({ umbra_instagram_items: instagramItems.value });
+});
+instagramDate.addEventListener('change', () => {
+  instagramCustomDateRow.hidden = instagramDate.value !== 'custom';
+  chrome.storage.local.set({ umbra_instagram_date: instagramDate.value });
+});
+instagramCustomCount.addEventListener('change', () => chrome.storage.local.set({ umbra_instagram_custom_count: instagramCustomCount.value }));
+instagramCustomDate.addEventListener('change', () => chrome.storage.local.set({ umbra_instagram_custom_date: instagramCustomDate.value }));
+
+openSettings.addEventListener('click', () => chrome.runtime.openOptionsPage());
+
+document.getElementById('open-instagram').addEventListener('click', () => chrome.tabs.create({ url: 'https://www.instagram.com/' }));
+
+document.querySelectorAll('.sort-btn').forEach(button => button.addEventListener('click', async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  let isInstagram = false;
+  try { isInstagram = new URL(tab.url).hostname === 'www.instagram.com'; } catch (_) {}
+  if (!isInstagram) {
+    flashSortError(button, 'Open Instagram first');
+    return;
+  }
+  let scopeValue;
+  if (instagramScope === 'items') {
+    const count = Math.max(1, Math.min(10000, Number(instagramCustomCount.value) || 25));
+    scopeValue = instagramItems.value === 'custom' ? `${count}_reels` : instagramItems.value;
+  } else {
+    scopeValue = instagramDate.value === 'custom' ? instagramCustomDate.value : instagramDate.value;
+    if (!scopeValue) {
+      flashSortError(button, 'Pick a date');
+      return;
+    }
+  }
+  button.textContent = 'Starting…';
+  const response = await chrome.runtime.sendMessage({
+    type: 'umbra_instagram_sort_request',
+    tabId: tab.id,
+    sortBy: button.dataset.sort,
+    scopeMode: instagramScope,
+    scopeValue,
+  }).catch(error => ({ ok: false, error: error.message }));
+  if (response?.ok) window.close();
+  else flashSortError(button, response?.error || 'Sort failed');
+}));
+
+function flashSortError(button, message) {
+  const original = button.dataset.sort === 'outlier' ? 'Outlier score' : button.dataset.sort[0].toUpperCase() + button.dataset.sort.slice(1);
+  button.textContent = message;
+  button.style.borderColor = '#e06c75';
+  button.style.color = '#e06c75';
+  setTimeout(() => {
+    button.textContent = original;
+    button.style.borderColor = '';
+    button.style.color = '';
+  }, 2000);
+}
+
+(async () => {
+  const saved = await chrome.storage.local.get([
+    'umbra_popup_tab',
+    'umbra_instagram_scope',
+    'umbra_instagram_items',
+    'umbra_instagram_date',
+    'umbra_instagram_custom_count',
+    'umbra_instagram_custom_date',
+  ]);
+  instagramItems.value = saved.umbra_instagram_items || '25_reels';
+  instagramDate.value = saved.umbra_instagram_date || '1_week';
+  instagramCustomCount.value = saved.umbra_instagram_custom_count || '250';
+  instagramCustomDate.value = saved.umbra_instagram_custom_date || '';
+  updateInstagramScope(saved.umbra_instagram_scope || 'items');
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  let active = saved.umbra_popup_tab || 'general';
+  try { if (new URL(tab.url).hostname === 'www.instagram.com') active = 'instagram'; } catch (_) {}
+  selectPopupTab(active, false);
+})();

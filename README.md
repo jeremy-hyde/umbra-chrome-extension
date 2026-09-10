@@ -5,6 +5,9 @@ Mode sombre pour le web, avec des fonctionnalités avancées pour certains sites
 ## Fonctionnalités
 
 - **Mode sombre** sur tous les sites (inversion CSS)
+- **Tri Instagram** sur les profils, les recherches Explore et les collections Saved
+- **Filtres et outils Instagram** : grille triée, sélection, lecteur, copie, téléchargements et exports Excel/CSV/JSON
+- **Transcription Instagram** directe avec OpenRouter et Whisper Large V3 Turbo
 - **Thème personnalisé** pour old.reddit.com et github.com
 - **Redirection automatique** de reddit.com vers old.reddit.com
 - **Téléchargement de vidéos** sur skool.com et whop.com (Mux, Loom, YouTube)
@@ -59,6 +62,31 @@ de l'extension.
 
 > Si tu modifies `manifest.json`, un rechargement complet est nécessaire (désactiver puis réactiver, ou cliquer sur
 > Recharger).
+
+---
+
+## Trier et transcrire Instagram
+
+1. Ouvre un profil Instagram, une recherche Explore ou une collection Saved.
+2. Ouvre Umbra et sélectionne l’onglet **Instagram**.
+3. Choisis un nombre de publications ou une période.
+4. Lance un tri par likes, vues, commentaires, ancienneté ou score d’outlier.
+5. Utilise la grille Umbra pour filtrer, sélectionner, télécharger, transcrire ou exporter les résultats.
+
+Les exports Excel, CSV et JSON restent locaux. L’export Google Sheets et les comptes Sort Feed ne sont pas utilisés.
+
+### Configurer OpenRouter
+
+1. Crée une clé API OpenRouter et ajoute des crédits au compte.
+2. Ouvre Umbra et clique sur l’icône d’engrenage en haut à droite.
+3. Enregistre la clé sur la page complète **Umbra Settings**.
+4. Active **Show Transcribe button**, puis utilise **Transcribe** sur une publication ou une sélection.
+
+Umbra demande `openai/whisper-large-v3-turbo` avec détection automatique de la langue. Le média est envoyé directement depuis l’extension à OpenRouter et à son fournisseur de modèle. Aucun serveur Sort Feed n’est utilisé.
+
+Les fichiers sont envoyés en multipart pour éviter l’augmentation de taille du base64. Les médias de plus de 25 Mo sont refusés, car Umbra n’ajoute pas de conversion ou de compression locale.
+
+> La clé est conservée dans `chrome.storage.local`. Ce stockage est persistant, mais ce n’est pas un coffre-fort : une personne ou un logiciel qui peut lire le profil Chrome local peut récupérer la clé. Les transcriptions utilisent les crédits OpenRouter de l’utilisateur.
 
 ---
 

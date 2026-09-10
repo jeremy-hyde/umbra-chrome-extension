@@ -4,6 +4,7 @@ const IS_OLD_REDDIT = HOST === 'old.reddit.com';
 const IS_GITHUB = HOST === 'github.com';
 const IS_SKOOL = HOST === 'skool.com' || HOST.endsWith('.skool.com');
 const IS_WHOP = HOST === 'whop.com' || HOST.endsWith('.whop.com');
+const IS_INSTAGRAM = HOST === 'www.instagram.com';
 
 const REDDIT_CSS = `
   body, .content, .side, #header, #header-bottom-left, #header-bottom-right,
@@ -87,6 +88,7 @@ function eject() {
 function apply(enabled) {
   if (enabled) {
     if (IS_OLD_REDDIT) inject(REDDIT_CSS);
+    else if (IS_INSTAGRAM) eject();
     else inject(GENERIC_CSS);
   } else {
     eject();
@@ -1247,16 +1249,19 @@ chrome.runtime.onMessage.addListener((msg) => {
   return false;
 });
 
-// ─── Color Picker (EyeDropper API) ──────────────────────────────────────────
+// ─── Color Picker ───────────────────────────────────────────────────────────
 
 let colorPickerActive = false;
 let pickerBtn = null;
 let pickerToast = null;
 let pickerOverlay = null;
+let pickerDarkModeWasActive = false;
 
 function activateColorPicker() {
   if (colorPickerActive) return;
   colorPickerActive = true;
+  pickerDarkModeWasActive = !!styleEl;
+  if (pickerDarkModeWasActive) eject();
 
   // Inject styles
   if (!document.getElementById('umbra-color-picker-css')) {
@@ -1359,17 +1364,11 @@ function activateColorPicker() {
   }
 
   // Create the floating activation button
-  pickerBtn = document.createElement('button');
+  pickerBtn = document.createElement('div');
   pickerBtn.className = 'umbra-picker-btn';
-  pickerBtn.innerHTML = `
-    <svg class="umbra-picker-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M2 22l2-6 4-1-1-4z"/>
-      <path d="M15.6 2.7a2.4 2.4 0 0 1 3.4 3.4L12 13l-4 1 1-4z"/>
-      <line x1="19" y1="19" x2="20" y2="20"/>
-    </svg>
-    Eyedropper
-    <span class="umbra-picker-hint">esc to cancel</span>
-  `;
+  pickerBtn.textContent = 'Click a color · Esc to cancel';
+  pickerBtn.style.pointerEvents = 'none';
+  pickerBtn.style.cursor = 'default';
 
   pickerOverlay = document.createElement('div');
   pickerOverlay.className = 'umbra-picker-overlay';
@@ -1378,36 +1377,28 @@ function activateColorPicker() {
     e.preventDefault();
     e.stopPropagation();
 
-    // Try EyeDropper API first
-    if (typeof EyeDropper !== 'undefined') {
-      try {
-        const dropper = new EyeDropper();
-        const result = await dropper.open();
-        showColorToast(result.sRGBHex);
-        deactivateColorPicker();
-        return;
-      } catch (err) {
-        // User cancelled or API failed — keep picker active for retry
-        if (err.name === 'AbortError') return;
-      }
-    }
-
-    // Fallback: use elementFromPoint + getComputedStyle
     const x = e.clientX;
     const y = e.clientY;
-    // Temporarily hide our overlay to get the element underneath
-    pickerOverlay.style.pointerEvents = 'none';
-    const el = document.elementFromPoint(x, y);
-    pickerOverlay.style.pointerEvents = '';
+    pickerOverlay.style.visibility = 'hidden';
+    pickerBtn.style.visibility = 'hidden';
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
-    if (el) {
-      const color = getComputedStyle(el).backgroundColor;
-      const hex = rgbToHex(color);
-      if (hex) {
-        showColorToast(hex);
+    let hex = null;
+    try {
+      const result = await chrome.runtime.sendMessage({ type: 'umbra_capture_visible_tab' });
+      if (result?.ok && result.dataUrl) hex = await screenshotPixelToHex(result.dataUrl, x, y);
+    } catch (_) {}
+
+    if (!colorPickerActive) return;
+    if (!hex) {
+      let el = document.elementFromPoint(x, y);
+      while (el && !hex) {
+        hex = rgbToHex(getComputedStyle(el).backgroundColor);
+        el = el.parentElement;
       }
     }
     deactivateColorPicker();
+    if (hex) showColorToast(hex);
   };
 
   const handleKey = (e) => {
@@ -1416,14 +1407,12 @@ function activateColorPicker() {
     }
   };
 
-  // The button click provides user gesture for EyeDropper
-  pickerBtn.addEventListener('click', handlePick);
-  // Overlay catches clicks anywhere on the page
+  // The overlay catches one direct click on the page
+  // Escape cancels the picker
   pickerOverlay.addEventListener('click', handlePick);
   document.addEventListener('keydown', handleKey);
 
   // Store cleanup refs on elements
-  pickerBtn._umbraHandlePick = handlePick;
   pickerBtn._umbraHandleKey = handleKey;
   pickerOverlay._umbraHandlePick = handlePick;
   pickerOverlay._umbraHandleKey = handleKey;
@@ -1437,9 +1426,7 @@ function deactivateColorPicker() {
 
   if (pickerBtn) {
     const hk = pickerBtn._umbraHandleKey;
-    const hp = pickerBtn._umbraHandlePick;
     if (hk) document.removeEventListener('keydown', hk);
-    if (hp) pickerBtn.removeEventListener('click', hp);
     pickerBtn.remove();
     pickerBtn = null;
   }
@@ -1451,6 +1438,10 @@ function deactivateColorPicker() {
     pickerOverlay = null;
   }
 
+  const restoreDarkMode = pickerDarkModeWasActive;
+  pickerDarkModeWasActive = false;
+  if (restoreDarkMode) apply(true);
+
   // Dismiss any lingering toast
   if (pickerToast) {
     pickerToast.classList.add('out');
@@ -1460,7 +1451,32 @@ function deactivateColorPicker() {
   }
 }
 
+function normalizeHexColor(value) {
+  const match = String(value || '').trim().match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if (!match) return null;
+  const hex = match[1].length === 3 ? [...match[1]].map(character => character.repeat(2)).join('') : match[1];
+  return `#${hex.toUpperCase()}`;
+}
+
+async function screenshotPixelToHex(dataUrl, x, y) {
+  const response = await fetch(dataUrl);
+  const bitmap = await createImageBitmap(await response.blob());
+  const sourceX = Math.max(0, Math.min(bitmap.width - 1, Math.floor(x * bitmap.width / window.innerWidth)));
+  const sourceY = Math.max(0, Math.min(bitmap.height - 1, Math.floor(y * bitmap.height / window.innerHeight)));
+  const canvas = document.createElement('canvas');
+  canvas.width = 1;
+  canvas.height = 1;
+  const context = canvas.getContext('2d', { willReadFrequently: true });
+  context.drawImage(bitmap, sourceX, sourceY, 1, 1, 0, 0, 1, 1);
+  bitmap.close();
+  const [r, g, b, a] = context.getImageData(0, 0, 1, 1).data;
+  return a ? `#${[r, g, b].map(value => value.toString(16).padStart(2, '0')).join('')}` : null;
+}
+
 function showColorToast(hex) {
+  const upperHex = normalizeHexColor(hex);
+  if (!upperHex) return;
+
   // Remove previous toast
   if (pickerToast) {
     pickerToast.remove();
@@ -1468,23 +1484,27 @@ function showColorToast(hex) {
 
   pickerToast = document.createElement('div');
   pickerToast.className = 'umbra-picker-toast';
-  pickerToast.innerHTML = `
-    <div class="umbra-toast-swatch" style="background:${hex};"></div>
-    <span>${hex.toUpperCase()}</span>
-    <span class="umbra-toast-copied">Copied</span>
-  `;
+  const swatch = document.createElement('div');
+  swatch.className = 'umbra-toast-swatch';
+  swatch.style.setProperty('background-color', upperHex, 'important');
+  const value = document.createElement('span');
+  value.textContent = upperHex;
+  const copied = document.createElement('span');
+  copied.className = 'umbra-toast-copied';
+  copied.textContent = 'Copied';
+  pickerToast.append(swatch, value, copied);
+  if (styleEl?.textContent === GENERIC_CSS) pickerToast.style.filter = 'invert(1) hue-rotate(180deg)';
   document.body.appendChild(pickerToast);
 
   // Copy to clipboard
-  const upperHex = hex.toUpperCase();
   navigator.clipboard.writeText(upperHex).catch(() => {});
 
-  // Save to recent colors history (last 5, no duplicates)
+  // Save to recent colors history (last 10, no duplicates)
   chrome.storage.local.get('umbra_color_history', (res) => {
     const history = res.umbra_color_history || [];
     const filtered = history.filter(c => c !== upperHex);
     filtered.unshift(upperHex);
-    chrome.storage.local.set({ umbra_color_history: filtered.slice(0, 5) });
+    chrome.storage.local.set({ umbra_color_history: filtered.slice(0, 10) });
   });
 
   // Auto-dismiss after 3 seconds

@@ -17,41 +17,38 @@
     }
     h1 { font-size: 13px; font-weight: 600; letter-spacing: 3px; color: #818384; }
 
-    #power-btn {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      border: 2px solid #343536;
-      background: #111112;
-      cursor: pointer;
+    .dark-mode-row {
+      width: 100%;
       display: flex;
       align-items: center;
-      justify-content: center;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      outline: none;
+      justify-content: space-between;
+      padding: 11px 14px;
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.09);
+      border-radius: 10px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     }
-    #power-btn svg { width: 36px; height: 36px; }
-    #power-btn .ring { fill: none; stroke: #343536; stroke-width: 3; transition: stroke 0.2s; }
-    #power-btn .stem { fill: none; stroke: #343536; stroke-width: 3; stroke-linecap: round; transition: stroke 0.2s; }
-
-    #power-btn.on { border-color: #4fbdba; box-shadow: 0 0 18px #4fbdba44; }
-    #power-btn.on .ring { stroke: #4fbdba; }
-    #power-btn.on .stem { stroke: #4fbdba; }
-
-    #status {
-      font-size: 11px;
-      color: #818384;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-top: -8px;
+    .dark-mode-copy { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .dark-mode-title { color: #1a1a1a; font-size: 12px; font-weight: 500; }
+    #site-label { color: #9a9a9a; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sf-toggle { position: relative; display: inline-flex; flex-shrink: 0; width: 28px; height: 16px; cursor: pointer; }
+    .sf-toggle-input { position: absolute; width: 0; height: 0; opacity: 0; }
+    .sf-toggle-track { position: absolute; inset: 0; border-radius: 999px; background: #e0e0e0; transition: background 0.15s ease; }
+    .sf-toggle-track::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+      transition: transform 0.15s ease;
     }
-    #status.on { color: #4fbdba; }
-
-    #site-label {
-      font-size: 10px;
-      color: #4a4a4b;
-      margin-top: -8px;
-    }
+    .sf-toggle-input:checked + .sf-toggle-track { background: #2383e2; }
+    .sf-toggle-input:checked + .sf-toggle-track::after { transform: translateX(12px); }
+    .sf-toggle-input:focus-visible + .sf-toggle-track { outline: 2px solid rgba(35, 131, 226, 0.35); outline-offset: 2px; }
 
     .divider {
       width: 100%;
@@ -206,9 +203,20 @@
       height: 24px;
       border-radius: 5px;
       border: 1px solid #343536;
+      background: #fff;
       cursor: pointer;
       transition: transform 0.12s, border-color 0.12s, box-shadow 0.12s;
       position: relative;
+      filter: none !important;
+      opacity: 1 !important;
+    }
+    .color-swatch-fill {
+      position: absolute;
+      inset: 0;
+      border-radius: 4px;
+      filter: none !important;
+      opacity: 1 !important;
+      pointer-events: none;
     }
     .color-swatch-item:hover {
       transform: scale(1.18);
@@ -233,6 +241,7 @@
       opacity: 0;
       transition: opacity 0.15s;
       letter-spacing: 0.5px;
+      z-index: 1;
     }
     .color-swatch-item:hover .copy-tooltip {
       opacity: 1;
@@ -340,63 +349,268 @@
       text-align: center;
       padding: 12px 0;
     }
+
+    body { width: 360px; min-height: 430px; max-height: 600px; overflow-y: auto; align-items: stretch; padding: 16px; gap: 12px; }
+    .form-row[hidden] { display: none !important; }
+    h1 { text-align: center; }
+    .site-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 4px; border: 1px solid #343536; border-radius: 8px; background: #111112; }
+    .site-tab { padding: 7px 3px; border: 0; border-radius: 5px; background: transparent; color: #818384; font-size: 9px; letter-spacing: .5px; text-transform: uppercase; cursor: pointer; }
+    .site-tab.active { background: #272729; color: #4fbdba; }
+    .tab-panel { display: none; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
+    .tab-panel.active { display: flex; }
+    .panel-card { width: 100%; display: flex; flex-direction: column; gap: 9px; padding: 11px; border: 1px solid #343536; border-radius: 8px; background: #202022; }
+    .panel-title { color: #818384; font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; }
+    .form-row { display: flex; align-items: center; gap: 8px; width: 100%; }
+    .form-row label { flex: 1; color: #818384; font-size: 10px; }
+    .form-row select, .form-row input { min-width: 0; flex: 1.4; padding: 7px 8px; border: 1px solid #343536; border-radius: 5px; background: #111112; color: #d7dadc; font-size: 10px; }
+    .scope-switch, .sort-grid, .key-actions { display: grid; gap: 6px; width: 100%; }
+    .scope-switch { grid-template-columns: 1fr 1fr; }
+    .sort-grid { grid-template-columns: 1fr 1fr; }
+    .scope-btn, .sort-btn, .small-btn { padding: 8px; border: 1px solid #343536; border-radius: 6px; background: #272729; color: #818384; font-size: 10px; cursor: pointer; }
+    .scope-btn.active { border-color: #4fbdba; color: #4fbdba; }
+    .sort-btn:hover, .small-btn:hover { border-color: #4fbdba; color: #4fbdba; }
+    .key-actions { grid-template-columns: 1fr 1fr; }
+    .key-status { min-height: 14px; color: #818384; font-size: 9px; text-align: center; }
+    .key-status.ok { color: #4fbdba; }
+    .key-status.error { color: #e06c75; }
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; color: #d7dadc; font-size: 10px; }
+    .toggle-row input { accent-color: #4fbdba; }
+    .site-message { color: #818384; font-size: 10px; line-height: 1.6; text-align: center; }
+    .open-instagram { width: 100%; padding: 9px; border: 1px solid #4fbdba; border-radius: 6px; background: #111918; color: #4fbdba; font-size: 10px; cursor: pointer; }
+    #instagram-date-row { display: none; }
+    #about-link { text-align: center; }
+
+    .popup-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .popup-header h1 { flex: 1; text-align: center; }
+    #gear-btn {
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 0;
+      border-radius: 5px;
+      background: transparent;
+      color: #4a4a4b;
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+    }
+    #gear-btn:hover { color: #818384; background: #272729; }
+    #gear-btn svg { width: 16px; height: 16px; }
+
+    html { background: #eef0f2; color-scheme: light; }
+    body {
+      min-height: 0;
+      background: #eef0f2;
+      color: #202124;
+      padding: 14px 15px 12px;
+      gap: 11px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    h1 { color: #202124; font-size: 19px; font-weight: 650; letter-spacing: -0.02em; }
+    .popup-header { min-height: 30px; padding: 0 3px; }
+    #gear-btn { color: #9a9a9a; }
+    #gear-btn:hover { color: #37352f; background: rgba(0, 0, 0, 0.04); }
+    .site-tabs { padding: 3px; border-color: rgba(32, 33, 36, 0.1); border-radius: 10px; background: #e2e5e8; }
+    .site-tab { padding: 8px 3px; color: #62676d; font-size: 11px; font-weight: 500; letter-spacing: 0; line-height: 1.2; text-transform: none; }
+    .site-tab:hover { color: #202124; background: rgba(255, 255, 255, 0.45); }
+    .site-tab.active { color: #202124; background: #f8f9fa; box-shadow: 0 1px 3px rgba(32, 33, 36, 0.14); }
+    .tab-panel { gap: 10px; }
+    .panel-card {
+      gap: 10px;
+      padding: 12px;
+      border-color: rgba(32, 33, 36, 0.1);
+      border-radius: 10px;
+      background: #f8f9fa;
+      box-shadow: 0 1px 2px rgba(32, 33, 36, 0.06);
+    }
+    .panel-title, .resource-header, .color-history-label { color: #62676d; font-size: 11px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+    .form-row label { color: #62676d; font-size: 11px; }
+    .form-row select, .form-row input {
+      border-color: rgba(32, 33, 36, 0.14);
+      background: #f8f9fa;
+      color: #202124;
+      font-family: inherit;
+      font-size: 11px;
+      outline: none;
+    }
+    .form-row select:focus, .form-row input:focus { border-color: #2383e2; box-shadow: 0 0 0 2px rgba(35, 131, 226, 0.12); }
+    .scope-btn, .sort-btn, .small-btn {
+      border-color: rgba(32, 33, 36, 0.1);
+      background: #f8f9fa;
+      color: #303134;
+      font-family: inherit;
+      font-size: 11px;
+      box-shadow: 0 1px 2px rgba(32, 33, 36, 0.06);
+    }
+    .scope-btn:hover, .sort-btn:hover, .small-btn:hover { border-color: rgba(32, 33, 36, 0.2); color: #202124; background: #f1f3f4; }
+    .scope-btn.active { border-color: rgba(35, 131, 226, 0.35); color: #1769aa; background: rgba(35, 131, 226, 0.08); }
+    .open-instagram { border-color: #2383e2; background: #2383e2; color: #ffffff; font-family: inherit; font-size: 11px; font-weight: 600; }
+    .open-instagram:hover { background: #1d72c7; }
+    .site-message { color: #62676d; font-size: 11px; }
+    .dark-mode-row, .counter, .tab-row {
+      border-color: rgba(32, 33, 36, 0.1);
+      background: #f8f9fa;
+      box-shadow: 0 1px 2px rgba(32, 33, 36, 0.06);
+    }
+    .dark-mode-title { color: #202124; font-size: 13px; font-weight: 600; }
+    #site-label { color: #7a8087; font-size: 10px; }
+    .counter-value, .tab-title { color: #202124; }
+    .counter-label { color: #7a8087; font-size: 10px; letter-spacing: 0; text-transform: none; }
+    .tab-title { font-size: 11px; font-weight: 500; }
+    .tab-metrics, .tab-empty { color: #7a8087; font-size: 10px; }
+    .counter-value.has-data, .metric-cpu { color: #d44c47; }
+    .metric-mem { color: #2383e2; }
+    .tab-row.high-cpu { border-color: rgba(212, 76, 71, 0.45); }
+    .tab-row.mid-cpu { border-color: rgba(194, 145, 0, 0.4); }
+    .tab-suspend-btn { border-color: rgba(32, 33, 36, 0.14); color: #62676d; font-family: inherit; }
+    .tab-suspend-btn:hover { border-color: #2383e2; color: #2383e2; }
+    .tab-suspend-btn.suspended { border-color: #0f7b6c; color: #0f7b6c; }
+    #clear-btn, #cookies-dl-btn, #suspend-btn, #notion-dl-btn, #color-pick-btn {
+      border-color: rgba(32, 33, 36, 0.1);
+      background: #f8f9fa;
+      color: #303134;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0;
+      text-transform: none;
+      box-shadow: 0 1px 2px rgba(32, 33, 36, 0.06);
+    }
+    #clear-btn:hover { border-color: rgba(212, 76, 71, 0.4); color: #d44c47; background: rgba(212, 76, 71, 0.04); }
+    #cookies-dl-btn:hover, #notion-dl-btn:hover, #color-pick-btn:hover, #suspend-btn:hover { border-color: rgba(35, 131, 226, 0.35); color: #2383e2; background: rgba(35, 131, 226, 0.04); }
+    #clear-btn.cleared, #cookies-dl-btn.success, #notion-dl-btn.success, #suspend-btn.done { border-color: rgba(15, 123, 108, 0.4); color: #0f7b6c; background: rgba(15, 123, 108, 0.05); }
+    #cookies-dl-btn.error, #notion-dl-btn.error { border-color: rgba(212, 76, 71, 0.4); color: #d44c47; background: rgba(212, 76, 71, 0.04); }
+    .divider { border-top-color: rgba(0, 0, 0, 0.08); }
+    .color-swatch-item { border-color: rgba(0, 0, 0, 0.15); }
+    .color-swatch-item:hover { border-color: rgba(0, 0, 0, 0.35); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14); }
+    .color-swatch-item .copy-tooltip { background: #1a1a1a; color: #ffffff; }
+    .tab-list::-webkit-scrollbar-thumb { background: #d8d8d8; }
+    #about-link { color: #9a9a9a; }
+    #about-link:hover { color: #37352f; }
   </style>
 </head>
 <body>
-  <h1>UMBRA</h1>
-
-  <button id="power-btn" title="Toggle dark mode">
-    <svg viewBox="0 0 40 40">
-      <path class="ring" d="M20 8 A14 14 0 1 1 19.99 8" stroke-dasharray="72 10" stroke-dashoffset="-5"/>
-      <line class="stem" x1="20" y1="4" x2="20" y2="16"/>
-    </svg>
-  </button>
-
-  <div id="status">Off</div>
-  <div id="site-label"></div>
-
-  <hr class="divider">
-
-  <div class="counters">
-    <div class="counter">
-      <span class="counter-value" id="cookie-count">—</span>
-      <span class="counter-label">Cookies</span>
-    </div>
-    <div class="counter">
-      <span class="counter-value" id="storage-count">—</span>
-      <span class="counter-label">Storage</span>
-    </div>
+  <div class="popup-header">
+    <h1>UMBRA</h1>
+    <button id="gear-btn" type="button" title="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
   </div>
 
-  <button id="clear-btn">Clear Site Data</button>
+  <nav class="site-tabs" aria-label="Umbra tools">
+    <button class="site-tab active" type="button" data-tab="general">General</button>
+    <button class="site-tab" type="button" data-tab="instagram">Instagram</button>
+    <button class="site-tab" type="button" data-tab="media">Video Download</button>
+    <button class="site-tab" type="button" data-tab="system">System</button>
+  </nav>
 
-  <button id="cookies-dl-btn">↓ Download Cookies.txt</button>
-
-  <button id="suspend-btn">Suspend Unpinned Tabs</button>
-
-  <button id="notion-dl-btn" style="display:none;">↓ Download as Markdown</button>
-
-  <button id="color-pick-btn">
-    <span class="swatch"></span>
-    Pick Color
-  </button>
-
-  <div class="color-history" id="color-history" style="display:none;">
-    <div class="color-history-label">Recent Colors</div>
-    <div class="color-swatches" id="color-swatches"></div>
-  </div>
-
-  <hr class="divider">
-
-  <div class="resource-section">
-    <div class="resource-header">Tab Resource Usage</div>
-    <div class="tab-list" id="tab-list">
-      <div class="tab-empty">Loading…</div>
+  <section class="tab-panel active" data-panel="general">
+    <div class="dark-mode-row">
+      <div class="dark-mode-copy">
+        <div class="dark-mode-title">Dark mode</div>
+        <div id="site-label"></div>
+      </div>
+      <label class="sf-toggle" title="Toggle dark mode">
+        <input id="power-toggle" class="sf-toggle-input" type="checkbox">
+        <span class="sf-toggle-track"></span>
+      </label>
     </div>
-  </div>
+    <button id="notion-dl-btn" style="display:none;">↓ Download as Markdown</button>
+    <button id="color-pick-btn"><span class="swatch"></span>Pick Color</button>
+    <div class="color-history" id="color-history" style="display:none;">
+      <div class="color-history-label">Recent Colors</div>
+      <div class="color-swatches" id="color-swatches"></div>
+    </div>
+    <button id="suspend-btn">Suspend Unpinned Tabs</button>
+  </section>
+
+  <section class="tab-panel" data-panel="instagram">
+    <div class="panel-card">
+      <div class="panel-title">Collect by</div>
+      <div class="scope-switch">
+        <button type="button" class="scope-btn active" data-scope="items">Post count</button>
+        <button type="button" class="scope-btn" data-scope="dates">Date</button>
+      </div>
+      <div class="form-row" id="instagram-items-row">
+        <label for="instagram-items">Range</label>
+        <select id="instagram-items">
+          <option value="25_reels">Latest 25 posts</option>
+          <option value="50_reels">Latest 50 posts</option>
+          <option value="100_reels">Latest 100 posts</option>
+          <option value="200_reels">Latest 200 posts</option>
+          <option value="1000_reels">Latest 1K posts</option>
+          <option value="all_reels">All posts</option>
+          <option value="custom">Custom count…</option>
+        </select>
+      </div>
+      <div class="form-row" id="instagram-custom-count-row" hidden>
+        <label for="instagram-custom-count">Posts</label>
+        <input id="instagram-custom-count" type="number" min="1" max="10000" value="250">
+      </div>
+      <div class="form-row" id="instagram-date-row">
+        <label for="instagram-date">Range</label>
+        <select id="instagram-date">
+          <option value="1_week">One week</option>
+          <option value="1_month">One month</option>
+          <option value="3_month">Three months</option>
+          <option value="6_month">Six months</option>
+          <option value="1_year">One year</option>
+          <option value="all_reels">All posts</option>
+          <option value="custom">Custom start date…</option>
+        </select>
+      </div>
+      <div class="form-row" id="instagram-custom-date-row" hidden>
+        <label for="instagram-custom-date">Start date</label>
+        <input id="instagram-custom-date" type="date">
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-title">Sort by</div>
+      <div class="sort-grid">
+        <button type="button" class="sort-btn" data-sort="likes">Likes</button>
+        <button type="button" class="sort-btn" data-sort="views">Views</button>
+        <button type="button" class="sort-btn" data-sort="comments">Comments</button>
+        <button type="button" class="sort-btn" data-sort="oldest">Oldest</button>
+        <button type="button" class="sort-btn" data-sort="outlier">Outlier score</button>
+      </div>
+      <button type="button" id="open-instagram" class="open-instagram">Open Instagram</button>
+    </div>
+
+  </section>
+
+  <section class="tab-panel" data-panel="media">
+    <div class="panel-card">
+      <div class="panel-title">Video downloads</div>
+      <div class="site-message">A Download button is available on videos from Skool and Whop. Start the video first if Umbra must detect its download URL.</div>
+    </div>
+  </section>
+
+  <section class="tab-panel" data-panel="system">
+    <div class="counters">
+      <div class="counter"><span class="counter-value" id="cookie-count">—</span><span class="counter-label">Cookies</span></div>
+      <div class="counter"><span class="counter-value" id="storage-count">—</span><span class="counter-label">Storage</span></div>
+    </div>
+    <button id="clear-btn">Clear Site Data</button>
+    <button id="cookies-dl-btn">↓ Download Cookies.txt</button>
+    <div class="resource-section">
+      <div class="resource-header">Tab Resource Usage</div>
+      <div class="tab-list" id="tab-list"><div class="tab-empty">Loading…</div></div>
+    </div>
+  </section>
 
   <a id="about-link" href="about.html" target="_blank">site effects &amp; coverage</a>
-
   <script src="popup.js"></script>
 </body>
 </html>

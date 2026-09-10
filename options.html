@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Umbra Settings</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #111112; color: #d7dadc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { width: min(760px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 72px; }
+    header { margin-bottom: 28px; }
+    h1 { margin: 0 0 8px; color: #4fbdba; font-size: 24px; letter-spacing: 4px; }
+    header p, .security { color: #818384; line-height: 1.6; }
+    .provider { overflow: hidden; border: 1px solid #343536; border-radius: 12px; background: #1a1a1b; }
+    .provider-head { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid #343536; }
+    .provider-head h2 { margin: 0; font-size: 16px; }
+    .status { margin-left: auto; padding: 4px 8px; border: 1px solid #343536; border-radius: 999px; color: #818384; font-size: 11px; }
+    .status.configured { border-color: #4fbdba66; background: #111918; color: #4fbdba; }
+    .provider-body { display: grid; gap: 16px; padding: 20px; }
+    label { display: grid; gap: 7px; color: #818384; font-size: 12px; }
+    input { width: 100%; padding: 11px 12px; border: 1px solid #343536; border-radius: 7px; outline: none; background: #111112; color: #d7dadc; font: 13px "SFMono-Regular", Consolas, monospace; }
+    input:focus { border-color: #4fbdba; }
+    .actions { display: flex; gap: 8px; }
+    button { padding: 10px 14px; border: 1px solid #343536; border-radius: 7px; background: #272729; color: #d7dadc; cursor: pointer; }
+    button:hover { border-color: #4fbdba; color: #4fbdba; }
+    button.danger:hover { border-color: #e06c75; color: #e06c75; }
+    .message { min-height: 20px; color: #818384; font-size: 12px; }
+    .message.ok { color: #4fbdba; }
+    .message.error { color: #e06c75; }
+    .details { display: grid; grid-template-columns: 150px 1fr; gap: 8px; color: #818384; font-size: 12px; }
+    .details strong { color: #d7dadc; font-weight: 500; }
+    .security { margin-top: 20px; padding: 16px; border: 1px solid #343536; border-radius: 10px; background: #171718; font-size: 12px; }
+    .behavior { margin-top: 20px; border: 1px solid #343536; border-radius: 12px; background: #1a1a1b; overflow: hidden; }
+    .behavior h2 { padding: 18px 20px; margin: 0; font-size: 16px; border-bottom: 1px solid #343536; }
+    .behavior-body { display: grid; gap: 16px; padding: 20px; }
+    .behavior-body label { display: grid; gap: 7px; color: #818384; font-size: 12px; }
+    .behavior-body select { width: 100%; padding: 11px 12px; border: 1px solid #343536; border-radius: 7px; outline: none; background: #111112; color: #d7dadc; font-size: 13px; }
+    .behavior-body select:focus { border-color: #4fbdba; }
+    .behavior-body .toggle-row { display: flex; justify-content: space-between; align-items: center; color: #d7dadc; font-size: 13px; }
+    .behavior-body .toggle-row input { accent-color: #4fbdba; width: 18px; height: 18px; }
+    .provider-note { color: #818384; font-size: 11px; line-height: 1.5; }
+    .guide { margin-top: 20px; border: 1px solid #343536; border-radius: 12px; background: #1a1a1b; overflow: hidden; }
+    .guide h2 { padding: 18px 20px; margin: 0; font-size: 16px; border-bottom: 1px solid #343536; }
+    .guide-body { display: grid; gap: 18px; padding: 20px; }
+    .guide-body h3 { margin: 0 0 8px; color: #d7dadc; font-size: 13px; }
+    .guide-body p, .guide-body li { color: #818384; font-size: 12px; line-height: 1.65; }
+    .guide-body ol { margin: 0; padding-left: 20px; }
+    .install-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .install-card { padding: 14px; border: 1px solid #343536; border-radius: 9px; background: #151516; }
+    .install-card p { margin: 8px 0 0; }
+    .install-card code { display: block; margin-top: 8px; padding: 9px 10px; border: 1px solid #343536; border-radius: 6px; background: #0d1117; color: #ff6314; font: 11px/1.55 "SFMono-Regular", Consolas, monospace; overflow-x: auto; }
+    .guide-links { display: flex; gap: 10px; }
+    .guide-links a { padding: 8px 10px; border: 1px solid #343536; border-radius: 6px; color: #4fbdba; font-size: 11px; text-decoration: none; }
+    .guide-links a:hover { border-color: #4fbdba; }
+    @media (max-width: 620px) { .install-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>UMBRA SETTINGS</h1>
+      <p>Manage API providers and keys used by Umbra. New providers will appear on this page.</p>
+    </header>
+
+    <section class="provider" data-provider="openrouter">
+      <div class="provider-head">
+        <h2>OpenRouter</h2>
+        <span class="status">Not configured</span>
+      </div>
+      <div class="provider-body">
+        <div class="details"><span>Used for</span><strong>Instagram transcription</strong><span>Model</span><strong>Whisper Large V3 Turbo</strong><span>Endpoint</span><strong>OpenRouter Speech-to-Text</strong></div>
+        <label>API key<input class="provider-key" type="password" autocomplete="off" spellcheck="false" placeholder="sk-or-v1-…"></label>
+        <div class="actions"><button class="save-key" type="button">Save key</button><button class="remove-key danger" type="button">Remove key</button></div>
+        <div class="message" aria-live="polite"></div>
+        <div class="provider-note">Whisper Large V3 Turbo uses your OpenRouter credits. Media above 25 MB is rejected.</div>
+      </div>
+    </section>
+
+    <section class="behavior">
+      <h2>Instagram behavior</h2>
+      <div class="behavior-body">
+        <label>Posts open in
+          <select id="instagram-open-in"><option value="player">Umbra player</option><option value="instagram">New Instagram tab</option></select>
+        </label>
+        <label class="toggle-row">Show Download button <input id="instagram-download-toggle" type="checkbox" checked></label>
+        <label class="toggle-row">Show Transcribe button <input id="instagram-transcribe-toggle" type="checkbox" checked></label>
+      </div>
+    </section>
+
+    <section class="guide">
+      <h2>Video download setup</h2>
+      <div class="guide-body">
+        <div>
+          <h3>How it works</h3>
+          <ol>
+            <li>Umbra adds a Download button to supported videos on Skool and Whop.</li>
+            <li>Click Download. If Umbra cannot detect the stream, play the video once and try again.</li>
+            <li>Umbra shows the detected video URL and creates a <code>yt-dlp</code> command.</li>
+            <li>Copy the command and run it in Terminal. The file is saved in the current Terminal folder.</li>
+          </ol>
+        </div>
+        <div>
+          <h3>What to install</h3>
+          <p><code>yt-dlp</code> is required. FFmpeg and ffprobe are strongly recommended and are needed when separate video and audio streams must be merged.</p>
+        </div>
+        <div class="install-grid">
+          <div class="install-card">
+            <h3>macOS</h3>
+            <p>Install Homebrew, then install yt-dlp and FFmpeg:</p>
+            <code>brew install yt-dlp ffmpeg</code>
+          </div>
+          <div class="install-card">
+            <h3>Linux</h3>
+            <p>Install yt-dlp with Python, then install FFmpeg with your package manager:</p>
+            <code>python3 -m pip install -U "yt-dlp[default]"</code>
+            <code>sudo apt install ffmpeg</code>
+          </div>
+        </div>
+        <div class="guide-links">
+          <a href="https://github.com/yt-dlp/yt-dlp/wiki/Installation" target="_blank" rel="noopener noreferrer">yt-dlp installation</a>
+          <a href="https://ffmpeg.org/download.html" target="_blank" rel="noopener noreferrer">FFmpeg downloads</a>
+        </div>
+      </div>
+    </section>
+
+    <p class="security">Keys are stored in <code>chrome.storage.local</code>. Umbra sends a key only to OpenRouter for transcription. Local extension storage is persistent, but it is not a protected secret vault.</p>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>
