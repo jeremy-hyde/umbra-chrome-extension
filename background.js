@@ -56,6 +56,17 @@ function errorDetails(error, status = 0) {
   return { code: 'transcription_failed', message: error?.message || 'Transcription failed.' };
 }
 
+// Codes sent to the content scripts must match the `ft` message table in
+// Instagram/content.js (media_fetch_failed also triggers the in-page
+// download-and-resend fallback).
+function clientErrorCode(code) {
+  const map = {
+    too_large: 'media_too_large',
+    transcription_failed: 'whisper_failed',
+  };
+  return map[code] || code || 'internal_error';
+}
+
 function extensionFor(blob, sourceUrl = '') {
   const byType = {
     'audio/aac': 'aac',
@@ -110,9 +121,19 @@ async function resolveMedia(message, signal) {
     return { blob: base64ToBlob(message.base64 || message.ReelBase64, message.mimeType), sourceUrl: '' };
   }
   const sourceUrl = message.mediaUrl || message.ReelURL;
-  if (!isInstagramMediaUrl(sourceUrl)) throw new Error('Unsupported Instagram media URL.');
-  const response = await fetch(sourceUrl, { signal, credentials: 'omit' });
-  if (!response.ok) throw new Error(`Media download failed (${response.status}).`);
+  if (!isInstagramMediaUrl(sourceUrl)) {
+    throw Object.assign(new Error('Unsupported Instagram media URL.'), { code: 'media_fetch_failed' });
+  }
+  let response;
+  try {
+    response = await fetch(sourceUrl, { signal, credentials: 'omit' });
+  } catch (error) {
+    if (error?.name === 'AbortError') throw error;
+    throw Object.assign(new Error(`Media download failed (${error?.message || 'network error'}).`), { code: 'media_fetch_failed' });
+  }
+  if (!response.ok) {
+    throw Object.assign(new Error(`Media download failed (${response.status}).`), { code: 'media_fetch_failed' });
+  }
   const length = Number(response.headers.get('content-length'));
   if (length > MAX_MEDIA_BYTES) {
     const error = new Error('The media is larger than 25 MB.');
@@ -125,7 +146,7 @@ async function resolveMedia(message, signal) {
 
 async function transcribe(message, sender) {
   const tabId = sender.tab.id;
-  const jobId = String(message.jobId || crypto.randomUUID());
+  const jobId = message.jobId ?? crypto.randomUUID();
   const legacySingle = message.command === 'InstagramReelTranscribe';
   const legacyMission = message.command === 'SelectMissionTranscribe';
   const key = `${tabId}:${jobId}`;
@@ -153,16 +174,22 @@ async function transcribe(message, sender) {
     const form = new FormData();
     form.append('model', OPENROUTER_MODEL);
     form.append('file', blob, `instagram-media.${extension}`);
-    const response = await fetch(OPENROUTER_URL, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}` },
-      body: form,
-      signal: controller.signal,
-    });
+    let response;
+    try {
+      response = await fetch(OPENROUTER_URL, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${apiKey}` },
+        body: form,
+        signal: controller.signal,
+      });
+    } catch (error) {
+      if (error?.name === 'AbortError') throw error;
+      throw Object.assign(new Error(`Could not reach OpenRouter (${error?.message || 'network error'}).`), { code: 'network' });
+    }
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw Object.assign(new Error(result.error?.message || `OpenRouter error (${response.status}).`), { status: response.status });
     const text = String(result.text || '').trim();
-    if (!text) throw new Error('OpenRouter returned an empty transcript.');
+    if (!text) throw Object.assign(new Error('OpenRouter returned an empty transcript.'), { code: 'empty_transcript' });
     if (legacyMission) {
       await chrome.tabs.sendMessage(tabId, { type: 'MISSION_TRANS_RESULT', transcription: text, partial: false, jobId });
     } else if (legacySingle) {
@@ -172,7 +199,7 @@ async function transcribe(message, sender) {
           ReelType: message.ReelType,
           ReelURL: message.ReelURL,
           transcription: text,
-          partial: false,
+          partial: !!message.partialHint,
           duration_seconds: result.usage?.seconds,
         },
         jobId,
@@ -191,8 +218,9 @@ async function transcribe(message, sender) {
       ? { code: 'timeout', message: 'OpenRouter did not finish the transcription in time.' }
       : errorDetails(error, error.status);
     if (error.code) details.code = error.code;
+    details.code = clientErrorCode(details.code);
     const errorMessage = legacyMission
-      ? { type: 'MISSION_TRANS_ERROR', jobId, errorCode: details.code }
+      ? { type: 'MISSION_TRANS_ERROR', jobId, errorCode: details.code, error: details.message }
       : legacySingle
         ? { type: 'TRANSCRIPTION_ERROR', jobId, errorCode: details.code, error: details.message }
         : {
