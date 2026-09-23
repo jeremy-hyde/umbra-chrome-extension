@@ -1,5 +1,5 @@
 (()=>{(function(){if(window.__sfBanner)return;let e="sf-banner-stack",t="sf-banner-stack-tk",s={download:".sf-download-banner.sf-ready, .sf-download-banner.sf-error",transcribe:".sf-trans-banner.sf-ready, .sf-trans-banner.sf-error, .sf-trans-banner.sf-limit",gsheets:".sf-gsheets-banner.sf-ready, .sf-gsheets-banner.sf-error, .sf-gsheets-banner.sf-signin",upgrade:".sf-upgrade-banner"},n=_=>chrome.runtime.getURL(_);function o(){return/(^|\.)tiktok\.com$/.test(location.hostname)}document.documentElement.classList.add(o()?"sf-on-tk":"sf-on-ig");function r(){let _=o()?t:e,y=document.getElementById(_);return y||(y=document.createElement("div"),y.id=_,y.style.cssText=["position:fixed","top:15%","left:50%","transform:translateX(-50%)","display:flex","flex-direction:column","gap:8px","width:90%","max-width:600px","z-index:100000"].join(";"),document.body.appendChild(y)),y}function a(_,y,x,L,I){if(!_)return function(){};let q=_.querySelector(".sf-progress-fill"),v=_.querySelector(".sf-progress-pct"),M=Date.now(),J=!1;function pe(){if(J)return;let T=Date.now()-M,$=Math.min(1,T/L),V=1-Math.pow(1-$,2),te=Math.round(y+(x-y)*V);q&&(q.style.width=te+"%"),v&&(v.textContent=te+"%"),$<1?requestAnimationFrame(pe):I&&I()}return requestAnimationFrame(pe),function(){J=!0}}function i(_,y){if(!_)return;let x=Math.max(0,Math.min(100,Math.round(y))),L=_.querySelector(".sf-progress-fill"),I=_.querySelector(".sf-progress-pct");L&&(L.style.width=x+"%"),I&&(I.textContent=x+"%")}function c(_,y){return _?new Promise(function(x){setTimeout(function(){if(!_.isConnected){x();return}_.style.animation="sfSlideBounceUp 0.25s ease forwards",setTimeout(function(){_.remove(),x()},250)},y||0)}):Promise.resolve()}function l(_,y){let x=r(),L=s[y],I=L?Array.prototype.slice.call(document.querySelectorAll(L)):[];I.forEach(function(v){c(v,0)});let q=I.length?260:0;return new Promise(function(v){setTimeout(function(){x.appendChild(_),v(_)},q)})}function u(_){if(!_)return;_.classList.add("sf-static");let y=_.querySelector(".sf-icon");y&&y.classList.add("sf-static")}function p(_,y){let x=document.createElement("button");x.className="sf-banner-close",x.type="button",x.setAttribute("aria-label",y||"Close");let L=document.createElement("span");if(L.className="sf-banner-close-x",L.textContent="\xD7",x.appendChild(L),y){let I=document.createElement("span");I.className="sf-banner-close-tooltip",I.textContent=y,x.appendChild(I)}return x.addEventListener("click",function(I){I.stopPropagation(),typeof _=="function"&&_(I)}),x}function f(_,y){let x=document.createElement("button");x.className="sf-banner-stop",x.type="button",x.setAttribute("aria-label",y||"Stop");let L=document.createElement("span");if(L.className="sf-banner-stop-square",x.appendChild(L),y){let I=document.createElement("span");I.className="sf-banner-close-tooltip",I.textContent=y,x.appendChild(I)}return x.addEventListener("click",function(I){I.stopPropagation(),typeof _=="function"&&_(I)}),x}function d(_,y){let x=document.createElement("button");return x.className="sf-copy-btn",x.type="button",x.innerHTML='<img src="'+n("Icons/copyBlack.png")+'" alt="" /><span>Copy</span>',x.addEventListener("click",function(L){L.stopPropagation();let I=typeof _=="function"?_():String(_||"");I&&Promise.resolve(navigator.clipboard.writeText(I)).then(function(){x.classList.add("sf-copy-btn--fading"),setTimeout(function(){x.innerHTML='<img src="'+n("Icons/checkBlack.png")+'" alt="" /><span>Copied</span>',x.classList.remove("sf-copy-btn--fading"),x.classList.add("sf-copy-btn--copied"),typeof y=="function"&&y()},100)}).catch(function(){})}),x}function m(){try{return!!(chrome&&chrome.runtime&&chrome.runtime.id)}catch{return!1}}function g(_){let y=_||"Tab timed out from inactivity. Refresh the page to reconnect";if(document.querySelector(".sf-ctx-dead-banner"))return;if(!document.getElementById("sf-ctx-dead-style")){let J=document.createElement("style");J.id="sf-ctx-dead-style",J.textContent=["@keyframes sfCtxDeadIn{0%{transform:translateY(-120%);opacity:0}60%{transform:translateY(10px);opacity:1}80%{transform:translateY(-5px)}100%{transform:translateY(0)}}","@keyframes sfCtxDeadOut{0%{transform:translateY(0);opacity:1}20%{transform:translateY(-10px)}100%{transform:translateY(-120%);opacity:0}}","#sf-ctx-dead-stack{position:fixed;top:15%;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;width:90%;max-width:600px;z-index:100001;pointer-events:none}",".sf-ctx-dead-banner{pointer-events:auto;position:relative;width:100%;box-sizing:border-box;background:#ffffff;padding:12px 16px;padding-right:36px;display:flex;align-items:center;gap:10px;border:1px solid rgba(0,0,0,0.15);border-radius:0.75rem;box-shadow:0 4px 12px rgba(0,0,0,0.12);animation:sfCtxDeadIn 0.25s ease;font-family:-apple-system,BlinkMacSystemFont,system-ui,'Segoe UI',Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}",".sf-ctx-dead-banner .sf-ctx-dead-msg{font-size:16px;font-weight:500;color:#37352f;flex-grow:1;letter-spacing:-0.01em;line-height:1.4}",".sf-ctx-dead-banner .sf-ctx-dead-x{position:absolute;top:8px;right:8px;width:20px;height:20px;border:0;background:transparent;color:rgba(0,0,0,0.25);font-size:16px;line-height:1;cursor:pointer;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;padding:0;font-family:inherit;transition:background 0.15s ease,color 0.15s ease}",".sf-ctx-dead-banner .sf-ctx-dead-x:hover{background:rgba(0,0,0,0.05);color:rgba(0,0,0,0.55)}"].join(`
-`),(document.head||document.documentElement).appendChild(J)}let x=document.getElementById("sf-ctx-dead-stack");x||(x=document.createElement("div"),x.id="sf-ctx-dead-stack",document.body.appendChild(x));let L=document.createElement("div");L.className="sf-ctx-dead-banner";let I=document.createElement("div");I.className="sf-ctx-dead-msg",I.textContent=y,L.appendChild(I);let q=!1;function v(){q||(q=!0,L.style.animation="sfCtxDeadOut 0.25s ease forwards",setTimeout(function(){L.isConnected&&L.remove()},250))}let M=document.createElement("button");M.className="sf-ctx-dead-x",M.type="button",M.setAttribute("aria-label","Close"),M.textContent="\xD7",M.addEventListener("click",function(J){J.stopPropagation(),v()}),L.appendChild(M),x.appendChild(L),setTimeout(v,6e3)}let k={isDownloading:!1,isTranscribing:!1,isGSheetsLoading:!1};window.__sfBanner={getStack:r,animateProgress:a,setProgress:i,dismissBanner:c,enterBanner:l,setStatic:u,makeCloseButton:p,makeStopButton:f,makeCopyButton:d,guards:k,iconURL:n,isContextAlive:m,showContextDeadBanner:g}})();function Mo(e){let t=e.replace(/^\/|\/$/g,"").split("/").filter(Boolean);return t.length>=2?t[1].toLowerCase():""}function Ar(e){let t=Mo(e);return!(t==="reels"||t==="tagged"||t==="feed"||t==="reposts")}function Fr(e){return Mo(e)==="reels"}function Io(e,t){if(!/^\/explore\/search\//.test(e))return!1;try{let n=new URLSearchParams(t||"").get("q");return!!(n&&n.trim().length>0)}catch{return!1}}function Yn(e){let t=e.match(/^\/[^\/]+\/saved(?:\/(.*))?$/);if(!t)return null;let s=(t[1]||"").replace(/\/$/,"");return s===""||s==="audio"?"saved_root":s==="all-posts"?"saved_all_posts":"saved_collection"}function Hr(e,t,s,n){if(document.getElementById("banner_most_viewed_reels")!==null&&typeof mo=="function"){let o=mo({sort_by:e,no_items:s,dates_items:t,outlier_scores:n===!0}),r=o.warm?Mi(o.plan):null;if(r){try{let a=chrome.runtime.sendMessage({sort_feed_resorted:!0,sort_by:e,count:r.count,noun:r.noun,selection_changed:r.selectionChanged});a&&typeof a.catch=="function"&&a.catch(()=>{})}catch{}return!1}}if(Io(location.pathname,location.search)){if(e==="outlier")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"outlier_go_to_profiles"}),!1;if(e==="views")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"explore_views_unsupported"}),!1;if(t==="dates")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"explore_dates_unsupported"}),!1;if(s==="all_reels")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"explore_all_unsupported"}),!1;sessionStorage.setItem("sortFeedSurface","explore_search"),sessionStorage.setItem("sortFeedPostsVSReels","Posts");try{let r=(new URLSearchParams(location.search).get("q")||"").trim().slice(0,60).replace(/[^a-zA-Z0-9_-]+/g,"_")||"results";sessionStorage.setItem("sortFeedSearchQuery",r)}catch{}return!0}else if(Yn(location.pathname)){let o=Yn(location.pathname);if(e==="outlier")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"outlier_go_to_profiles"}),!1;if(o==="saved_root")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"saved_root_unsupported"}),!1;if(t==="dates")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"saved_dates_unsupported"}),!1;if(o==="saved_all_posts"){if(e==="comments")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"saved_all_posts_comments_unsupported"}),!1;if(e==="views")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"saved_all_posts_views_unsupported"}),!1}else if(e==="views")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"saved_collection_views_unsupported"}),!1;return sessionStorage.setItem("sortFeedSurface","saved"),sessionStorage.setItem("sortFeedPostsVSReels","Posts"),sessionStorage.setItem("sortFeedSavedSubMode",o==="saved_all_posts"?"all_posts":"collection"),!0}else{let o=document.querySelectorAll('[role="tablist"]')[0],r=window.__sfReels&&window.__sfReels.ctx,a=!o&&r&&r.surface==="profile"&&r.path===location.pathname&&document.getElementById("banner_most_viewed_reels")!==null?r.tab:null;if(typeof o<"u"||a){let i,c;if(a)i=a==="Posts",c=a==="Reels";else{let u=o.querySelectorAll('[aria-selected="true"]')[0].getAttribute("href");i=Ar(u),c=Fr(u)}return i?e==="views"?(chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"post_views"}),!1):(sessionStorage.setItem("sortFeedPostsVSReels","Posts"),!0):c?(sessionStorage.setItem("sortFeedPostsVSReels","Reels"),!0):e==="outlier"?(chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"outlier_posts_reels_tabs_only"}),!1):(chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"no_posts_reels"}),!1)}else return e==="outlier"?(chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"outlier_go_to_profiles"}),!1):t==="dates"?(chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"dates_go_to_profiles"}),!1):(chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"profile_pages"}),!1)}}async function Dr(){let e=await openDB(),t=e.transaction("TabData","readwrite");await t.objectStore("TabData").clear(),await t.done,e.close()}chrome.runtime.onMessage.addListener((e,t,s)=>{if(e.action==="refreshPage"&&Hr(e.sort_by,e.dates_items,e.no_items,e.outlier_scores)){sessionStorage.removeItem("sortFeedSortBy"),sessionStorage.removeItem("sortFeedNoItems"),sessionStorage.removeItem("sortFeedStatus"),sessionStorage.removeItem("sortItemsVsDates"),sessionStorage.removeItem("sortFeedData"),sessionStorage.removeItem("sortFeedPrepLabel"),sessionStorage.removeItem("sortFeedStopSorting");let n=Yn(location.pathname),o=n==="saved_all_posts"||n==="saved_collection";!Io(location.pathname,location.search)&&!o&&(sessionStorage.removeItem("sortFeedSurface"),sessionStorage.removeItem("sortFeedSavedSubMode")),Dr(),sessionStorage.setItem("sortFeedSortBy",e.sort_by),sessionStorage.setItem("sortFeedNoItems",e.no_items),sessionStorage.setItem("sortFeedStatus",!0),sessionStorage.setItem("sortItemsVsDates",e.dates_items);let r=sessionStorage.getItem("sortFeedPostsVSReels");e.outlier_scores===!0&&(r==="Reels"||r==="Posts")&&!sessionStorage.getItem("sortFeedSurface")?sessionStorage.setItem("sortFeedOutlier","on"):sessionStorage.removeItem("sortFeedOutlier");let a=sessionStorage.getItem("sortFeedSurface"),i="profile";a==="explore_search"?i="search":a==="saved"&&(i=sessionStorage.getItem("sortFeedSavedSubMode")==="collection"?"collection":"saved"),sessionStorage.setItem("sortFeedPrepLabel",i),window.location.reload()}});function Nr(){if(document.getElementById("sf-select-anim"))return;let e=document.createElement("style");e.id="sf-select-anim",e.textContent=`
+`),(document.head||document.documentElement).appendChild(J)}let x=document.getElementById("sf-ctx-dead-stack");x||(x=document.createElement("div"),x.id="sf-ctx-dead-stack",document.body.appendChild(x));let L=document.createElement("div");L.className="sf-ctx-dead-banner";let I=document.createElement("div");I.className="sf-ctx-dead-msg",I.textContent=y,L.appendChild(I);let q=!1;function v(){q||(q=!0,L.style.animation="sfCtxDeadOut 0.25s ease forwards",setTimeout(function(){L.isConnected&&L.remove()},250))}let M=document.createElement("button");M.className="sf-ctx-dead-x",M.type="button",M.setAttribute("aria-label","Close"),M.textContent="\xD7",M.addEventListener("click",function(J){J.stopPropagation(),v()}),L.appendChild(M),x.appendChild(L),setTimeout(v,6e3)}let k={isDownloading:!1,isTranscribing:!1,isGSheetsLoading:!1};window.__sfBanner={getStack:r,animateProgress:a,setProgress:i,dismissBanner:c,enterBanner:l,setStatic:u,makeCloseButton:p,makeStopButton:f,makeCopyButton:d,guards:k,iconURL:n,isContextAlive:m,showContextDeadBanner:g}})();function Mo(e){let t=e.replace(/^\/|\/$/g,"").split("/").filter(Boolean);return t.length>=2?t[1].toLowerCase():""}function Ar(e){let t=Mo(e);return!(t==="reels"||t==="tagged"||t==="feed"||t==="reposts")}function Fr(e){return Mo(e)==="reels"}function Io(e,t){if(!/^\/explore\/search\//.test(e))return!1;try{let n=new URLSearchParams(t||"").get("q");return!!(n&&n.trim().length>0)}catch{return!1}}function Yn(e){let t=e.match(/^\/[^\/]+\/saved(?:\/(.*))?$/);if(!t)return null;let s=(t[1]||"").replace(/\/$/,"");return s===""||s==="audio"?"saved_root":s==="all-posts"?"saved_all_posts":"saved_collection"}function Hr(e,t,s,n){if(document.getElementById("banner_most_viewed_reels")!==null&&typeof mo=="function"){let o=mo({sort_by:e,no_items:s,dates_items:t,outlier_scores:n===!0}),r=o.warm?Mi(o.plan):null;if(r){try{let a=chrome.runtime.sendMessage({sort_feed_resorted:!0,sort_by:e,count:r.count,noun:r.noun,selection_changed:r.selectionChanged});a&&typeof a.catch=="function"&&a.catch(()=>{})}catch{}return!1}}if(Io(location.pathname,location.search)){if(e==="outlier")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"outlier_go_to_profiles"}),!1;if(e==="views")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"explore_views_unsupported"}),!1;if(t==="dates")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"explore_dates_unsupported"}),!1;if(s==="all_reels")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"explore_all_unsupported"}),!1;sessionStorage.setItem("sortFeedSurface","explore_search"),sessionStorage.setItem("sortFeedPostsVSReels","Posts");try{let r=(new URLSearchParams(location.search).get("q")||"").trim().slice(0,60).replace(/[^a-zA-Z0-9_-]+/g,"_")||"results";sessionStorage.setItem("sortFeedSearchQuery",r)}catch{}return!0}else if(Yn(location.pathname)){let o=Yn(location.pathname);if(e==="outlier")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"outlier_go_to_profiles"}),!1;if(o==="saved_root")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"saved_root_unsupported"}),!1;if(t==="dates")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"saved_dates_unsupported"}),!1;if(o==="saved_all_posts"){if(e==="comments")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"saved_all_posts_comments_unsupported"}),!1;if(e==="views")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"saved_all_posts_views_unsupported"}),!1}else if(e==="views")return chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"saved_collection_views_unsupported"}),!1;return sessionStorage.setItem("sortFeedSurface","saved"),sessionStorage.setItem("sortFeedPostsVSReels","Posts"),sessionStorage.setItem("sortFeedSavedSubMode",o==="saved_all_posts"?"all_posts":"collection"),!0}else{let o=document.querySelectorAll('[role="tablist"]')[0],r=window.__sfReels&&window.__sfReels.ctx,a=!o&&r&&r.surface==="profile"&&r.path===location.pathname&&document.getElementById("banner_most_viewed_reels")!==null?r.tab:null;if(typeof o<"u"||a){let i,c;if(a)i=a==="Posts",c=a==="Reels";else{let u=o.querySelectorAll('[aria-selected="true"]')[0].getAttribute("href");i=Ar(u),c=Fr(u)}if(!c&&o){let rl=o.querySelector('a[href$="/reels/"],a[href$="/reels"]');if(rl){sessionStorage.setItem("sortFeedPostsVSReels","Reels"),sessionStorage.setItem("sortFeedGotoReels",rl.getAttribute("href"));return!0}}return i?e==="views"?(chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"post_views"}),!1):(sessionStorage.setItem("sortFeedPostsVSReels","Posts"),!0):c?(sessionStorage.setItem("sortFeedPostsVSReels","Reels"),!0):e==="outlier"?(chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"outlier_posts_reels_tabs_only"}),!1):(chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"no_posts_reels"}),!1)}else return e==="outlier"?(chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"outlier_go_to_profiles"}),!1):t==="dates"?(chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"dates_go_to_profiles"}),!1):(chrome.runtime.sendMessage({sort_feed_error:!0,error_type:"profile_pages"}),!1)}}async function Dr(){let e=await openDB(),t=e.transaction("TabData","readwrite");await t.objectStore("TabData").clear(),await t.done,e.close()}chrome.runtime.onMessage.addListener((e,t,s)=>{if(e.action==="refreshPage"&&Hr(e.sort_by,e.dates_items,e.no_items,e.outlier_scores)){sessionStorage.removeItem("sortFeedSortBy"),sessionStorage.removeItem("sortFeedNoItems"),sessionStorage.removeItem("sortFeedStatus"),sessionStorage.removeItem("sortItemsVsDates"),sessionStorage.removeItem("sortFeedData"),sessionStorage.removeItem("sortFeedPrepLabel"),sessionStorage.removeItem("sortFeedStopSorting");let n=Yn(location.pathname),o=n==="saved_all_posts"||n==="saved_collection";!Io(location.pathname,location.search)&&!o&&(sessionStorage.removeItem("sortFeedSurface"),sessionStorage.removeItem("sortFeedSavedSubMode")),Dr(),sessionStorage.setItem("sortFeedSortBy",e.sort_by),sessionStorage.setItem("sortFeedNoItems",e.no_items),sessionStorage.setItem("sortFeedStatus",!0),sessionStorage.setItem("sortItemsVsDates",e.dates_items);let r=sessionStorage.getItem("sortFeedPostsVSReels");e.outlier_scores===!0&&(r==="Reels"||r==="Posts")&&!sessionStorage.getItem("sortFeedSurface")?sessionStorage.setItem("sortFeedOutlier","on"):sessionStorage.removeItem("sortFeedOutlier");let a=sessionStorage.getItem("sortFeedSurface"),i="profile";a==="explore_search"?i="search":a==="saved"&&(i=sessionStorage.getItem("sortFeedSavedSubMode")==="collection"?"collection":"saved"),sessionStorage.setItem("sortFeedPrepLabel",i);let _goReels=sessionStorage.getItem("sortFeedGotoReels");sessionStorage.removeItem("sortFeedGotoReels");if(_goReels)location.assign(_goReels.startsWith("http")?_goReels:location.origin+_goReels);else window.location.reload()}});function Nr(){if(document.getElementById("sf-select-anim"))return;let e=document.createElement("style");e.id="sf-select-anim",e.textContent=`
     @keyframes sf-btn-in {
       from { opacity: 0; transform: translateY(4px) scale(0.96); }
       to   { opacity: 1; transform: translateY(0)   scale(1);    }
@@ -2356,3 +2356,273 @@
       <span>Get Pro</span>
     </button>
   `,o.querySelector(".sf-pro-btn").addEventListener("click",()=>{void 0}),o.appendChild(t.makeCloseButton(()=>t.dismissBanner(o,0))),t.enterBanner(o,"upgrade"),setTimeout(()=>t.dismissBanner(o,0),5e3)}window.addEventListener("message",e=>{let t=e.data;t&&t.trans&&chrome.runtime.sendMessage({command:"checkProStatus"},s=>{if(!s?.isPro){ut();return}if(Tl(),window.__sfBanner.guards.isTranscribing)return;window.__sfBanner.guards.isTranscribing=!0,vr=t.download_profile_name||"",wr=t.download_reel_id_ui||"";let o=++ct;be=!1,Bn=null,xr(null,null),Rn().then(r=>{r&&chrome.runtime.sendMessage({command:"fetchTransQuotaInfo",jobId:o,userID:r})}),Fl(t.download_reel_id,t.download_profile_name,o,t.download_reel_id_ui)})});async function Fl(e,t,s,n){if(be){Ae?.();return}let o=`https://www.instagram.com/api/v1/media/${e}/info/`;try{let r=await fetch(o,{method:"GET",credentials:"include",headers:{"x-ig-app-id":"936619743392459","x-ig-www-claim":window._sharedData?.config?.csrf_token||""}});if(!r.ok)throw new Error(`Failed: ${r.status}`);let a=await r.json();if(be)return null;let i=Array.isArray(a)?a[0]:a?.items?.[0]??a,c=f=>f&&f.match(/<AdaptationSet[^>]*contentType="audio"[^>]*>[\s\S]*?<BaseURL>([^<]+)<\/BaseURL>/i)?.[1]?.replace(/&amp;/g,"&")||null,l=i?.clips_metadata?.original_sound_info?.progressive_download_url;if(l&&/^https?:\/\//i.test(l)){if(be){Ae?.();return}return jn("progressive",l,s,e,"instagram",n,t),l}let u=c(i?.video_dash_manifest);if(u){if(be){Ae?.();return}return jn("dashAudio",u,s,e,"instagram",n,t),u}let p=i?.video_versions?.[0]?.url||null;if(p){if(be){Ae?.();return}return jn("videoFallback",p,s,e,"instagram",n,t),p}return Ae(),Oe(ft.audio_extract_failed),null}catch{return Ae(),be||Oe(ft.audio_extract_failed),null}}async function Rn(){try{let t=(await chrome.storage.local.get("sort_feed_user_id"))?.sort_feed_user_id;return t||(console.warn("No userID found in storage."),null)}catch(e){return console.error("Error fetching userID from storage:",e),null}}function _r(e,t){try{if(t==="dns"){let s=new URL(e);return s.hostname="sf-forced-fallback.invalid",s.toString()}if(t==="403")return/[?&]oh=/.test(e)?e.replace(/([?&]oh=)[^&]*/,"$1sf_forced_break"):e+(e.includes("?")?"&":"?")+"oh=sf_forced_break"}catch{}return e}async function ps(e,t=Il,s=null){let n=await fetch(e);if(!n.ok)throw new Error(`fallback fetch failed: ${n.status}`);let o=n.headers.get("content-length"),r=o?parseInt(o,10):null,a=n.body.getReader(),i=[],c=0,l=!1;for(;;){if(be){try{await a.cancel()}catch{}return null}let{done:m,value:g}=await a.read();if(m)break;if(i.push(g),c+=g.length,c>=t){l=!0;try{await a.cancel()}catch{}break}r&&s&&s(Math.min(1,c/Math.min(r,t)))}let u=new Uint8Array(c),p=0;for(let m of i)u.set(m,p),p+=m.length;let f="",d=32768;for(let m=0;m<u.length;m+=d)f+=String.fromCharCode(...u.subarray(m,m+d));return{base64:btoa(f),truncated:l}}async function Hl(e){let t=As;if(!t?.ReelURL||be||e!==ct)return!1;let s=await Rn();if(!s||be||e!==ct)return!1;Bt(Math.max(Wt,20),55,1e4);let n=null;try{n=await ps(t.ReelURL)}catch(o){console.error("IG transcription fallback download failed:",o,"url host:",(()=>{try{return new URL(t.ReelURL).host}catch{return"?"}})())}return be||e!==ct||!n?.base64?!1:(chrome.runtime.sendMessage({command:"InstagramReelTranscribe",ReelType:t.ReelType,ReelBase64:n.base64,partialHint:n.truncated,jobId:e,userID:s,contentId:t.contentId,platform:t.platform,reelIdUi:t.reelIdUi,profileName:t.profileName}),!0)}async function jn(e=null,t=null,s=null,n=null,o=null,r=null,a=null){if(be)return;if(!t)return console.warn("No ReelURL to send."),!1;let i=await Rn();if(!i)return Ae(),Oe(ft.not_signed_in),!1;As={ReelType:e,ReelURL:t,contentId:n,platform:o,reelIdUi:r,profileName:a},dn=!1,chrome.runtime.sendMessage({command:"InstagramReelTranscribe",ReelType:e,ReelURL:kn?_r(t,kn):t,jobId:s,userID:i,contentId:n,platform:o,reelIdUi:r,profileName:a})}chrome.runtime.onMessage.addListener(e=>{if(e.type==="TRANS_LIMIT_REACHED"){try{Ae?.()}catch{}Me&&(clearTimeout(Me),Me=null),st?.(),ds(e.data||"You\u2019ve reached your monthly transcription limit.");return}if(!be&&!(!e||e.jobId!==ct)){if(e.type==="TRANS_STARTED"&&(Bn=e.clientJobId||null,xr(null,null)),e.type==="TRANS_QUOTA_INFO"&&Bl(e.monthly_quota_mins,e.monthly_usage_secs),e.type==="TRANS_LOADING"&&(st?.(),Me&&clearTimeout(Me),Bt(dn?Math.max(Wt,0):0,70,3500),Me=setTimeout(()=>{Bt(70,80,3500),Me=setTimeout(()=>{Bt(80,95,12e3)},3500)},3500)),e.type==="TRANSCRIPTION_RESULT"){Me&&(clearTimeout(Me),Me=null),st();let t=(e.data.transcription||"").trim();if(!t){Oe(ft.empty_transcript);return}Bt(Math.max(Wt,80),100,250),setTimeout(()=>{let s=new Blob([t],{type:"text/plain"}),n=URL.createObjectURL(s),o=document.createElement("a");o.href=n,o.download=`${vr}_${wr}.txt`,o.click(),URL.revokeObjectURL(n),Ae(),setTimeout(()=>{Al(t,e.data.partial,e.data.duration_seconds)},200)},300)}else if(e.type==="TRANSCRIPTION_ERROR"){if(Me&&(clearTimeout(Me),Me=null),st(),e.errorCode==="cancelled"){Ae();return}if(e.errorCode==="media_fetch_failed"&&!dn&&As?.ReelURL){dn=!0;let t=e.jobId;Hl(t).then(s=>{!s&&!be&&t===ct&&(st(),Oe(ft.media_fetch_failed))});return}Oe(ft[e.errorCode]||"Transcription failed \u2014 try again")}}});})();
+
+// ─── Umbra — feed library auto-save + creator tags ──────────────────────────
+// 1) Every completed sort posts a `logo_animate_off` window message carrying
+//    the sorted items — forward them to the background so they are persisted
+//    in the library (IndexedDB) for the dashboard.
+// 2) On profile pages, inject a small tag chip next to the header so creators
+//    can be labelled; tags feed the dashboard filters.
+(() => {
+  if (window.__umbraLibraryInit) return;
+  window.__umbraLibraryInit = true;
+
+  function sessionGet(key) {
+    try { return sessionStorage.getItem(key); } catch (_) { return null; }
+  }
+
+  window.addEventListener('message', (e) => {
+    if (e.source !== window || !e.data) return;
+    if (!e.data.logo_animate_off || !Array.isArray(e.data.payload)) return;
+    const items = e.data.payload;
+    if (!items.length) return;
+    const segments = location.pathname.split('/').filter(Boolean);
+    try {
+      chrome.runtime.sendMessage({
+        type: 'umbra_save_feed',
+        items,
+        ctx: {
+          platform: 'instagram',
+          surface: e.data.sf_surface || sessionGet('sortFeedSurface') || 'profile',
+          postsVsReels: sessionGet('sortFeedPostsVSReels'),
+          sortBy: sessionGet('sortFeedSortBy'),
+          scope: sessionGet('sortFeedNoItems'),
+          scopeMode: sessionGet('sortItemsVsDates'),
+          savedSubMode: sessionGet('sortFeedSavedSubMode'),
+          creator: segments.length === 1 ? segments[0] : (items[0] && items[0].userName) || '',
+          path: location.pathname,
+        },
+      });
+    } catch (_) {}
+  });
+
+  // ── creator tag chip on profile pages ──
+  const RESERVED = new Set(['reels', 'reel', 'p', 'explore', 'accounts', 'direct', 'stories', 'tv', 'legal', 'about', 'developer', 'emails', 'oauth', 'challenge', 'web', 'lite', 'ar', 'fxcal', 'meta', 'linking', 'your_activity', 'saved']);
+
+  // Profile sub-tabs that still show the creator header: /user/, /user/reels/,
+  // /user/tagged/, /user/feed/, /user/reposts/.
+  const PROFILE_TABS = new Set(['reels', 'tagged', 'feed', 'reposts']);
+
+  function profileUsername() {
+    const segments = location.pathname.split('/').filter(Boolean);
+    if (segments.length !== 1 && !(segments.length === 2 && PROFILE_TABS.has(segments[1].toLowerCase()))) return null;
+    const name = segments[0].toLowerCase();
+    return RESERVED.has(name) ? null : segments[0];
+  }
+
+  const CHIP_CSS = `
+    .umbra-tag-wrap { position: relative; display: inline-flex; align-items: center; z-index: 2147483640; }
+    .umbra-tag-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-left: 12px; padding: 5px 10px;
+      border: 1px solid #4fbdba; border-radius: 999px;
+      background: rgba(26,26,27,0.85); color: #4fbdba;
+      font: 600 11px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      cursor: pointer; letter-spacing: .4px;
+    }
+    .umbra-tag-chip:hover { background: #4fbdba; color: #1a1a1b; }
+    .umbra-tag-pop {
+      position: fixed; z-index: 2147483647;
+      width: 260px; padding: 12px;
+      background: #1a1a1b; border: 1px solid #343536; border-radius: 10px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .umbra-tag-pop label { display: block; color: #818384; font-size: 11px; margin-bottom: 6px; }
+    .umbra-tag-pop input {
+      width: 100%; box-sizing: border-box; padding: 8px 10px;
+      border: 1px solid #343536; border-radius: 6px; outline: none;
+      background: #111112; color: #d7dadc; font-size: 12px;
+    }
+    .umbra-tag-pop input:focus { border-color: #4fbdba; }
+    .umbra-tag-pop .umbra-tag-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .umbra-tag-pop .umbra-tag-actions button {
+      flex: 1; padding: 7px; border: 1px solid #343536; border-radius: 6px;
+      background: #272729; color: #d7dadc; font-size: 11px; cursor: pointer;
+    }
+    .umbra-tag-pop .umbra-tag-save:hover { border-color: #4fbdba; color: #4fbdba; }
+    .umbra-tag-hint { margin-top: 8px; color: #4a4a4b; font-size: 10px; line-height: 1.5; }
+    .umbra-tag-selected { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+    .umbra-tag-sel {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 8px; border-radius: 999px; font-size: 11px;
+      background: rgba(79,189,186,0.15); color: #4fbdba; border: 1px solid rgba(79,189,186,0.4);
+    }
+    .umbra-tag-x {
+      border: none; background: none; color: #4fbdba; cursor: pointer;
+      font-size: 12px; line-height: 1; padding: 0; margin-left: 2px;
+    }
+    .umbra-tag-sugg { margin-top: 8px; }
+    .umbra-tag-sugg-list { display: flex; flex-wrap: wrap; gap: 5px; max-height: 110px; overflow-y: auto; }
+    .umbra-tag-sug {
+      padding: 3px 9px; border-radius: 999px; font-size: 11px; cursor: pointer;
+      background: #272729; color: #d7dadc; border: 1px solid #343536;
+    }
+    .umbra-tag-sug:hover { border-color: #4fbdba; color: #4fbdba; }
+  `;
+
+  function injectChipCss() {
+    if (document.getElementById('umbra-tag-css')) return;
+    const el = document.createElement('style');
+    el.id = 'umbra-tag-css';
+    el.textContent = CHIP_CSS;
+    (document.head || document.documentElement).appendChild(el);
+  }
+
+  function chipLabel(tags) {
+    return tags && tags.length ? `🏷 ${tags.join(', ')}` : '+ tag';
+  }
+
+  function attachChip() {
+    const username = profileUsername();
+    const header = document.querySelector('main header') || document.querySelector('header');
+    if (!header) return;
+    // SPA navigation: same header element, different profile → rebind.
+    if (header.dataset.umbraTagAttached === '1' && header.dataset.umbraTagUser !== (username || '')) {
+      header.querySelectorAll('.umbra-tag-wrap').forEach(el => el.remove());
+      delete header.dataset.umbraTagAttached;
+    }
+    if (!username || header.dataset.umbraTagAttached) return;
+    header.dataset.umbraTagAttached = '1';
+    header.dataset.umbraTagUser = username;
+    injectChipCss();
+
+    // Anchor on the username row when possible so the chip sits next to it.
+    const anchor = header.querySelector('section') || header;
+    const wrap = document.createElement('span');
+    wrap.className = 'umbra-tag-wrap';
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'umbra-tag-chip';
+    chip.textContent = '…';
+    wrap.appendChild(chip);
+    anchor.style.position = anchor.style.position || 'relative';
+    anchor.appendChild(wrap);
+
+    let tags = [];
+    chrome.runtime.sendMessage({ type: 'umbra_creator_get_tags', platform: 'instagram', username }, (res) => {
+      if (res && res.ok) { tags = res.tags || []; chip.textContent = chipLabel(tags); }
+      else chip.textContent = '+ tag';
+    });
+
+    chip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const existing = document.querySelector('.umbra-tag-pop');
+      if (existing) { existing.dispatchEvent(new Event('umbra-close')); return; }
+      const pop = document.createElement('div');
+      pop.className = 'umbra-tag-pop';
+      pop.innerHTML = `
+        <label>Tags for @${username}</label>
+        <div class="umbra-tag-selected"></div>
+        <input type="text" placeholder="add tag… (Enter to add)">
+        <div class="umbra-tag-sugg"><div class="umbra-tag-sugg-list">…</div></div>
+        <div class="umbra-tag-actions">
+          <button type="button" class="umbra-tag-save">Save</button>
+          <button type="button" class="umbra-tag-cancel">Cancel</button>
+        </div>
+      `;
+      pop.addEventListener('click', (ev) => ev.stopPropagation());
+
+      const selected = new Set(tags);
+      const selBox = pop.querySelector('.umbra-tag-selected');
+      const input = pop.querySelector('input');
+      const suggList = pop.querySelector('.umbra-tag-sugg-list');
+      let allTags = [];
+
+      function renderSelected() {
+        selBox.replaceChildren();
+        if (!selected.size) { selBox.style.display = 'none'; return; }
+        selBox.style.display = 'flex';
+        for (const t of selected) {
+          const s = document.createElement('span');
+          s.className = 'umbra-tag-sel';
+          s.textContent = t;
+          const x = document.createElement('button');
+          x.type = 'button';
+          x.className = 'umbra-tag-x';
+          x.textContent = '×';
+          x.addEventListener('click', () => { selected.delete(t); renderSelected(); renderSugg(); });
+          s.appendChild(x);
+          selBox.appendChild(s);
+        }
+      }
+
+      function renderSugg() {
+        suggList.replaceChildren();
+        const q = input.value.trim().toLowerCase();
+        const shown = allTags.filter(t => !selected.has(t) && (!q || t.includes(q)));
+        pop.querySelector('.umbra-tag-sugg').style.display = shown.length || q ? '' : 'none';
+        for (const t of shown) {
+          const s = document.createElement('button');
+          s.type = 'button';
+          s.className = 'umbra-tag-sug';
+          s.textContent = t;
+          s.addEventListener('click', () => { selected.add(t); input.value = ''; renderSelected(); renderSugg(); });
+          suggList.appendChild(s);
+        }
+      }
+
+      input.addEventListener('input', renderSugg);
+      input.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter' || ev.key === ',') {
+          ev.preventDefault();
+          const parts = input.value.split(',').map(v => v.trim().toLowerCase()).filter(Boolean);
+          if (parts.length) { parts.forEach(v => selected.add(v)); input.value = ''; renderSelected(); renderSugg(); }
+        }
+      });
+
+      chrome.runtime.sendMessage({ type: 'umbra_library_tags' }, (res) => {
+        if (res && res.ok) { allTags = res.tags || []; renderSugg(); }
+      });
+      renderSelected();
+
+      pop.querySelector('.umbra-tag-cancel').addEventListener('click', () => closePop());
+      pop.querySelector('.umbra-tag-save').addEventListener('click', () => {
+        input.value.split(',').map(v => v.trim().toLowerCase()).filter(Boolean).forEach(v => selected.add(v));
+        const next = Array.from(selected);
+        chrome.runtime.sendMessage({ type: 'umbra_creator_set_tags', platform: 'instagram', username, tags: next }, (res) => {
+          if (res && res.ok) { tags = res.tags || []; chip.textContent = chipLabel(tags); }
+          closePop();
+        });
+      });
+      // The popover lives on body — IG header overlays otherwise cover it.
+      document.body.appendChild(pop);
+      function placePop() {
+        const r = chip.getBoundingClientRect();
+        pop.style.left = Math.min(r.left, window.innerWidth - 272) + 'px';
+        pop.style.top = (r.bottom + 8) + 'px';
+      }
+      placePop();
+      const onScroll = () => { if (pop.isConnected) placePop(); };
+      const onDown = (ev) => { if (!pop.contains(ev.target) && ev.target !== chip) closePop(); };
+      function closePop() {
+        if (!pop.isConnected) return;
+        pop.remove();
+        window.removeEventListener('scroll', onScroll, true);
+        window.removeEventListener('resize', onScroll);
+        document.removeEventListener('pointerdown', onDown, true);
+      }
+      pop.addEventListener('umbra-close', closePop);
+      window.addEventListener('scroll', onScroll, { passive: true, capture: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      document.addEventListener('pointerdown', onDown, { capture: true });
+      input.focus();
+    });
+  }
+
+  const chipObserver = new MutationObserver(() => {
+    // Drop the marker when the header was replaced by SPA navigation.
+    const header = document.querySelector('main header') || document.querySelector('header');
+    if (header && !header.querySelector('.umbra-tag-chip')) {
+      delete header.dataset.umbraTagAttached;
+      delete header.dataset.umbraTagUser;
+      // The popover lives on body — remove it if its chip is gone.
+      document.querySelectorAll('.umbra-tag-pop').forEach(el => el.dispatchEvent(new Event('umbra-close')));
+    }
+    attachChip();
+  });
+  chipObserver.observe(document.documentElement, { childList: true, subtree: true });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', attachChip);
+  else attachChip();
+})();

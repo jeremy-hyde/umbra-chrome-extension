@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Umbra — Feed Library</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>UMBRA LIBRARY</h1>
+      <div class="stats" id="stats"></div>
+      <div class="header-actions">
+        <button id="export-csv" type="button">Export CSV</button>
+        <button id="export-json" type="button">Export JSON</button>
+        <button id="clear-all" type="button" class="danger">Clear all</button>
+      </div>
+    </header>
+
+    <nav class="tabs">
+      <button type="button" class="tab active" data-view="posts">Posts</button>
+      <button type="button" class="tab" data-view="creators">Creators</button>
+      <button type="button" class="tab" data-view="tags">Tags</button>
+    </nav>
+
+    <div id="view-posts" class="view">
+      <div class="layout">
+        <aside class="sidebar">
+          <h2>Filters</h2>
+          <div class="side-block">
+            <div class="side-title">Filter by tag</div>
+            <div class="tag-filter-row" id="tag-filters"></div>
+          </div>
+          <div class="side-block" id="creator-list"></div>
+        </aside>
+
+        <section>
+          <div class="toolbar">
+            <input type="search" id="search" placeholder="Search captions…">
+            <select id="type-filter">
+              <option value="">All types</option>
+              <option value="reel">Reels</option>
+              <option value="carousel">Carousels</option>
+              <option value="photo">Photos</option>
+              <option value="post">Posts</option>
+            </select>
+            <span class="result-count" id="result-count"></span>
+          </div>
+          <div class="table-wrap" id="table-wrap"></div>
+          <div class="snapshots" id="snapshots"></div>
+        </section>
+      </div>
+    </div>
+
+    <div id="view-creators" class="view hidden">
+      <div class="panel" id="creators-panel"></div>
+    </div>
+
+    <div id="view-tags" class="view hidden">
+      <div class="panel" id="tags-panel"></div>
+    </div>
+  </main>
+  <datalist id="tag-suggestions"></datalist>
+  <script src="shared/library-db.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

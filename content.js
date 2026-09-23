@@ -95,6 +95,66 @@ function apply(enabled) {
   }
 }
 
+// ─── Direct in-extension download (Mux HLS → .mp4) ───────────────────────────
+// Shared by the Skool and Whop sections. UmbraHls comes from
+// shared/hls-download.js, loaded in the isolated world with lib/mux.min.js.
+function umbraWireDirectDownload(modal) {
+  const dlBtn = modal.querySelector('#umbra-dl-btn');
+  const prog = modal.querySelector('#umbra-modal-progress');
+  const fill = modal.querySelector('.umbra-prog-fill');
+  const pct = modal.querySelector('.umbra-prog-pct');
+  const status = modal.querySelector('#umbra-modal-status');
+  if (!dlBtn) return;
+
+  function setProgress(frac) {
+    const p = Math.max(0, Math.min(100, Math.round(frac * 100)));
+    if (fill) fill.style.width = p + '%';
+    if (pct) pct.textContent = p + '%';
+  }
+  function setStatus(text, isError) {
+    if (!status) return;
+    status.textContent = text || '';
+    status.classList.toggle('error', !!isError);
+  }
+
+  dlBtn.addEventListener('click', async () => {
+    const url = modal.dataset.url;
+    if (!url || !window.UmbraHls) {
+      setStatus(window.UmbraHls ? 'No stream URL captured.' : 'Direct download is not available on this page.', true);
+      return;
+    }
+    dlBtn.disabled = true;
+    dlBtn.textContent = 'Downloading…';
+    if (prog) prog.style.display = 'flex';
+    setProgress(0);
+    setStatus('');
+    try {
+      const { blob, ext } = await window.UmbraHls.download(url, {
+        onProgress: (p) => {
+          if (p.phase === 'segments' && p.total) setProgress((p.done / p.total) * 0.95);
+          else if (p.phase === 'remux') setProgress(0.97);
+        },
+      });
+      const title = modal.dataset.title || 'video';
+      const filename = `${title}.${ext || 'mp4'}`;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      setProgress(1);
+      setStatus(`Saved ${(blob.size / 1048576).toFixed(1)} MB — ${filename}`);
+    } catch (err) {
+      setStatus(`${err && err.message ? err.message : 'Download failed.'} Use the yt-dlp command below.`, true);
+    } finally {
+      dlBtn.disabled = false;
+      dlBtn.textContent = 'Download .mp4';
+    }
+  });
+}
+
 // ─── Skool video downloader ──────────────────────────────────────────────────
 // skool-intercept.js runs in MAIN world (registered in manifest.json) and
 // patches fetch/XHR. This isolated-world script handles UI + messaging only.
@@ -235,6 +295,39 @@ if (IS_SKOOL) {
       font-family: 'SFMono-Regular', Consolas, monospace;
       font-size: 10px;
     }
+    #umbra-video-modal .modal-progress {
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+    #umbra-video-modal .umbra-prog-track {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: #272729;
+      overflow: hidden;
+    }
+    #umbra-video-modal .umbra-prog-fill {
+      height: 100%;
+      width: 0;
+      background: #4fbdba;
+      transition: width .2s ease;
+    }
+    #umbra-video-modal .umbra-prog-pct {
+      font-size: 10px;
+      color: #4fbdba;
+      font-variant-numeric: tabular-nums;
+      min-width: 32px;
+      text-align: right;
+    }
+    #umbra-video-modal .modal-status {
+      font-size: 10px;
+      color: #4fbdba;
+      min-height: 12px;
+    }
+    #umbra-video-modal .modal-status.error { color: #e06c75; }
+    #umbra-dl-btn:hover { border-color: #4fbdba; color: #4fbdba; background: #0e1918; }
+    #umbra-dl-btn:disabled { opacity: .5; cursor: default; }
   `;
 
   const skoolStyleEl = document.createElement('style');
@@ -253,9 +346,12 @@ if (IS_SKOOL) {
       <div class="modal-label">yt-dlp command</div>
       <div class="modal-cmd" id="umbra-modal-cmd"></div>
       <div class="modal-actions">
+        <button id="umbra-dl-btn" style="display:none">Download .mp4</button>
         <button id="umbra-copy-btn">Copy yt-dlp</button>
         <button id="umbra-close-modal-btn">Close</button>
       </div>
+      <div class="modal-progress" id="umbra-modal-progress"><div class="umbra-prog-track"><div class="umbra-prog-fill"></div></div><span class="umbra-prog-pct"></span></div>
+      <div class="modal-status" id="umbra-modal-status"></div>
       <div class="modal-help">
         <a href="https://github.com/yt-dlp/yt-dlp#installation" target="_blank" rel="noopener">↗ Install yt-dlp</a>
         <a href="https://github.com/yt-dlp/yt-dlp#usage-and-options" target="_blank" rel="noopener">↗ Usage guide</a>
@@ -273,6 +369,7 @@ if (IS_SKOOL) {
   document.addEventListener('DOMContentLoaded', () => document.body.appendChild(modal), { once: true });
   // Fallback if DOMContentLoaded already fired
   if (document.body) document.body.appendChild(modal);
+  umbraWireDirectDownload(modal);
 
   document.addEventListener('click', (e) => {
     if (e.target.id === 'umbra-close-modal-btn') modal.classList.remove('open');
@@ -299,6 +396,15 @@ if (IS_SKOOL) {
       ? `yt-dlp -o "${title}.%(ext)s" --add-header "Referer:https://skool.com/" --add-header "Origin:https://skool.com" "${videoUrl}"`
       : `yt-dlp -o "${title}.%(ext)s" "${videoUrl}"`;
     document.getElementById('umbra-modal-cmd').textContent = cmd;
+    modal.dataset.url = videoUrl;
+    modal.dataset.type = type;
+    modal.dataset.title = title;
+    const dlBtn = document.getElementById('umbra-dl-btn');
+    if (dlBtn) dlBtn.style.display = type === 'mux' ? '' : 'none';
+    const prog = document.getElementById('umbra-modal-progress');
+    if (prog) prog.style.display = 'none';
+    const status = document.getElementById('umbra-modal-status');
+    if (status) status.textContent = '';
     modal.classList.add('open');
   }
 
@@ -570,6 +676,39 @@ if (IS_WHOP) {
       font-family: 'SFMono-Regular', Consolas, monospace;
       font-size: 10px;
     }
+    #umbra-video-modal .modal-progress {
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+    #umbra-video-modal .umbra-prog-track {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: #272729;
+      overflow: hidden;
+    }
+    #umbra-video-modal .umbra-prog-fill {
+      height: 100%;
+      width: 0;
+      background: #4fbdba;
+      transition: width .2s ease;
+    }
+    #umbra-video-modal .umbra-prog-pct {
+      font-size: 10px;
+      color: #4fbdba;
+      font-variant-numeric: tabular-nums;
+      min-width: 32px;
+      text-align: right;
+    }
+    #umbra-video-modal .modal-status {
+      font-size: 10px;
+      color: #4fbdba;
+      min-height: 12px;
+    }
+    #umbra-video-modal .modal-status.error { color: #e06c75; }
+    #umbra-dl-btn:hover { border-color: #4fbdba; color: #4fbdba; background: #0e1918; }
+    #umbra-dl-btn:disabled { opacity: .5; cursor: default; }
   `;
 
   const whopStyleEl = document.createElement('style');
@@ -588,9 +727,12 @@ if (IS_WHOP) {
       <div class="modal-label">yt-dlp command</div>
       <div class="modal-cmd" id="umbra-modal-cmd"></div>
       <div class="modal-actions">
+        <button id="umbra-dl-btn" style="display:none">Download .mp4</button>
         <button id="umbra-copy-btn">Copy yt-dlp</button>
         <button id="umbra-close-modal-btn">Close</button>
       </div>
+      <div class="modal-progress" id="umbra-modal-progress"><div class="umbra-prog-track"><div class="umbra-prog-fill"></div></div><span class="umbra-prog-pct"></span></div>
+      <div class="modal-status" id="umbra-modal-status"></div>
       <div class="modal-help">
         <a href="https://github.com/yt-dlp/yt-dlp#installation" target="_blank" rel="noopener">↗ Install yt-dlp</a>
         <a href="https://github.com/yt-dlp/yt-dlp#usage-and-options" target="_blank" rel="noopener">↗ Usage guide</a>
@@ -608,6 +750,7 @@ if (IS_WHOP) {
   document.addEventListener('DOMContentLoaded', () => document.body.appendChild(modal), { once: true });
   // Fallback if DOMContentLoaded already fired
   if (document.body) document.body.appendChild(modal);
+  umbraWireDirectDownload(modal);
 
   document.addEventListener('click', (e) => {
     if (e.target.id === 'umbra-close-modal-btn') modal.classList.remove('open');
@@ -634,6 +777,15 @@ if (IS_WHOP) {
       ? `yt-dlp -o "${title}.%(ext)s" --add-header "Referer:https://whop.com/" --add-header "Origin:https://whop.com" "${videoUrl}"`
       : `yt-dlp -o "${title}.%(ext)s" "${videoUrl}"`;
     document.getElementById('umbra-modal-cmd').textContent = cmd;
+    modal.dataset.url = videoUrl;
+    modal.dataset.type = type;
+    modal.dataset.title = title;
+    const dlBtn = document.getElementById('umbra-dl-btn');
+    if (dlBtn) dlBtn.style.display = type === 'mux' ? '' : 'none';
+    const prog = document.getElementById('umbra-modal-progress');
+    if (prog) prog.style.display = 'none';
+    const status = document.getElementById('umbra-modal-status');
+    if (status) status.textContent = '';
     modal.classList.add('open');
   }
 

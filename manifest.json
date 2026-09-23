@@ -48,9 +48,14 @@
       "world": "MAIN"
     },
     {
+      "matches": ["https://skool.com/*", "https://*.skool.com/*", "https://whop.com/*", "https://*.whop.com/*"],
+      "js": ["lib/mux.min.js", "shared/hls-download.js"],
+      "run_at": "document_start"
+    },
+    {
       "matches": ["https://www.instagram.com/*"],
       "css": ["Animate/animate.css", "shared/sf_banner_primitives.css"],
-      "js": ["lib/xlsx.full.min.js", "Instagram/content.js"],
+      "js": ["lib/xlsx.full.min.js", "Instagram/content.js", "Instagram/video_controls.js"],
       "run_at": "document_start"
     },
     {

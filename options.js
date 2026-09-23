@@ -56,6 +56,7 @@ for (const root of document.querySelectorAll('[data-provider]')) {
 const igOpenIn = document.getElementById('instagram-open-in');
 const igDownloadToggle = document.getElementById('instagram-download-toggle');
 const igTranscribeToggle = document.getElementById('instagram-transcribe-toggle');
+const igVideoControlsToggle = document.getElementById('instagram-video-controls-toggle');
 
 if (igOpenIn) {
   chrome.storage.local.get([
@@ -65,10 +66,12 @@ if (igOpenIn) {
     'sortfeed_ig_open_in',
     'sortfeed_ig_download_enabled',
     'sortfeed_ig_transcribe_enabled',
+    'umbra_ig_video_controls',
   ]).then(saved => {
     igOpenIn.value = saved.sortfeed_ig_open_in || saved.umbra_instagram_open_in || 'player';
     igDownloadToggle.checked = (saved.sortfeed_ig_download_enabled ?? saved.umbra_instagram_download_enabled) !== false;
     igTranscribeToggle.checked = (saved.sortfeed_ig_transcribe_enabled ?? saved.umbra_instagram_transcribe_enabled) !== false;
+    igVideoControlsToggle.checked = saved.umbra_ig_video_controls !== false;
   });
 
   igOpenIn.addEventListener('change', () => chrome.storage.local.set({
@@ -82,5 +85,8 @@ if (igOpenIn) {
   igTranscribeToggle.addEventListener('change', () => chrome.storage.local.set({
     umbra_instagram_transcribe_enabled: igTranscribeToggle.checked,
     sortfeed_ig_transcribe_enabled: igTranscribeToggle.checked,
+  }));
+  igVideoControlsToggle.addEventListener('change', () => chrome.storage.local.set({
+    umbra_ig_video_controls: igVideoControlsToggle.checked,
   }));
 }

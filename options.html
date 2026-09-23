@@ -98,6 +98,7 @@
         </label>
         <label class="toggle-row">Show Download button <input id="instagram-download-toggle" type="checkbox" checked></label>
         <label class="toggle-row">Show Transcribe button <input id="instagram-transcribe-toggle" type="checkbox" checked></label>
+        <label class="toggle-row">Video seek bar &amp; controls <input id="instagram-video-controls-toggle" type="checkbox" checked></label>
       </div>
     </section>
 
@@ -109,13 +110,13 @@
           <ol>
             <li>Umbra adds a Download button to supported videos on Skool and Whop.</li>
             <li>Click Download. If Umbra cannot detect the stream, play the video once and try again.</li>
-            <li>Umbra shows the detected video URL and creates a <code>yt-dlp</code> command.</li>
-            <li>Copy the command and run it in Terminal. The file is saved in the current Terminal folder.</li>
+            <li>Mux streams (Skool and Whop native players) download directly as .mp4 — no tools needed.</li>
+            <li>For Loom and YouTube embeds, Umbra shows a <code>yt-dlp</code> command to copy and run in Terminal.</li>
           </ol>
         </div>
         <div>
           <h3>What to install</h3>
-          <p><code>yt-dlp</code> is required. FFmpeg and ffprobe are strongly recommended and are needed when separate video and audio streams must be merged.</p>
+          <p><code>yt-dlp</code> is only needed for Loom and YouTube embeds. FFmpeg and ffprobe are recommended for those (separate video and audio streams must be merged).</p>
         </div>
         <div class="install-grid">
           <div class="install-card">

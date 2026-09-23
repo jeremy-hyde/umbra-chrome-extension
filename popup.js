@@ -521,6 +521,7 @@ instagramCustomDate.addEventListener('change', () => chrome.storage.local.set({ 
 openSettings.addEventListener('click', () => chrome.runtime.openOptionsPage());
 
 document.getElementById('open-instagram').addEventListener('click', () => chrome.tabs.create({ url: 'https://www.instagram.com/' }));
+document.getElementById('open-library').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('dashboard.html') }));
 
 document.querySelectorAll('.sort-btn').forEach(button => button.addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });

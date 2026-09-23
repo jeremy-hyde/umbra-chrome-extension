@@ -1,3 +1,5 @@
+importScripts('shared/library-db.js');
+
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/audio/transcriptions';
 const OPENROUTER_MODEL = 'openai/whisper-large-v3-turbo';
 const OPENROUTER_KEY = 'umbra_openrouter_api_key';
@@ -147,6 +149,8 @@ async function resolveMedia(message, signal) {
 async function transcribe(message, sender) {
   const tabId = sender.tab.id;
   const jobId = message.jobId ?? crypto.randomUUID();
+  const log = (...args) => console.log(`[umbra-transcribe ${jobId}]`, ...args);
+  log('start', { command: message.command, type: message.type, hasBase64: !!(message.base64 || message.ReelBase64), url: message.mediaUrl || message.ReelURL });
   const legacySingle = message.command === 'InstagramReelTranscribe';
   const legacyMission = message.command === 'SelectMissionTranscribe';
   const key = `${tabId}:${jobId}`;
@@ -169,6 +173,7 @@ async function transcribe(message, sender) {
     const apiKey = String(stored[OPENROUTER_KEY] || '').trim();
     if (!apiKey) throw Object.assign(new Error('Add an OpenRouter API key in Umbra first.'), { code: 'missing_key' });
     const { blob, sourceUrl } = await resolveMedia(message, controller.signal);
+    log('media resolved', { bytes: blob.size, type: blob.type });
     if (blob.size > MAX_MEDIA_BYTES) throw Object.assign(new Error('The media is larger than 25 MB.'), { code: 'too_large' });
     const extension = extensionFor(blob, sourceUrl);
     const form = new FormData();
@@ -186,9 +191,11 @@ async function transcribe(message, sender) {
       if (error?.name === 'AbortError') throw error;
       throw Object.assign(new Error(`Could not reach OpenRouter (${error?.message || 'network error'}).`), { code: 'network' });
     }
+    log('openrouter responded', response.status);
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw Object.assign(new Error(result.error?.message || `OpenRouter error (${response.status}).`), { status: response.status });
     const text = String(result.text || '').trim();
+    log('transcript received', { chars: text.length });
     if (!text) throw Object.assign(new Error('OpenRouter returned an empty transcript.'), { code: 'empty_transcript' });
     if (legacyMission) {
       await chrome.tabs.sendMessage(tabId, { type: 'MISSION_TRANS_RESULT', transcription: text, partial: false, jobId });
@@ -219,6 +226,7 @@ async function transcribe(message, sender) {
       : errorDetails(error, error.status);
     if (error.code) details.code = error.code;
     details.code = clientErrorCode(details.code);
+    log('failed', { code: details.code, message: details.message, raw: String(error) });
     const errorMessage = legacyMission
       ? { type: 'MISSION_TRANS_ERROR', jobId, errorCode: details.code, error: details.message }
       : legacySingle
@@ -289,6 +297,45 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (!isInstagramSender(sender)) return false;
     const prefix = `${sender.tab.id}:`;
     for (const [key, controller] of activeJobs) if (key.startsWith(prefix)) controller.abort();
+    sendResponse({ ok: true });
+    return false;
+  }
+
+  // ── Feed library ──────────────────────────────────────────────────────────
+  if (message?.type === 'umbra_save_feed') {
+    if (!isInstagramSender(sender)) {
+      sendResponse({ ok: false, error: 'Invalid sender.' });
+      return false;
+    }
+    UmbraLibrary.saveFeed(message)
+      .then(id => sendResponse({ ok: true, feedId: id }))
+      .catch(error => sendResponse({ ok: false, error: error.message }));
+    return true;
+  }
+
+  if (message?.type === 'umbra_creator_get_tags') {
+    UmbraLibrary.getCreator(message.platform || 'instagram', message.username)
+      .then(rec => sendResponse({ ok: true, tags: rec ? rec.tags : [] }))
+      .catch(error => sendResponse({ ok: false, error: error.message }));
+    return true;
+  }
+
+  if (message?.type === 'umbra_creator_set_tags') {
+    UmbraLibrary.setCreatorTags(message.platform || 'instagram', message.username, message.tags)
+      .then(tags => sendResponse({ ok: true, tags }))
+      .catch(error => sendResponse({ ok: false, error: error.message }));
+    return true;
+  }
+
+  if (message?.type === 'umbra_library_tags') {
+    UmbraLibrary.getAllTags()
+      .then(tags => sendResponse({ ok: true, tags }))
+      .catch(error => sendResponse({ ok: false, error: error.message }));
+    return true;
+  }
+
+  if (message?.type === 'umbra_open_library') {
+    chrome.tabs.create({ url: chrome.runtime.getURL('dashboard.html') });
     sendResponse({ ok: true });
     return false;
   }
