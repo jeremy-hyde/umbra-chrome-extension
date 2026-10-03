@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Umbra",
   "version": "1.1.0",
-  "description": "Dark mode and site tools with Instagram sorting, downloads, exports, and direct OpenRouter transcription",
+  "description": "Dark mode and site tools with video downloads and transcription for Skool and Whop",
   "permissions": ["activeTab", "tabs", "storage", "scripting", "cookies", "downloads", "declarativeNetRequest", "processes"],
   "host_permissions": ["<all_urls>"],
   "declarative_net_request": {
@@ -51,40 +51,6 @@
       "matches": ["https://skool.com/*", "https://*.skool.com/*", "https://whop.com/*", "https://*.whop.com/*"],
       "js": ["lib/mux.min.js", "shared/hls-download.js"],
       "run_at": "document_start"
-    },
-    {
-      "matches": ["https://www.instagram.com/*"],
-      "css": ["Animate/animate.css", "shared/sf_banner_primitives.css"],
-      "js": ["lib/xlsx.full.min.js", "Instagram/content.js", "Instagram/video_controls.js"],
-      "run_at": "document_start"
-    },
-    {
-      "matches": ["https://www.instagram.com/*"],
-      "js": [
-        "Instagram/script_instagram.js",
-        "Instagram/explore_sort_instagram.js",
-        "Instagram/saved_sort_instagram.js"
-      ],
-      "run_at": "document_start",
-      "world": "MAIN"
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "Icons/*.png",
-        "Icons/*.svg",
-        "Icons/BannerIcons/*.png",
-        "Icons/BannerIconNew/*.svg",
-        "Icons/ButtonIcons/*.svg",
-        "Icons/popupIcons/*.svg",
-        "Icons/Hover/*.png",
-        "Icons/ZeroStateIcons/*",
-        "Icons/fill-icons/*.svg",
-        "Icons/filtersIcons/*.svg",
-        "Icons/player_icons/*.svg"
-      ],
-      "matches": ["https://www.instagram.com/*"]
     }
   ]
 }

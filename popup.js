@@ -13,17 +13,7 @@ const colorSwatches = document.getElementById('color-swatches');
 const tabList = document.getElementById('tab-list');
 const siteTabs = [...document.querySelectorAll('.site-tab')];
 const tabPanels = [...document.querySelectorAll('.tab-panel')];
-const scopeButtons = [...document.querySelectorAll('.scope-btn')];
-const instagramItems = document.getElementById('instagram-items');
-const instagramDate = document.getElementById('instagram-date');
-const instagramCustomCount = document.getElementById('instagram-custom-count');
-const instagramCustomDate = document.getElementById('instagram-custom-date');
-const instagramItemsRow = document.getElementById('instagram-items-row');
-const instagramDateRow = document.getElementById('instagram-date-row');
-const instagramCustomCountRow = document.getElementById('instagram-custom-count-row');
-const instagramCustomDateRow = document.getElementById('instagram-custom-date-row');
 const openSettings = document.getElementById('gear-btn');
-let instagramScope = 'items';
 
 // ── Color history ──────────────────────────────────────────────────────
 function loadColorHistory() {
@@ -496,92 +486,10 @@ function selectPopupTab(name, persist = true) {
 
 siteTabs.forEach(tab => tab.addEventListener('click', () => selectPopupTab(tab.dataset.tab)));
 
-function updateInstagramScope(scope) {
-  instagramScope = scope;
-  scopeButtons.forEach(button => button.classList.toggle('active', button.dataset.scope === scope));
-  instagramItemsRow.style.display = scope === 'items' ? '' : 'none';
-  instagramDateRow.style.display = scope === 'dates' ? 'flex' : 'none';
-  instagramCustomCountRow.hidden = scope !== 'items' || instagramItems.value !== 'custom';
-  instagramCustomDateRow.hidden = scope !== 'dates' || instagramDate.value !== 'custom';
-  chrome.storage.local.set({ umbra_instagram_scope: scope });
-}
-
-scopeButtons.forEach(button => button.addEventListener('click', () => updateInstagramScope(button.dataset.scope)));
-instagramItems.addEventListener('change', () => {
-  instagramCustomCountRow.hidden = instagramItems.value !== 'custom';
-  chrome.storage.local.set({ umbra_instagram_items: instagramItems.value });
-});
-instagramDate.addEventListener('change', () => {
-  instagramCustomDateRow.hidden = instagramDate.value !== 'custom';
-  chrome.storage.local.set({ umbra_instagram_date: instagramDate.value });
-});
-instagramCustomCount.addEventListener('change', () => chrome.storage.local.set({ umbra_instagram_custom_count: instagramCustomCount.value }));
-instagramCustomDate.addEventListener('change', () => chrome.storage.local.set({ umbra_instagram_custom_date: instagramCustomDate.value }));
-
 openSettings.addEventListener('click', () => chrome.runtime.openOptionsPage());
 
-document.getElementById('open-instagram').addEventListener('click', () => chrome.tabs.create({ url: 'https://www.instagram.com/' }));
-document.getElementById('open-library').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('dashboard.html') }));
-
-document.querySelectorAll('.sort-btn').forEach(button => button.addEventListener('click', async () => {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  let isInstagram = false;
-  try { isInstagram = new URL(tab.url).hostname === 'www.instagram.com'; } catch (_) {}
-  if (!isInstagram) {
-    flashSortError(button, 'Open Instagram first');
-    return;
-  }
-  let scopeValue;
-  if (instagramScope === 'items') {
-    const count = Math.max(1, Math.min(10000, Number(instagramCustomCount.value) || 25));
-    scopeValue = instagramItems.value === 'custom' ? `${count}_reels` : instagramItems.value;
-  } else {
-    scopeValue = instagramDate.value === 'custom' ? instagramCustomDate.value : instagramDate.value;
-    if (!scopeValue) {
-      flashSortError(button, 'Pick a date');
-      return;
-    }
-  }
-  button.textContent = 'Starting…';
-  const response = await chrome.runtime.sendMessage({
-    type: 'umbra_instagram_sort_request',
-    tabId: tab.id,
-    sortBy: button.dataset.sort,
-    scopeMode: instagramScope,
-    scopeValue,
-  }).catch(error => ({ ok: false, error: error.message }));
-  if (response?.ok) window.close();
-  else flashSortError(button, response?.error || 'Sort failed');
-}));
-
-function flashSortError(button, message) {
-  const original = button.dataset.sort === 'outlier' ? 'Outlier score' : button.dataset.sort[0].toUpperCase() + button.dataset.sort.slice(1);
-  button.textContent = message;
-  button.style.borderColor = '#e06c75';
-  button.style.color = '#e06c75';
-  setTimeout(() => {
-    button.textContent = original;
-    button.style.borderColor = '';
-    button.style.color = '';
-  }, 2000);
-}
-
 (async () => {
-  const saved = await chrome.storage.local.get([
-    'umbra_popup_tab',
-    'umbra_instagram_scope',
-    'umbra_instagram_items',
-    'umbra_instagram_date',
-    'umbra_instagram_custom_count',
-    'umbra_instagram_custom_date',
-  ]);
-  instagramItems.value = saved.umbra_instagram_items || '25_reels';
-  instagramDate.value = saved.umbra_instagram_date || '1_week';
-  instagramCustomCount.value = saved.umbra_instagram_custom_count || '250';
-  instagramCustomDate.value = saved.umbra_instagram_custom_date || '';
-  updateInstagramScope(saved.umbra_instagram_scope || 'items');
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  let active = saved.umbra_popup_tab || 'general';
-  try { if (new URL(tab.url).hostname === 'www.instagram.com') active = 'instagram'; } catch (_) {}
+  const saved = await chrome.storage.local.get('umbra_popup_tab');
+  const active = siteTabs.some(tab => tab.dataset.tab === saved.umbra_popup_tab) ? saved.umbra_popup_tab : 'general';
   selectPopupTab(active, false);
 })();

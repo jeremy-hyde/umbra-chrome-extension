@@ -10,41 +10,7 @@
     main { width: min(760px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 72px; }
     header { margin-bottom: 28px; }
     h1 { margin: 0 0 8px; color: #4fbdba; font-size: 24px; letter-spacing: 4px; }
-    header p, .security { color: #818384; line-height: 1.6; }
-    .provider { overflow: hidden; border: 1px solid #343536; border-radius: 12px; background: #1a1a1b; }
-    .provider-head { display: flex; align-items: center; gap: 12px; padding: 18px 20px; border-bottom: 1px solid #343536; }
-    .provider-head h2 { margin: 0; font-size: 16px; }
-    .status { margin-left: auto; padding: 4px 8px; border: 1px solid #343536; border-radius: 999px; color: #818384; font-size: 11px; }
-    .status.configured { border-color: #4fbdba66; background: #111918; color: #4fbdba; }
-    .provider-body { display: grid; gap: 16px; padding: 20px; }
-    label { display: grid; gap: 7px; color: #818384; font-size: 12px; }
-    input { width: 100%; padding: 11px 12px; border: 1px solid #343536; border-radius: 7px; outline: none; background: #111112; color: #d7dadc; font: 13px "SFMono-Regular", Consolas, monospace; }
-    input:focus { border-color: #4fbdba; }
-    .actions { display: flex; gap: 8px; }
-    button { padding: 10px 14px; border: 1px solid #343536; border-radius: 7px; background: #272729; color: #d7dadc; cursor: pointer; }
-    button:hover { border-color: #4fbdba; color: #4fbdba; }
-    button.danger:hover { border-color: #e06c75; color: #e06c75; }
-    .message { min-height: 20px; color: #818384; font-size: 12px; }
-    .message.ok { color: #4fbdba; }
-    .message.error { color: #e06c75; }
-    .details { display: grid; grid-template-columns: 150px 1fr; gap: 8px; color: #818384; font-size: 12px; }
-    .details strong { color: #d7dadc; font-weight: 500; }
-    .security { margin-top: 20px; padding: 16px; border: 1px solid #343536; border-radius: 10px; background: #171718; font-size: 12px; }
-    .behavior { margin-top: 20px; border: 1px solid #343536; border-radius: 12px; background: #1a1a1b; overflow: hidden; }
-    .behavior h2 { padding: 18px 20px; margin: 0; font-size: 16px; border-bottom: 1px solid #343536; }
-    .behavior-body { display: grid; gap: 16px; padding: 20px; }
-    .behavior-body label { display: grid; gap: 7px; color: #818384; font-size: 12px; }
-    .behavior-body select { width: 100%; padding: 11px 12px; border: 1px solid #343536; border-radius: 7px; outline: none; background: #111112; color: #d7dadc; font-size: 13px; }
-    .behavior-body select:focus { border-color: #4fbdba; }
-    .behavior-body .toggle-row { display: flex; justify-content: space-between; align-items: center; color: #d7dadc; font-size: 13px; }
-    .behavior-body .toggle-row input { accent-color: #4fbdba; width: 18px; height: 18px; }
-    .provider-note { color: #818384; font-size: 11px; line-height: 1.5; }
-    .provider-help { padding: 14px; border: 1px solid #343536; border-radius: 8px; background: #151516; }
-    .provider-help p { margin: 0; color: #a5a7aa; font-size: 12px; line-height: 1.65; }
-    .provider-help p + p { margin-top: 8px; }
-    .provider-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-    .provider-links a { padding: 8px 10px; border: 1px solid #343536; border-radius: 6px; color: #4fbdba; font-size: 11px; text-decoration: none; }
-    .provider-links a:hover { border-color: #4fbdba; }
+    header p { color: #818384; line-height: 1.6; }
     .guide { margin-top: 20px; border: 1px solid #343536; border-radius: 12px; background: #1a1a1b; overflow: hidden; }
     .guide h2 { padding: 18px 20px; margin: 0; font-size: 16px; border-bottom: 1px solid #343536; }
     .guide-body { display: grid; gap: 18px; padding: 20px; }
@@ -58,6 +24,20 @@
     .guide-links { display: flex; gap: 10px; }
     .guide-links a { padding: 8px 10px; border: 1px solid #343536; border-radius: 6px; color: #4fbdba; font-size: 11px; text-decoration: none; }
     .guide-links a:hover { border-color: #4fbdba; }
+    .key-row { display: flex; gap: 10px; }
+    .key-row input {
+      flex: 1; padding: 9px 12px; border: 1px solid #343536; border-radius: 6px;
+      background: #0d1117; color: #d7dadc; font: 12px/1.4 "SFMono-Regular", Consolas, monospace;
+    }
+    .key-row input:focus { outline: none; border-color: #4fbdba; }
+    .key-row button {
+      padding: 9px 18px; border: 1px solid #4fbdba; border-radius: 6px;
+      background: #272729; color: #4fbdba; font-size: 11px; letter-spacing: 1px;
+      text-transform: uppercase; cursor: pointer; transition: background 0.15s, color 0.15s;
+    }
+    .key-row button:hover { background: #4fbdba; color: #1a1a1b; }
+    #key-status { font-size: 11px; color: #4fbdba; min-height: 14px; }
+    #key-status.error { color: #e06c75; }
     @media (max-width: 620px) { .install-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -65,40 +45,21 @@
   <main>
     <header>
       <h1>UMBRA SETTINGS</h1>
-      <p>Manage API providers and keys used by Umbra. New providers will appear on this page.</p>
+      <p>Guides and setup for Umbra features.</p>
     </header>
 
-    <section class="provider" data-provider="openrouter">
-      <div class="provider-head">
-        <h2>OpenRouter</h2>
-        <span class="status">Not configured</span>
-      </div>
-      <div class="provider-body">
-        <div class="details"><span>Used for</span><strong>Instagram transcription</strong><span>Model</span><strong>Whisper Large V3 Turbo</strong><span>Endpoint</span><strong>OpenRouter Speech-to-Text</strong></div>
-        <div class="provider-help">
-          <p>OpenRouter sert d’intermédiaire entre Umbra et Whisper Large V3 Turbo. Il permet d’utiliser le modèle avec une seule clé API et facture chaque transcription sur les crédits du compte OpenRouter.</p>
-          <p>Crée un compte, ajoute des crédits, génère une clé API, puis colle-la ci-dessous. Pendant une transcription, Umbra envoie directement la clé et le média à OpenRouter. La clé reste enregistrée localement dans Chrome.</p>
-          <div class="provider-links">
-            <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer">Créer une clé OpenRouter</a>
-            <a href="https://openrouter.ai/docs/api/reference/authentication" target="_blank" rel="noopener noreferrer">Documentation OpenRouter</a>
-          </div>
+    <section class="guide">
+      <h2>Video transcription</h2>
+      <div class="guide-body">
+        <div>
+          <h3>OpenRouter API key</h3>
+          <p>The Transcript button on Skool and Whop videos transcribes the audio in the browser with Whisper (<code>openai/whisper-large-v3-turbo</code>) through OpenRouter, then saves a <code>.txt</code> and a <code>.srt</code> file. Create a key at <a href="https://openrouter.ai/keys" target="_blank" rel="noopener" style="color:#4fbdba">openrouter.ai/keys</a> and paste it below. It is stored in Chrome local storage and never leaves your browser except for OpenRouter requests.</p>
         </div>
-        <label>API key<input class="provider-key" type="password" autocomplete="off" spellcheck="false" placeholder="sk-or-v1-…"></label>
-        <div class="actions"><button class="save-key" type="button">Save key</button><button class="remove-key danger" type="button">Remove key</button></div>
-        <div class="message" aria-live="polite"></div>
-        <div class="provider-note">Whisper Large V3 Turbo uses your OpenRouter credits. Media above 25 MB is rejected.</div>
-      </div>
-    </section>
-
-    <section class="behavior">
-      <h2>Instagram behavior</h2>
-      <div class="behavior-body">
-        <label>Posts open in
-          <select id="instagram-open-in"><option value="player">Umbra player</option><option value="instagram">New Instagram tab</option></select>
-        </label>
-        <label class="toggle-row">Show Download button <input id="instagram-download-toggle" type="checkbox" checked></label>
-        <label class="toggle-row">Show Transcribe button <input id="instagram-transcribe-toggle" type="checkbox" checked></label>
-        <label class="toggle-row">Video seek bar &amp; controls <input id="instagram-video-controls-toggle" type="checkbox" checked></label>
+        <div class="key-row">
+          <input type="password" id="openrouter-key" placeholder="sk-or-..." autocomplete="off" spellcheck="false">
+          <button id="save-key">Save</button>
+        </div>
+        <div id="key-status"></div>
       </div>
     </section>
 
@@ -108,15 +69,20 @@
         <div>
           <h3>How it works</h3>
           <ol>
-            <li>Umbra adds a Download button to supported videos on Skool and Whop.</li>
+            <li>Umbra adds Download and Transcript buttons to supported videos on Skool and Whop.</li>
             <li>Click Download. If Umbra cannot detect the stream, play the video once and try again.</li>
-            <li>Mux streams (Skool and Whop native players) download directly as .mp4 — no tools needed.</li>
-            <li>For Loom and YouTube embeds, Umbra shows a <code>yt-dlp</code> command to copy and run in Terminal.</li>
+            <li>Mux streams (Skool and Whop native players), Loom embeds and Wistia embeds download directly as .mp4 — no tools needed.</li>
+            <li>For YouTube embeds, Umbra shows a <code>yt-dlp</code> command to copy and run in Terminal.</li>
           </ol>
         </div>
         <div>
           <h3>What to install</h3>
-          <p><code>yt-dlp</code> is only needed for Loom and YouTube embeds. FFmpeg and ffprobe are recommended for those (separate video and audio streams must be merged).</p>
+          <p><code>yt-dlp</code> is only needed for YouTube embeds. FFmpeg and ffprobe are recommended for those (separate video and audio streams must be merged).</p>
+        </div>
+        <div>
+          <h3>Using yt-dlp</h3>
+          <p><strong>Windows</strong> — open <code>PowerShell</code> or <code>cmd</code> and paste the command shown in the download modal. If yt-dlp is not found, install it first with <code>winget install yt-dlp</code> or download the <code>.exe</code> from the install link below. The file will be saved in your current directory — usually <code>C:\Users\YourName</code>.</p>
+          <p><strong>Mac</strong> — open <code>Terminal</code> and paste the command. If yt-dlp is not found, install it with <code>brew install yt-dlp</code> (requires <a href="https://brew.sh" target="_blank" rel="noopener" style="color:#4fbdba">Homebrew</a>). The file will be saved in your current directory — usually <code>~/Downloads</code> if you <code>cd ~/Downloads</code> first, otherwise your home folder.</p>
         </div>
         <div class="install-grid">
           <div class="install-card">
@@ -138,7 +104,6 @@
       </div>
     </section>
 
-    <p class="security">Keys are stored in <code>chrome.storage.local</code>. Umbra sends a key only to OpenRouter for transcription. Local extension storage is persistent, but it is not a protected secret vault.</p>
   </main>
   <script src="options.js"></script>
 </body>

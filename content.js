@@ -4,7 +4,6 @@ const IS_OLD_REDDIT = HOST === 'old.reddit.com';
 const IS_GITHUB = HOST === 'github.com';
 const IS_SKOOL = HOST === 'skool.com' || HOST.endsWith('.skool.com');
 const IS_WHOP = HOST === 'whop.com' || HOST.endsWith('.whop.com');
-const IS_INSTAGRAM = HOST === 'www.instagram.com';
 
 const REDDIT_CSS = `
   body, .content, .side, #header, #header-bottom-left, #header-bottom-right,
@@ -88,23 +87,177 @@ function eject() {
 function apply(enabled) {
   if (enabled) {
     if (IS_OLD_REDDIT) inject(REDDIT_CSS);
-    else if (IS_INSTAGRAM) eject();
     else inject(GENERIC_CSS);
   } else {
     eject();
   }
 }
 
-// ─── Direct in-extension download (Mux HLS → .mp4) ───────────────────────────
+// ─── Direct in-extension download + transcription ────────────────────────────
 // Shared by the Skool and Whop sections. UmbraHls comes from
 // shared/hls-download.js, loaded in the isolated world with lib/mux.min.js.
-function umbraWireDirectDownload(modal) {
+const UMBRA_STT_URL = 'https://openrouter.ai/api/v1/audio/transcriptions';
+const UMBRA_STT_MODEL = 'openai/whisper-large-v3-turbo';
+const UMBRA_STT_KEY = 'umbra_openrouter_api_key';
+const UMBRA_WAV_RATE = 16000;
+const UMBRA_WAV_CHUNK_SEC = 600; // ~19 MB per chunk at 16 kHz mono 16-bit (API limit: 25 MB)
+
+function umbraSaveBlob(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+
+async function umbraResolveLoomMp4(loomId) {
+  const res = await fetch(`https://www.loom.com/api/campaigns/sessions/${loomId}/transcoded-url`);
+  if (!res.ok) throw new Error(`Loom lookup failed (${res.status}).`);
+  const data = await res.json();
+  if (!data || !data.url) throw new Error('Loom did not return a video URL.');
+  return data.url;
+}
+
+// Wistia embed player metadata is public: assets include direct mp4 URLs
+// (.bin extension but served as video/mp4) plus the media name.
+async function umbraResolveWistia(wistiaId) {
+  const res = await fetch(`https://fast.wistia.com/embed/medias/${wistiaId}.json`);
+  if (!res.ok) throw new Error(`Wistia lookup failed (${res.status}).`);
+  const data = await res.json();
+  const assets = (data.media && data.media.assets) || [];
+  const asset = ['hd_mp4_video', 'md_mp4_video', 'original', 'iphone_video']
+    .map((t) => assets.find((a) => a.type === t)).find(Boolean);
+  if (!asset || !asset.url) throw new Error('No downloadable Wistia asset found.');
+  return { url: asset.url, name: (data.media && data.media.name) || '' };
+}
+
+// Returns a video Blob for the current modal target.
+// 'mux' = Mux m3u8 via UmbraHls, 'loom' = Loom mp4 via their public API,
+// 'wistia' = Wistia mp4 via their public medias.json API.
+async function umbraGetVideoBlob(modal, onProgress) {
+  const type = modal.dataset.type;
+  if (type === 'mux') {
+    const url = modal.dataset.url;
+    if (!url || !window.UmbraHls) {
+      throw new Error(window.UmbraHls ? 'No stream URL captured.' : 'Direct download is not available on this page.');
+    }
+    return (await window.UmbraHls.download(url, { onProgress })).blob;
+  }
+  if (type === 'loom') {
+    const mp4Url = await umbraResolveLoomMp4(modal.dataset.loomId);
+    const res = await fetch(mp4Url);
+    if (!res.ok) throw new Error(`Loom video fetch failed (${res.status}).`);
+    return res.blob();
+  }
+  if (type === 'wistia') {
+    const media = await umbraResolveWistia(modal.dataset.wistiaId);
+    const res = await fetch(media.url);
+    if (!res.ok) throw new Error(`Wistia video fetch failed (${res.status}).`);
+    if (media.name) modal.dataset.title = media.name;
+    return res.blob();
+  }
+  throw new Error('In-browser download is not available for this embed. Use the yt-dlp command below.');
+}
+
+// Decode a video/audio Blob to mono 16 kHz PCM.
+async function umbraExtractPcm(blob) {
+  const raw = await blob.arrayBuffer();
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const actx = new AC();
+  let decoded;
+  try {
+    decoded = await actx.decodeAudioData(raw);
+  } catch (err) {
+    throw new Error('Could not decode the audio track.');
+  } finally {
+    actx.close().catch(() => {});
+  }
+  const off = new OfflineAudioContext(1, Math.max(1, Math.ceil(decoded.duration * UMBRA_WAV_RATE)), UMBRA_WAV_RATE);
+  const src = off.createBufferSource();
+  src.buffer = decoded;
+  src.connect(off.destination);
+  src.start(0);
+  const rendered = await off.startRendering();
+  return rendered.getChannelData(0);
+}
+
+function umbraWavBlob(pcm, startIdx, endIdx) {
+  const len = endIdx - startIdx;
+  const buf = new ArrayBuffer(44 + len * 2);
+  const dv = new DataView(buf);
+  const writeStr = (o, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(o + i, s.charCodeAt(i)); };
+  writeStr(0, 'RIFF');
+  dv.setUint32(4, 36 + len * 2, true);
+  writeStr(8, 'WAVE');
+  writeStr(12, 'fmt ');
+  dv.setUint32(16, 16, true);
+  dv.setUint16(20, 1, true); // PCM
+  dv.setUint16(22, 1, true); // mono
+  dv.setUint32(24, UMBRA_WAV_RATE, true);
+  dv.setUint32(28, UMBRA_WAV_RATE * 2, true);
+  dv.setUint16(32, 2, true);
+  dv.setUint16(34, 16, true);
+  writeStr(36, 'data');
+  dv.setUint32(40, len * 2, true);
+  for (let i = 0; i < len; i++) {
+    const s = Math.max(-1, Math.min(1, pcm[startIdx + i]));
+    dv.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+  }
+  return new Blob([buf], { type: 'audio/wav' });
+}
+
+function umbraGetOpenRouterKey() {
+  return new Promise((resolve) => {
+    try {
+      chrome.storage.local.get({ [UMBRA_STT_KEY]: '' }, (v) => resolve((v && v[UMBRA_STT_KEY]) || ''));
+    } catch (_) { resolve(''); }
+  });
+}
+
+async function umbraTranscribeChunk(wavBlob, apiKey, name) {
+  const fd = new FormData();
+  fd.append('file', wavBlob, name);
+  fd.append('model', UMBRA_STT_MODEL);
+  fd.append('response_format', 'verbose_json');
+  fd.append('timestamp_granularities[]', 'segment');
+  const res = await fetch(UMBRA_STT_URL, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${apiKey}` },
+    body: fd,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error((data.error && data.error.message) || `Transcription failed (${res.status}).`);
+  return data;
+}
+
+function umbraSrtTimestamp(sec) {
+  const ms = Math.max(0, Math.round(sec * 1000));
+  const h = String(Math.floor(ms / 3600000)).padStart(2, '0');
+  const m = String(Math.floor((ms % 3600000) / 60000)).padStart(2, '0');
+  const s = String(Math.floor((ms % 60000) / 1000)).padStart(2, '0');
+  const x = String(ms % 1000).padStart(3, '0');
+  return `${h}:${m}:${s},${x}`;
+}
+
+function umbraBuildSrt(segments, fallbackText, durationSec) {
+  const cues = segments.length
+    ? segments
+    : [{ start: 0, end: durationSec || 0, text: fallbackText }];
+  return cues.map((seg, i) =>
+    `${i + 1}\n${umbraSrtTimestamp(seg.start)} --> ${umbraSrtTimestamp(seg.end)}\n${(seg.text || '').trim()}\n`
+  ).join('\n');
+}
+
+function umbraWireVideoModal(modal) {
   const dlBtn = modal.querySelector('#umbra-dl-btn');
+  const tsBtn = modal.querySelector('#umbra-ts-btn');
+  const tsCheck = modal.querySelector('#umbra-ts-check');
   const prog = modal.querySelector('#umbra-modal-progress');
   const fill = modal.querySelector('.umbra-prog-fill');
   const pct = modal.querySelector('.umbra-prog-pct');
   const status = modal.querySelector('#umbra-modal-status');
-  if (!dlBtn) return;
 
   function setProgress(frac) {
     const p = Math.max(0, Math.min(100, Math.round(frac * 100)));
@@ -116,41 +269,99 @@ function umbraWireDirectDownload(modal) {
     status.textContent = text || '';
     status.classList.toggle('error', !!isError);
   }
+  function setBusy(busy) {
+    if (dlBtn) { dlBtn.disabled = busy; dlBtn.textContent = 'Download .mp4'; }
+    if (tsBtn) { tsBtn.disabled = busy; tsBtn.textContent = 'Transcript'; }
+  }
 
-  dlBtn.addEventListener('click', async () => {
-    const url = modal.dataset.url;
-    if (!url || !window.UmbraHls) {
-      setStatus(window.UmbraHls ? 'No stream URL captured.' : 'Direct download is not available on this page.', true);
-      return;
+  // Runs Whisper on an already-fetched video Blob and saves .txt + .srt.
+  // Progress range: 0.55 → 1 (caller handles the download part).
+  async function runTranscription(blob) {
+    const apiKey = await umbraGetOpenRouterKey();
+    if (!apiKey) throw new Error('No OpenRouter API key — set it on the Umbra Settings page.');
+    setStatus('Decoding audio…');
+    const pcm = await umbraExtractPcm(blob);
+    const durationSec = pcm.length / UMBRA_WAV_RATE;
+    const chunkSamples = UMBRA_WAV_CHUNK_SEC * UMBRA_WAV_RATE;
+    const nChunks = Math.ceil(pcm.length / chunkSamples);
+    const textParts = [];
+    const segments = [];
+    for (let c = 0; c < nChunks; c++) {
+      setStatus(`Transcribing ${nChunks > 1 ? `part ${c + 1}/${nChunks} ` : ''}(${Math.round(Math.min(UMBRA_WAV_CHUNK_SEC, durationSec - c * UMBRA_WAV_CHUNK_SEC))}s audio)…`);
+      const wav = umbraWavBlob(pcm, c * chunkSamples, Math.min(pcm.length, (c + 1) * chunkSamples));
+      const data = await umbraTranscribeChunk(wav, apiKey, `part-${c + 1}.wav`);
+      if (data.text) textParts.push(data.text.trim());
+      const offset = c * UMBRA_WAV_CHUNK_SEC;
+      for (const seg of data.segments || []) {
+        segments.push({ start: seg.start + offset, end: seg.end + offset, text: seg.text });
+      }
+      setProgress(0.6 + 0.35 * ((c + 1) / nChunks));
     }
-    dlBtn.disabled = true;
-    dlBtn.textContent = 'Downloading…';
+    const title = modal.dataset.title || 'transcript';
+    const text = textParts.join('\n\n') || '(empty transcript)';
+    umbraSaveBlob(new Blob([text], { type: 'text/plain' }), `${title}.txt`);
+    umbraSaveBlob(new Blob([umbraBuildSrt(segments, text, durationSec)], { type: 'text/plain' }), `${title}.srt`);
+    return durationSec;
+  }
+
+  if (dlBtn) dlBtn.addEventListener('click', async () => {
+    const withTranscript = !!(tsCheck && tsCheck.checked);
+    setBusy(true);
+    if (dlBtn) dlBtn.textContent = 'Downloading…';
     if (prog) prog.style.display = 'flex';
     setProgress(0);
     setStatus('');
     try {
-      const { blob, ext } = await window.UmbraHls.download(url, {
-        onProgress: (p) => {
-          if (p.phase === 'segments' && p.total) setProgress((p.done / p.total) * 0.95);
-          else if (p.phase === 'remux') setProgress(0.97);
-        },
+      const blob = await umbraGetVideoBlob(modal, (p) => {
+        const scale = withTranscript ? 0.5 : 0.95;
+        if (p.phase === 'segments' && p.total) setProgress((p.done / p.total) * scale);
+        else if (p.phase === 'remux') setProgress(scale + 0.02);
       });
-      const title = modal.dataset.title || 'video';
-      const filename = `${title}.${ext || 'mp4'}`;
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      const filename = `${modal.dataset.title || 'video'}.mp4`;
+      umbraSaveBlob(blob, filename);
+      let msg = `Saved ${(blob.size / 1048576).toFixed(1)} MB — ${filename}`;
+      if (withTranscript) {
+        try {
+          setProgress(0.55);
+          const dur = await runTranscription(blob);
+          msg += ` + transcript (${Math.round(dur / 60)} min)`;
+        } catch (err) {
+          msg += ` — transcript failed: ${err && err.message ? err.message : 'error'}`;
+          setProgress(1);
+          setStatus(msg, true);
+          return;
+        }
+      }
       setProgress(1);
-      setStatus(`Saved ${(blob.size / 1048576).toFixed(1)} MB — ${filename}`);
+      setStatus(msg);
     } catch (err) {
       setStatus(`${err && err.message ? err.message : 'Download failed.'} Use the yt-dlp command below.`, true);
     } finally {
-      dlBtn.disabled = false;
-      dlBtn.textContent = 'Download .mp4';
+      setBusy(false);
+    }
+  });
+
+  if (tsBtn) tsBtn.addEventListener('click', async () => {
+    setBusy(true);
+    if (tsBtn) tsBtn.textContent = 'Transcribing…';
+    if (prog) prog.style.display = 'flex';
+    setProgress(0);
+    setStatus('');
+    try {
+      const apiKey = await umbraGetOpenRouterKey();
+      if (!apiKey) throw new Error('No OpenRouter API key — set it on the Umbra Settings page.');
+      const blob = await umbraGetVideoBlob(modal, (p) => {
+        if (p.phase === 'segments' && p.total) setProgress((p.done / p.total) * 0.5);
+        else if (p.phase === 'remux') setProgress(0.52);
+      });
+      setProgress(0.55);
+      const dur = await runTranscription(blob);
+      setProgress(1);
+      setStatus(`Saved ${modal.dataset.title || 'transcript'}.txt + .srt (${Math.round(dur / 60)} min transcribed)`);
+    } catch (err) {
+      setStatus(err && err.message ? err.message : 'Transcription failed.', true);
+    } finally {
+      setBusy(false);
     }
   });
 }
@@ -162,11 +373,15 @@ if (IS_SKOOL) {
 
   // Build the download button + modal UI styles once
   const skoolUiCss = `
-    .umbra-dl-btn {
+    .umbra-dl-wrap {
       position: absolute;
       top: 10px;
       right: 10px;
       z-index: 2147483640;
+      display: flex;
+      gap: 6px;
+    }
+    .umbra-dl-btn {
       padding: 6px 12px;
       background: rgba(26,26,27,0.88);
       color: #4fbdba;
@@ -326,8 +541,51 @@ if (IS_SKOOL) {
       min-height: 12px;
     }
     #umbra-video-modal .modal-status.error { color: #e06c75; }
-    #umbra-dl-btn:hover { border-color: #4fbdba; color: #4fbdba; background: #0e1918; }
-    #umbra-dl-btn:disabled { opacity: .5; cursor: default; }
+    #umbra-dl-btn:hover, #umbra-ts-btn:hover { border-color: #4fbdba; color: #4fbdba; background: #0e1918; }
+    #umbra-dl-btn:disabled, #umbra-ts-btn:disabled { opacity: .5; cursor: default; }
+    #umbra-video-modal .modal-ts-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      color: #818384;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select: none;
+    }
+    #umbra-video-modal .modal-ts-check input { accent-color: #4fbdba; margin: 0; }
+    #umbra-video-modal .modal-fallback summary {
+      font-size: 10px;
+      color: #4a4a4b;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 4px 0;
+      user-select: none;
+    }
+    #umbra-video-modal .modal-fallback summary:hover { color: #4fbdba; }
+    #umbra-video-modal .modal-fallback.no-summary summary { display: none; }
+    #umbra-video-modal .modal-fallback[open] {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    #umbra-video-modal .modal-guide-link {
+      display: block;
+      text-align: center;
+      padding: 7px;
+      border-radius: 6px;
+      border: 1px solid #343536;
+      background: #272729;
+      color: #4a4a4b;
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    #umbra-video-modal .modal-guide-link:hover { border-color: #4fbdba; color: #4fbdba; }
   `;
 
   const skoolStyleEl = document.createElement('style');
@@ -343,33 +601,28 @@ if (IS_SKOOL) {
       <h2>UMBRA — Video Download</h2>
       <div class="modal-label">Video URL</div>
       <div class="modal-url" id="umbra-modal-url"></div>
-      <div class="modal-label">yt-dlp command</div>
-      <div class="modal-cmd" id="umbra-modal-cmd"></div>
       <div class="modal-actions">
         <button id="umbra-dl-btn" style="display:none">Download .mp4</button>
-        <button id="umbra-copy-btn">Copy yt-dlp</button>
+        <button id="umbra-ts-btn" style="display:none">Transcript</button>
         <button id="umbra-close-modal-btn">Close</button>
       </div>
+      <label class="modal-ts-check" id="umbra-ts-check-row" style="display:none"><input type="checkbox" id="umbra-ts-check"> Also save transcript (.txt + .srt)</label>
       <div class="modal-progress" id="umbra-modal-progress"><div class="umbra-prog-track"><div class="umbra-prog-fill"></div></div><span class="umbra-prog-pct"></span></div>
       <div class="modal-status" id="umbra-modal-status"></div>
-      <div class="modal-help">
-        <a href="https://github.com/yt-dlp/yt-dlp#installation" target="_blank" rel="noopener">↗ Install yt-dlp</a>
-        <a href="https://github.com/yt-dlp/yt-dlp#usage-and-options" target="_blank" rel="noopener">↗ Usage guide</a>
-      </div>
-      <div class="modal-instructions">
-        <strong>Windows</strong> — open <code>PowerShell</code> or <code>cmd</code> and paste the command above.<br>
-        If yt-dlp is not found, install it first with <code>winget install yt-dlp</code> or download the <code>.exe</code> from the install link above.<br>
-        The file will be saved in your current directory — in PowerShell/cmd that is usually <code>C:\Users\YourName</code>.<br><br>
-        <strong>Mac</strong> — open <code>Terminal</code> and paste the command above.<br>
-        If yt-dlp is not found, install it with <code>brew install yt-dlp</code> (requires <a href="https://brew.sh" target="_blank" rel="noopener" style="color:#4fbdba;text-decoration:none">Homebrew</a>).<br>
-        The file will be saved in your current directory — in Terminal that is usually <code>~/Downloads</code> if you <code>cd ~/Downloads</code> first, otherwise your home folder.
-      </div>
+      <details class="modal-fallback" id="umbra-fallback">
+        <summary>Fallback — yt-dlp command</summary>
+        <div class="modal-cmd" id="umbra-modal-cmd"></div>
+        <div class="modal-actions"><button id="umbra-copy-btn">Copy yt-dlp</button></div>
+        <a class="modal-guide-link" id="umbra-guide-link" href="#" target="_blank" rel="noopener">↗ Install &amp; usage guide</a>
+      </details>
     </div>
   `;
   document.addEventListener('DOMContentLoaded', () => document.body.appendChild(modal), { once: true });
   // Fallback if DOMContentLoaded already fired
   if (document.body) document.body.appendChild(modal);
-  umbraWireDirectDownload(modal);
+  umbraWireVideoModal(modal);
+  const guideLink = modal.querySelector('#umbra-guide-link');
+  if (guideLink) guideLink.href = chrome.runtime.getURL('options.html');
 
   document.addEventListener('click', (e) => {
     if (e.target.id === 'umbra-close-modal-btn') modal.classList.remove('open');
@@ -387,10 +640,12 @@ if (IS_SKOOL) {
 
   });
 
-  function openModal(videoUrl, type = 'mux') {
+  function openModal(videoUrl, type = 'mux', opts = {}) {
     document.getElementById('umbra-modal-url').textContent = videoUrl;
     const title = document.title.replace(/[/\\:*?"<>|]+/g, ' ').trim() || 'skool-video';
-    // 'simple' = Loom / YouTube (no extra headers needed)
+    // 'loom'   = Loom embed (direct mp4 via Loom API, no headers needed)
+    // 'wistia' = Wistia embed (direct mp4 via Wistia medias.json API)
+    // 'simple' = YouTube (yt-dlp only)
     // 'mux'    = Skool's Mux player (needs Referer + Origin to bypass playback restriction)
     const cmd = type === 'mux'
       ? `yt-dlp -o "${title}.%(ext)s" --add-header "Referer:https://skool.com/" --add-header "Origin:https://skool.com" "${videoUrl}"`
@@ -399,25 +654,40 @@ if (IS_SKOOL) {
     modal.dataset.url = videoUrl;
     modal.dataset.type = type;
     modal.dataset.title = title;
+    modal.dataset.loomId = opts.loomId || '';
+    modal.dataset.wistiaId = opts.wistiaId || '';
+    const inBrowser = type === 'mux' || type === 'loom' || type === 'wistia';
     const dlBtn = document.getElementById('umbra-dl-btn');
-    if (dlBtn) dlBtn.style.display = type === 'mux' ? '' : 'none';
+    if (dlBtn) dlBtn.style.display = inBrowser ? '' : 'none';
+    const tsBtn = document.getElementById('umbra-ts-btn');
+    if (tsBtn) tsBtn.style.display = inBrowser ? '' : 'none';
+    const checkRow = document.getElementById('umbra-ts-check-row');
+    if (checkRow) checkRow.style.display = inBrowser ? 'flex' : 'none';
+    const fallback = document.getElementById('umbra-fallback');
+    if (fallback) {
+      fallback.open = !inBrowser;
+      fallback.classList.toggle('no-summary', !inBrowser);
+    }
     const prog = document.getElementById('umbra-modal-progress');
     if (prog) prog.style.display = 'none';
     const status = document.getElementById('umbra-modal-status');
     if (status) status.textContent = '';
     modal.classList.add('open');
+    if (opts.autoTranscript && tsBtn) tsBtn.click();
   }
 
   // Ask skool-intercept.js (MAIN world) for the captured video URL via postMessage.
-  function getPageVideoUrl(callback) {
-    const nonce = Math.random().toString(36).slice(2);
-    const handler = (e) => {
-      if (e.source !== window || !e.data || e.data.__umbraType !== 'response_url' || e.data.__umbraNonce !== nonce) return;
-      window.removeEventListener('message', handler);
-      callback(e.data.url || null);
-    };
-    window.addEventListener('message', handler);
-    window.postMessage({ __umbraType: 'request_url', __umbraNonce: nonce }, '*');
+  function getPageVideoUrl() {
+    return new Promise((resolve) => {
+      const nonce = Math.random().toString(36).slice(2);
+      const handler = (e) => {
+        if (e.source !== window || !e.data || e.data.__umbraType !== 'response_url' || e.data.__umbraNonce !== nonce) return;
+        window.removeEventListener('message', handler);
+        resolve(e.data.url || null);
+      };
+      window.addEventListener('message', handler);
+      window.postMessage({ __umbraType: 'request_url', __umbraNonce: nonce }, '*');
+    });
   }
 
   function isMasterM3u8(url) {
@@ -444,52 +714,85 @@ if (IS_SKOOL) {
     return null;
   }
 
+  // Resolves the video inside a container to { type, url, loomId? }.
+  async function resolveVideoTarget(container) {
+    // 1. Loom iframe
+    const loomIframe = container.querySelector('iframe[src*="loom.com/embed"]');
+    if (loomIframe) {
+      const match = (loomIframe.src || loomIframe.getAttribute('src') || '').match(/loom\.com\/embed\/([a-f0-9]+)/i);
+      if (match) return { type: 'loom', url: `https://www.loom.com/share/${match[1]}`, loomId: match[1] };
+    }
+
+    // 2. YouTube iframe
+    const ytIframe = container.querySelector('iframe[src*="youtube.com/embed"], iframe[src*="youtube-nocookie.com/embed"]');
+    if (ytIframe) {
+      const match = (ytIframe.src || ytIframe.getAttribute('src') || '').match(/youtube(?:-nocookie)?\.com\/embed\/([^?&"]+)/i);
+      if (match) return { type: 'simple', url: `https://www.youtube.com/watch?v=${match[1]}` };
+    }
+
+    // 3. Wistia — iframe embed, async embed div (.wistia_async_{id}) or <wistia-player>
+    const wistiaIframe = container.querySelector('iframe[src*="wistia.com/embed/iframe"], iframe[src*="wistia.net/embed/iframe"]');
+    if (wistiaIframe) {
+      const match = (wistiaIframe.src || '').match(/embed\/iframe\/([a-z0-9]+)/i);
+      if (match) return { type: 'wistia', url: `https://fast.wistia.net/embed/iframe/${match[1]}`, wistiaId: match[1] };
+    }
+    const wistiaSel = '[class*="wistia_async_"], wistia-player[media-id]';
+    const wistiaEl = (container.matches && container.matches(wistiaSel)) ? container : container.querySelector(wistiaSel);
+    if (wistiaEl) {
+      const id = ((wistiaEl.className || '').toString().match(/wistia_async_([a-z0-9]+)/i) || [])[1] || wistiaEl.getAttribute('media-id');
+      if (id) return { type: 'wistia', url: `https://fast.wistia.net/embed/iframe/${id}`, wistiaId: id };
+    }
+
+    // 4. Mux — try DOM attributes first
+    const domUrl = findVideoSrcInDom();
+    if (domUrl) return { type: 'mux', url: domUrl };
+
+    // 5. Intercepted URL from page world
+    const intercepted = await getPageVideoUrl();
+    return intercepted ? { type: 'mux', url: intercepted } : null;
+  }
+
   function attachDownloadButton(container) {
     if (container.dataset.umbraDlAttached) return;
     container.dataset.umbraDlAttached = '1';
     container.style.position = 'relative';
+    const wrap = document.createElement('div');
+    wrap.className = 'umbra-dl-wrap';
     const dlBtn = document.createElement('button');
     dlBtn.className = 'umbra-dl-btn';
     dlBtn.textContent = '↓ Download';
-    container.appendChild(dlBtn);
+    const tsBtn = document.createElement('button');
+    tsBtn.className = 'umbra-dl-btn';
+    tsBtn.textContent = '↓ Transcript';
+    wrap.appendChild(dlBtn);
+    wrap.appendChild(tsBtn);
+    container.appendChild(wrap);
 
-    dlBtn.addEventListener('click', (e) => {
+    dlBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
       e.preventDefault();
+      const target = await resolveVideoTarget(container);
+      if (target) { openModal(target.url, target.type, { loomId: target.loomId, wistiaId: target.wistiaId }); return; }
+      // Nothing captured yet — hint user
+      dlBtn.textContent = '▶ Play video first';
+      setTimeout(() => { dlBtn.textContent = '↓ Download'; }, 2500);
+    });
 
-      // 1. Loom iframe
-      const loomIframe = container.querySelector('iframe[src*="loom.com/embed"]');
-      if (loomIframe) {
-        const embedUrl = loomIframe.src || loomIframe.getAttribute('src');
-        const match = embedUrl.match(/loom\.com\/embed\/([a-f0-9]+)/i);
-        if (match) {
-          openModal(`https://www.loom.com/share/${match[1]}`, 'simple');
-          return;
-        }
+    tsBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const target = await resolveVideoTarget(container);
+      if (!target) {
+        tsBtn.textContent = '▶ Play video first';
+        setTimeout(() => { tsBtn.textContent = '↓ Transcript'; }, 2500);
+        return;
       }
-
-      // 2. YouTube iframe
-      const ytIframe = container.querySelector('iframe[src*="youtube.com/embed"], iframe[src*="youtube-nocookie.com/embed"]');
-      if (ytIframe) {
-        const embedUrl = ytIframe.src || ytIframe.getAttribute('src');
-        const match = embedUrl.match(/youtube(?:-nocookie)?\.com\/embed\/([^?&"]+)/i);
-        if (match) {
-          openModal(`https://www.youtube.com/watch?v=${match[1]}`, 'simple');
-          return;
-        }
+      if (target.type === 'simple') {
+        tsBtn.textContent = 'YT unsupported';
+        setTimeout(() => { tsBtn.textContent = '↓ Transcript'; }, 2500);
+        return;
       }
-
-      // 3. Mux — try DOM attributes first
-      const domUrl = findVideoSrcInDom();
-      if (domUrl) { openModal(domUrl, 'mux'); return; }
-
-      // 4. Try intercepted URL from page world
-      getPageVideoUrl((intercepted) => {
-        if (intercepted) { openModal(intercepted, 'mux'); return; }
-        // 4. Nothing captured yet — hint user
-        dlBtn.textContent = '▶ Play video first';
-        setTimeout(() => { dlBtn.textContent = '↓ Download'; }, 2500);
-      });
+      openModal(target.url, target.type, { loomId: target.loomId, wistiaId: target.wistiaId, autoTranscript: true });
     });
   }
 
@@ -506,11 +809,13 @@ if (IS_SKOOL) {
       const container = vid.closest('[class*="video"], [class*="player"], [class*="Video"], [class*="Player"]') || vid.parentElement;
       if (container) attachDownloadButton(container);
     });
-    // Loom and YouTube embeds
+    // Loom, YouTube and Wistia embeds
     const embedSelectors = [
       'iframe[src*="loom.com/embed"]',
       'iframe[src*="youtube.com/embed"]',
       'iframe[src*="youtube-nocookie.com/embed"]',
+      'iframe[src*="wistia.com/embed/iframe"]',
+      'iframe[src*="wistia.net/embed/iframe"]',
     ].join(', ');
     document.querySelectorAll(embedSelectors).forEach((iframe) => {
       // Walk up past any overflow:hidden ancestor so the button isn't clipped
@@ -521,6 +826,11 @@ if (IS_SKOOL) {
         el = el.parentElement;
       }
       if (el && el !== document.body) attachDownloadButton(el);
+    });
+    // Wistia non-iframe embeds (async div or <wistia-player>)
+    document.querySelectorAll('[class*="wistia_async_"], wistia-player').forEach((el) => {
+      if (el.querySelector('iframe[src*="wistia"]')) return; // iframe path handles it
+      attachDownloadButton(el);
     });
   }
 
@@ -543,11 +853,15 @@ if (IS_WHOP) {
 
   // Build the download button + modal UI styles once
   const whopUiCss = `
-    .umbra-dl-btn {
+    .umbra-dl-wrap {
       position: absolute;
       top: 10px;
       right: 10px;
       z-index: 2147483640;
+      display: flex;
+      gap: 6px;
+    }
+    .umbra-dl-btn {
       padding: 6px 12px;
       background: rgba(26,26,27,0.88);
       color: #4fbdba;
@@ -707,8 +1021,51 @@ if (IS_WHOP) {
       min-height: 12px;
     }
     #umbra-video-modal .modal-status.error { color: #e06c75; }
-    #umbra-dl-btn:hover { border-color: #4fbdba; color: #4fbdba; background: #0e1918; }
-    #umbra-dl-btn:disabled { opacity: .5; cursor: default; }
+    #umbra-dl-btn:hover, #umbra-ts-btn:hover { border-color: #4fbdba; color: #4fbdba; background: #0e1918; }
+    #umbra-dl-btn:disabled, #umbra-ts-btn:disabled { opacity: .5; cursor: default; }
+    #umbra-video-modal .modal-ts-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      color: #818384;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select: none;
+    }
+    #umbra-video-modal .modal-ts-check input { accent-color: #4fbdba; margin: 0; }
+    #umbra-video-modal .modal-fallback summary {
+      font-size: 10px;
+      color: #4a4a4b;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 4px 0;
+      user-select: none;
+    }
+    #umbra-video-modal .modal-fallback summary:hover { color: #4fbdba; }
+    #umbra-video-modal .modal-fallback.no-summary summary { display: none; }
+    #umbra-video-modal .modal-fallback[open] {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    #umbra-video-modal .modal-guide-link {
+      display: block;
+      text-align: center;
+      padding: 7px;
+      border-radius: 6px;
+      border: 1px solid #343536;
+      background: #272729;
+      color: #4a4a4b;
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    #umbra-video-modal .modal-guide-link:hover { border-color: #4fbdba; color: #4fbdba; }
   `;
 
   const whopStyleEl = document.createElement('style');
@@ -724,33 +1081,28 @@ if (IS_WHOP) {
       <h2>UMBRA — Video Download</h2>
       <div class="modal-label">Video URL</div>
       <div class="modal-url" id="umbra-modal-url"></div>
-      <div class="modal-label">yt-dlp command</div>
-      <div class="modal-cmd" id="umbra-modal-cmd"></div>
       <div class="modal-actions">
         <button id="umbra-dl-btn" style="display:none">Download .mp4</button>
-        <button id="umbra-copy-btn">Copy yt-dlp</button>
+        <button id="umbra-ts-btn" style="display:none">Transcript</button>
         <button id="umbra-close-modal-btn">Close</button>
       </div>
+      <label class="modal-ts-check" id="umbra-ts-check-row" style="display:none"><input type="checkbox" id="umbra-ts-check"> Also save transcript (.txt + .srt)</label>
       <div class="modal-progress" id="umbra-modal-progress"><div class="umbra-prog-track"><div class="umbra-prog-fill"></div></div><span class="umbra-prog-pct"></span></div>
       <div class="modal-status" id="umbra-modal-status"></div>
-      <div class="modal-help">
-        <a href="https://github.com/yt-dlp/yt-dlp#installation" target="_blank" rel="noopener">↗ Install yt-dlp</a>
-        <a href="https://github.com/yt-dlp/yt-dlp#usage-and-options" target="_blank" rel="noopener">↗ Usage guide</a>
-      </div>
-      <div class="modal-instructions">
-        <strong>Windows</strong> — open <code>PowerShell</code> or <code>cmd</code> and paste the command above.<br>
-        If yt-dlp is not found, install it first with <code>winget install yt-dlp</code> or download the <code>.exe</code> from the install link above.<br>
-        The file will be saved in your current directory — in PowerShell/cmd that is usually <code>C:\Users\YourName</code>.<br><br>
-        <strong>Mac</strong> — open <code>Terminal</code> and paste the command above.<br>
-        If yt-dlp is not found, install it with <code>brew install yt-dlp</code> (requires <a href="https://brew.sh" target="_blank" rel="noopener" style="color:#4fbdba;text-decoration:none">Homebrew</a>).<br>
-        The file will be saved in your current directory — in Terminal that is usually <code>~/Downloads</code> if you <code>cd ~/Downloads</code> first, otherwise your home folder.
-      </div>
+      <details class="modal-fallback" id="umbra-fallback">
+        <summary>Fallback — yt-dlp command</summary>
+        <div class="modal-cmd" id="umbra-modal-cmd"></div>
+        <div class="modal-actions"><button id="umbra-copy-btn">Copy yt-dlp</button></div>
+        <a class="modal-guide-link" id="umbra-guide-link" href="#" target="_blank" rel="noopener">↗ Install &amp; usage guide</a>
+      </details>
     </div>
   `;
   document.addEventListener('DOMContentLoaded', () => document.body.appendChild(modal), { once: true });
   // Fallback if DOMContentLoaded already fired
   if (document.body) document.body.appendChild(modal);
-  umbraWireDirectDownload(modal);
+  umbraWireVideoModal(modal);
+  const guideLink = modal.querySelector('#umbra-guide-link');
+  if (guideLink) guideLink.href = chrome.runtime.getURL('options.html');
 
   document.addEventListener('click', (e) => {
     if (e.target.id === 'umbra-close-modal-btn') modal.classList.remove('open');
@@ -768,10 +1120,12 @@ if (IS_WHOP) {
 
   });
 
-  function openModal(videoUrl, type = 'mux') {
+  function openModal(videoUrl, type = 'mux', opts = {}) {
     document.getElementById('umbra-modal-url').textContent = videoUrl;
-    const title = document.title.replace(/[/\\:*?"<>|]+/g, ' ').trim() || 'whop-video';
-    // 'simple' = Loom / YouTube (no extra headers needed)
+    const title = (findWhopVideoTitle() || document.title).replace(/[/\\:*?"<>|]+/g, ' ').trim() || 'whop-video';
+    // 'loom'   = Loom embed (direct mp4 via Loom API, no headers needed)
+    // 'wistia' = Wistia embed (direct mp4 via Wistia medias.json API)
+    // 'simple' = YouTube (yt-dlp only)
     // 'mux'    = Whop's Mux player (needs Referer + Origin to bypass playback restriction)
     const cmd = type === 'mux'
       ? `yt-dlp -o "${title}.%(ext)s" --add-header "Referer:https://whop.com/" --add-header "Origin:https://whop.com" "${videoUrl}"`
@@ -780,25 +1134,40 @@ if (IS_WHOP) {
     modal.dataset.url = videoUrl;
     modal.dataset.type = type;
     modal.dataset.title = title;
+    modal.dataset.loomId = opts.loomId || '';
+    modal.dataset.wistiaId = opts.wistiaId || '';
+    const inBrowser = type === 'mux' || type === 'loom' || type === 'wistia';
     const dlBtn = document.getElementById('umbra-dl-btn');
-    if (dlBtn) dlBtn.style.display = type === 'mux' ? '' : 'none';
+    if (dlBtn) dlBtn.style.display = inBrowser ? '' : 'none';
+    const tsBtn = document.getElementById('umbra-ts-btn');
+    if (tsBtn) tsBtn.style.display = inBrowser ? '' : 'none';
+    const checkRow = document.getElementById('umbra-ts-check-row');
+    if (checkRow) checkRow.style.display = inBrowser ? 'flex' : 'none';
+    const fallback = document.getElementById('umbra-fallback');
+    if (fallback) {
+      fallback.open = !inBrowser;
+      fallback.classList.toggle('no-summary', !inBrowser);
+    }
     const prog = document.getElementById('umbra-modal-progress');
     if (prog) prog.style.display = 'none';
     const status = document.getElementById('umbra-modal-status');
     if (status) status.textContent = '';
     modal.classList.add('open');
+    if (opts.autoTranscript && tsBtn) tsBtn.click();
   }
 
   // Ask whop-intercept.js (MAIN world) for the captured video URL via postMessage.
-  function getPageVideoUrl(callback) {
-    const nonce = Math.random().toString(36).slice(2);
-    const handler = (e) => {
-      if (e.source !== window || !e.data || e.data.__umbraType !== 'response_url' || e.data.__umbraNonce !== nonce) return;
-      window.removeEventListener('message', handler);
-      callback(e.data.url || null);
-    };
-    window.addEventListener('message', handler);
-    window.postMessage({ __umbraType: 'request_url', __umbraNonce: nonce }, '*');
+  function getPageVideoUrl() {
+    return new Promise((resolve) => {
+      const nonce = Math.random().toString(36).slice(2);
+      const handler = (e) => {
+        if (e.source !== window || !e.data || e.data.__umbraType !== 'response_url' || e.data.__umbraNonce !== nonce) return;
+        window.removeEventListener('message', handler);
+        resolve(e.data.url || null);
+      };
+      window.addEventListener('message', handler);
+      window.postMessage({ __umbraType: 'request_url', __umbraNonce: nonce }, '*');
+    });
   }
 
   function isMasterM3u8(url) {
@@ -825,52 +1194,101 @@ if (IS_WHOP) {
     return null;
   }
 
+  // Whop lesson pages show "Module" + "Lesson" as two stacked spans in the
+  // same column as the player (page <title> is just "Formation | … | Whop").
+  function findWhopVideoTitle() {
+    const player = document.querySelector('mux-player, video');
+    const scope = (player && player.closest('div.flex.flex-col')) || document;
+    for (const block of scope.querySelectorAll('div.flex.flex-col.gap-2')) {
+      const spans = block.querySelectorAll(':scope > span');
+      if (spans.length === 2 && spans[1].classList.contains('font-semibold')) {
+        const lesson = spans[1].textContent.trim();
+        const module = spans[0].textContent.trim();
+        if (lesson) return module ? `${module} - ${lesson}` : lesson;
+      }
+    }
+    return null;
+  }
+
+  // Resolves the video inside a container to { type, url, loomId? }.
+  async function resolveVideoTarget(container) {
+    // 1. Loom iframe
+    const loomIframe = container.querySelector('iframe[src*="loom.com/embed"]');
+    if (loomIframe) {
+      const match = (loomIframe.src || loomIframe.getAttribute('src') || '').match(/loom\.com\/embed\/([a-f0-9]+)/i);
+      if (match) return { type: 'loom', url: `https://www.loom.com/share/${match[1]}`, loomId: match[1] };
+    }
+
+    // 2. YouTube iframe
+    const ytIframe = container.querySelector('iframe[src*="youtube.com/embed"], iframe[src*="youtube-nocookie.com/embed"]');
+    if (ytIframe) {
+      const match = (ytIframe.src || ytIframe.getAttribute('src') || '').match(/youtube(?:-nocookie)?\.com\/embed\/([^?&"]+)/i);
+      if (match) return { type: 'simple', url: `https://www.youtube.com/watch?v=${match[1]}` };
+    }
+
+    // 3. Wistia — iframe embed, async embed div (.wistia_async_{id}) or <wistia-player>
+    const wistiaIframe = container.querySelector('iframe[src*="wistia.com/embed/iframe"], iframe[src*="wistia.net/embed/iframe"]');
+    if (wistiaIframe) {
+      const match = (wistiaIframe.src || '').match(/embed\/iframe\/([a-z0-9]+)/i);
+      if (match) return { type: 'wistia', url: `https://fast.wistia.net/embed/iframe/${match[1]}`, wistiaId: match[1] };
+    }
+    const wistiaSel = '[class*="wistia_async_"], wistia-player[media-id]';
+    const wistiaEl = (container.matches && container.matches(wistiaSel)) ? container : container.querySelector(wistiaSel);
+    if (wistiaEl) {
+      const id = ((wistiaEl.className || '').toString().match(/wistia_async_([a-z0-9]+)/i) || [])[1] || wistiaEl.getAttribute('media-id');
+      if (id) return { type: 'wistia', url: `https://fast.wistia.net/embed/iframe/${id}`, wistiaId: id };
+    }
+
+    // 4. Mux — try DOM attributes first
+    const domUrl = findVideoSrcInDom();
+    if (domUrl) return { type: 'mux', url: domUrl };
+
+    // 5. Intercepted URL from page world
+    const intercepted = await getPageVideoUrl();
+    return intercepted ? { type: 'mux', url: intercepted } : null;
+  }
+
   function attachDownloadButton(container) {
     if (container.dataset.umbraDlAttached) return;
     container.dataset.umbraDlAttached = '1';
     container.style.position = 'relative';
+    const wrap = document.createElement('div');
+    wrap.className = 'umbra-dl-wrap';
     const dlBtn = document.createElement('button');
     dlBtn.className = 'umbra-dl-btn';
     dlBtn.textContent = '↓ Download';
-    container.appendChild(dlBtn);
+    const tsBtn = document.createElement('button');
+    tsBtn.className = 'umbra-dl-btn';
+    tsBtn.textContent = '↓ Transcript';
+    wrap.appendChild(dlBtn);
+    wrap.appendChild(tsBtn);
+    container.appendChild(wrap);
 
-    dlBtn.addEventListener('click', (e) => {
+    dlBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
       e.preventDefault();
+      const target = await resolveVideoTarget(container);
+      if (target) { openModal(target.url, target.type, { loomId: target.loomId, wistiaId: target.wistiaId }); return; }
+      // Nothing captured yet — hint user
+      dlBtn.textContent = '▶ Play video first';
+      setTimeout(() => { dlBtn.textContent = '↓ Download'; }, 2500);
+    });
 
-      // 1. Loom iframe
-      const loomIframe = container.querySelector('iframe[src*="loom.com/embed"]');
-      if (loomIframe) {
-        const embedUrl = loomIframe.src || loomIframe.getAttribute('src');
-        const match = embedUrl.match(/loom\.com\/embed\/([a-f0-9]+)/i);
-        if (match) {
-          openModal(`https://www.loom.com/share/${match[1]}`, 'simple');
-          return;
-        }
+    tsBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const target = await resolveVideoTarget(container);
+      if (!target) {
+        tsBtn.textContent = '▶ Play video first';
+        setTimeout(() => { tsBtn.textContent = '↓ Transcript'; }, 2500);
+        return;
       }
-
-      // 2. YouTube iframe
-      const ytIframe = container.querySelector('iframe[src*="youtube.com/embed"], iframe[src*="youtube-nocookie.com/embed"]');
-      if (ytIframe) {
-        const embedUrl = ytIframe.src || ytIframe.getAttribute('src');
-        const match = embedUrl.match(/youtube(?:-nocookie)?\.com\/embed\/([^?&"]+)/i);
-        if (match) {
-          openModal(`https://www.youtube.com/watch?v=${match[1]}`, 'simple');
-          return;
-        }
+      if (target.type === 'simple') {
+        tsBtn.textContent = 'YT unsupported';
+        setTimeout(() => { tsBtn.textContent = '↓ Transcript'; }, 2500);
+        return;
       }
-
-      // 3. Mux — try DOM attributes first
-      const domUrl = findVideoSrcInDom();
-      if (domUrl) { openModal(domUrl, 'mux'); return; }
-
-      // 4. Try intercepted URL from page world
-      getPageVideoUrl((intercepted) => {
-        if (intercepted) { openModal(intercepted, 'mux'); return; }
-        // 4. Nothing captured yet — hint user
-        dlBtn.textContent = '▶ Play video first';
-        setTimeout(() => { dlBtn.textContent = '↓ Download'; }, 2500);
-      });
+      openModal(target.url, target.type, { loomId: target.loomId, wistiaId: target.wistiaId, autoTranscript: true });
     });
   }
 
@@ -887,11 +1305,13 @@ if (IS_WHOP) {
       const container = vid.closest('[class*="video"], [class*="player"], [class*="Video"], [class*="Player"]') || vid.parentElement;
       if (container) attachDownloadButton(container);
     });
-    // Loom and YouTube embeds
+    // Loom, YouTube and Wistia embeds
     const embedSelectors = [
       'iframe[src*="loom.com/embed"]',
       'iframe[src*="youtube.com/embed"]',
       'iframe[src*="youtube-nocookie.com/embed"]',
+      'iframe[src*="wistia.com/embed/iframe"]',
+      'iframe[src*="wistia.net/embed/iframe"]',
     ].join(', ');
     document.querySelectorAll(embedSelectors).forEach((iframe) => {
       // Walk up past any overflow:hidden ancestor so the button isn't clipped
@@ -902,6 +1322,11 @@ if (IS_WHOP) {
         el = el.parentElement;
       }
       if (el && el !== document.body) attachDownloadButton(el);
+    });
+    // Wistia non-iframe embeds (async div or <wistia-player>)
+    document.querySelectorAll('[class*="wistia_async_"], wistia-player').forEach((el) => {
+      if (el.querySelector('iframe[src*="wistia"]')) return; // iframe path handles it
+      attachDownloadButton(el);
     });
   }
 

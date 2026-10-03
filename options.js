@@ -1,92 +1,21 @@
-const PROVIDERS = {
-  openrouter: {
-    storageKey: 'umbra_openrouter_api_key',
-    validate: value => /^sk-or-v1-[A-Za-z0-9_-]+$/.test(value),
-    invalidMessage: 'Enter a valid OpenRouter key that starts with sk-or-v1-.',
-  },
-};
+const UMBRA_STT_KEY = 'umbra_openrouter_api_key';
 
-function setMessage(root, text, state = '') {
-  const message = root.querySelector('.message');
-  message.textContent = text;
-  message.className = `message ${state}`.trim();
-}
+const input = document.getElementById('openrouter-key');
+const statusEl = document.getElementById('key-status');
+const saveBtn = document.getElementById('save-key');
 
-function setStatus(root, configured) {
-  const status = root.querySelector('.status');
-  status.textContent = configured ? 'Configured' : 'Not configured';
-  status.classList.toggle('configured', configured);
-}
+chrome.storage.local.get({ [UMBRA_STT_KEY]: '' }, (v) => {
+  input.value = (v && v[UMBRA_STT_KEY]) || '';
+});
 
-for (const root of document.querySelectorAll('[data-provider]')) {
-  const provider = PROVIDERS[root.dataset.provider];
-  if (!provider) continue;
-  const input = root.querySelector('.provider-key');
-
-  chrome.storage.local.get(provider.storageKey).then(data => setStatus(root, !!data[provider.storageKey]));
-
-  root.querySelector('.save-key').addEventListener('click', async () => {
-    const value = input.value.trim();
-    if (!provider.validate(value)) {
-      setMessage(root, provider.invalidMessage, 'error');
-      return;
-    }
-    await chrome.storage.local.set({ [provider.storageKey]: value });
-    input.value = '';
-    setStatus(root, true);
-    setMessage(root, 'Key saved locally.', 'ok');
+saveBtn.addEventListener('click', () => {
+  const key = input.value.trim();
+  statusEl.classList.remove('error');
+  if (key && !/^sk-or-v1-[A-Za-z0-9_-]+$/.test(key)) {
+    statusEl.textContent = 'OpenRouter keys look like "sk-or-v1-…". Saved anyway.';
+  }
+  chrome.storage.local.set({ [UMBRA_STT_KEY]: key }, () => {
+    statusEl.textContent = key ? 'Saved.' : 'Key removed.';
+    setTimeout(() => { statusEl.textContent = ''; }, 2500);
   });
-
-  root.querySelector('.remove-key').addEventListener('click', async () => {
-    const data = await chrome.storage.local.get(provider.storageKey);
-    if (!data[provider.storageKey]) {
-      setStatus(root, false);
-      setMessage(root, 'No saved key to remove.');
-      return;
-    }
-    if (!confirm('Remove the saved API key?')) return;
-    await chrome.storage.local.remove(provider.storageKey);
-    input.value = '';
-    setStatus(root, false);
-    setMessage(root, 'Key removed.');
-  });
-}
-
-// ── Instagram behavior ─────────────────────────────────────────────────
-const igOpenIn = document.getElementById('instagram-open-in');
-const igDownloadToggle = document.getElementById('instagram-download-toggle');
-const igTranscribeToggle = document.getElementById('instagram-transcribe-toggle');
-const igVideoControlsToggle = document.getElementById('instagram-video-controls-toggle');
-
-if (igOpenIn) {
-  chrome.storage.local.get([
-    'umbra_instagram_open_in',
-    'umbra_instagram_download_enabled',
-    'umbra_instagram_transcribe_enabled',
-    'sortfeed_ig_open_in',
-    'sortfeed_ig_download_enabled',
-    'sortfeed_ig_transcribe_enabled',
-    'umbra_ig_video_controls',
-  ]).then(saved => {
-    igOpenIn.value = saved.sortfeed_ig_open_in || saved.umbra_instagram_open_in || 'player';
-    igDownloadToggle.checked = (saved.sortfeed_ig_download_enabled ?? saved.umbra_instagram_download_enabled) !== false;
-    igTranscribeToggle.checked = (saved.sortfeed_ig_transcribe_enabled ?? saved.umbra_instagram_transcribe_enabled) !== false;
-    igVideoControlsToggle.checked = saved.umbra_ig_video_controls !== false;
-  });
-
-  igOpenIn.addEventListener('change', () => chrome.storage.local.set({
-    umbra_instagram_open_in: igOpenIn.value,
-    sortfeed_ig_open_in: igOpenIn.value,
-  }));
-  igDownloadToggle.addEventListener('change', () => chrome.storage.local.set({
-    umbra_instagram_download_enabled: igDownloadToggle.checked,
-    sortfeed_ig_download_enabled: igDownloadToggle.checked,
-  }));
-  igTranscribeToggle.addEventListener('change', () => chrome.storage.local.set({
-    umbra_instagram_transcribe_enabled: igTranscribeToggle.checked,
-    sortfeed_ig_transcribe_enabled: igTranscribeToggle.checked,
-  }));
-  igVideoControlsToggle.addEventListener('change', () => chrome.storage.local.set({
-    umbra_ig_video_controls: igVideoControlsToggle.checked,
-  }));
-}
+});

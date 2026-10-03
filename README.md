@@ -5,12 +5,10 @@ Mode sombre pour le web, avec des fonctionnalités avancées pour certains sites
 ## Fonctionnalités
 
 - **Mode sombre** sur tous les sites (inversion CSS)
-- **Tri Instagram** sur les profils, les recherches Explore et les collections Saved
-- **Filtres et outils Instagram** : grille triée, sélection, lecteur, copie, téléchargements et exports Excel/CSV/JSON
-- **Transcription Instagram** directe avec OpenRouter et Whisper Large V3 Turbo
 - **Thème personnalisé** pour old.reddit.com et github.com
 - **Redirection automatique** de reddit.com vers old.reddit.com
-- **Téléchargement de vidéos** sur skool.com et whop.com (Mux, Loom, YouTube)
+- **Téléchargement de vidéos** sur skool.com et whop.com (Mux, Loom et Wistia directement dans le navigateur, YouTube via yt-dlp)
+- **Transcription de vidéos** dans le navigateur (Whisper via OpenRouter, fichiers .txt + .srt)
 - **Suppression des cookies et du stockage** du site actif
 - **Suspension des onglets** non épinglés
 
@@ -68,8 +66,8 @@ La carte **Umbra** doit maintenant apparaître dans `chrome://extensions`.
 
 ### 6. Configurer l'extension
 
-Ouvre la fenêtre Umbra, puis clique sur l'engrenage en haut à droite. La page **Umbra Settings** permet de configurer la
-clé OpenRouter et le comportement des outils Instagram.
+Ouvre la fenêtre Umbra, puis clique sur l'engrenage en haut à droite. La page **Umbra Settings** contient le guide
+d'installation des outils de téléchargement vidéo.
 
 ---
 
@@ -92,36 +90,20 @@ pour afficher le fichier et la ligne responsables.
 
 ---
 
-## Trier et transcrire Instagram
-
-1. Ouvre un profil Instagram, une recherche Explore ou une collection Saved.
-2. Ouvre Umbra et sélectionne l’onglet **Instagram**.
-3. Choisis un nombre de publications ou une période.
-4. Lance un tri par likes, vues, commentaires, ancienneté ou score d’outlier.
-5. Utilise la grille Umbra pour filtrer, sélectionner, télécharger, transcrire ou exporter les résultats.
-
-Les exports Excel, CSV et JSON restent locaux. L’export Google Sheets et les comptes Sort Feed ne sont pas utilisés.
-
-### Configurer OpenRouter
-
-1. Crée une clé API OpenRouter et ajoute des crédits au compte.
-2. Ouvre Umbra et clique sur l’icône d’engrenage en haut à droite.
-3. Enregistre la clé sur la page complète **Umbra Settings**.
-4. Active **Show Transcribe button**, puis utilise **Transcribe** sur une publication ou une sélection.
-
-Umbra demande `openai/whisper-large-v3-turbo` avec détection automatique de la langue. Le média est envoyé directement depuis l’extension à OpenRouter et à son fournisseur de modèle. Aucun serveur Sort Feed n’est utilisé.
-
-Les fichiers sont envoyés en multipart pour éviter l’augmentation de taille du base64. Les médias de plus de 25 Mo sont refusés, car Umbra n’ajoute pas de conversion ou de compression locale.
-
-> La clé est conservée dans `chrome.storage.local`. Ce stockage est persistant, mais ce n’est pas un coffre-fort : une personne ou un logiciel qui peut lire le profil Chrome local peut récupérer la clé. Les transcriptions utilisent les crédits OpenRouter de l’utilisateur.
-
----
-
 ## Télécharger des vidéos Skool / Whop
 
-L'extension ajoute un bouton **↓ Download** sur les players vidéo des pages skool.com et whop.com.
+L'extension ajoute les boutons **↓ Download** et **↓ Transcript** sur les players vidéo des pages skool.com et whop.com.
 
-### Prérequis : installer yt-dlp
+### Utilisation
+
+1. Va sur une page de cours skool.com ou whop.com contenant une vidéo
+2. Clique sur **↓ Download** qui apparaît sur le player
+3. Pour les vidéos **Mux** (player natif), **Loom** et **Wistia**, le téléchargement se fait directement dans le navigateur — aucun outil requis
+4. Pour les embeds **YouTube**, copie la commande yt-dlp affichée et colle-la dans **PowerShell** (Windows) ou **Terminal** (Mac)
+
+> **Astuce** : si Umbra ne détecte pas le stream, lance la vidéo une fois puis réessaie.
+
+### yt-dlp (YouTube uniquement)
 
 **Windows**
 
@@ -129,35 +111,25 @@ L'extension ajoute un bouton **↓ Download** sur les players vidéo des pages s
 winget install yt-dlp
 ```
 
-Ou télécharge le `.exe` directement sur [github.com/yt-dlp/yt-dlp/releases](https://github.com/yt-dlp/yt-dlp/releases).
-
 **Mac**
 
 ```bash
 brew install yt-dlp
 ```
 
-Nécessite [Homebrew](https://brew.sh). Si tu ne l'as pas :
-`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+### Transcription
 
-### Utilisation
+1. Crée une clé sur [openrouter.ai/keys](https://openrouter.ai/keys)
+2. Ouvre la page **Umbra Settings** (engrenage dans le popup) et colle la clé
+3. Clique sur **↓ Transcript** sur le player — l'audio est extrait dans le navigateur, envoyé à Whisper (`openai/whisper-large-v3-turbo`), puis un fichier `.txt` et un fichier `.srt` (avec timestamps) sont téléchargés
 
-1. Va sur une page de cours skool.com ou whop.com contenant une vidéo
-2. Clique sur le bouton **↓ Download** qui apparaît sur le player
-3. Copie la commande yt-dlp affichée
-4. Colle-la dans **PowerShell** (Windows) ou **Terminal** (Mac)
-5. Le fichier est sauvegardé dans le dossier courant du terminal
-
-> **Astuce Mac** : tape `cd ~/Downloads` avant de coller la commande pour que la vidéo atterrisse dans ton dossier
-> Téléchargements.
-
-> **Astuce Windows** : le fichier est sauvegardé dans `C:\Users\TonNom` par défaut. Pour choisir un autre dossier, tape
-`cd C:\chemin\vers\dossier` avant de coller la commande.
+> Fonctionne pour les vidéos **Mux**, **Loom** et **Wistia**. Les vidéos longues sont envoyées à l'API par morceaux de 10 minutes.
 
 ### Providers supportés
 
-| Player                   | Support |
-|--------------------------|---------|
-| Mux (player natif Skool/Whop) | ✅       |
-| Loom                     | ✅       |
-| YouTube                  | ✅       |
+| Player                   | Download navigateur | Transcription |
+|--------------------------|---------------------|---------------|
+| Mux (player natif Skool/Whop) | ✅              | ✅            |
+| Loom                     | ✅                   | ✅            |
+| Wistia                   | ✅                   | ✅            |
+| YouTube                  | yt-dlp               | ❌            |

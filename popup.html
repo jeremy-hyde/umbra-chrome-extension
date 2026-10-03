@@ -351,33 +351,15 @@
     }
 
     body { width: 360px; min-height: 430px; max-height: 600px; overflow-y: auto; align-items: stretch; padding: 16px; gap: 12px; }
-    .form-row[hidden] { display: none !important; }
     h1 { text-align: center; }
-    .site-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 4px; border: 1px solid #343536; border-radius: 8px; background: #111112; }
+    .site-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border: 1px solid #343536; border-radius: 8px; background: #111112; }
     .site-tab { padding: 7px 3px; border: 0; border-radius: 5px; background: transparent; color: #818384; font-size: 9px; letter-spacing: .5px; text-transform: uppercase; cursor: pointer; }
     .site-tab.active { background: #272729; color: #4fbdba; }
     .tab-panel { display: none; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
     .tab-panel.active { display: flex; }
     .panel-card { width: 100%; display: flex; flex-direction: column; gap: 9px; padding: 11px; border: 1px solid #343536; border-radius: 8px; background: #202022; }
     .panel-title { color: #818384; font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; }
-    .form-row { display: flex; align-items: center; gap: 8px; width: 100%; }
-    .form-row label { flex: 1; color: #818384; font-size: 10px; }
-    .form-row select, .form-row input { min-width: 0; flex: 1.4; padding: 7px 8px; border: 1px solid #343536; border-radius: 5px; background: #111112; color: #d7dadc; font-size: 10px; }
-    .scope-switch, .sort-grid, .key-actions { display: grid; gap: 6px; width: 100%; }
-    .scope-switch { grid-template-columns: 1fr 1fr; }
-    .sort-grid { grid-template-columns: 1fr 1fr; }
-    .scope-btn, .sort-btn, .small-btn { padding: 8px; border: 1px solid #343536; border-radius: 6px; background: #272729; color: #818384; font-size: 10px; cursor: pointer; }
-    .scope-btn.active { border-color: #4fbdba; color: #4fbdba; }
-    .sort-btn:hover, .small-btn:hover { border-color: #4fbdba; color: #4fbdba; }
-    .key-actions { grid-template-columns: 1fr 1fr; }
-    .key-status { min-height: 14px; color: #818384; font-size: 9px; text-align: center; }
-    .key-status.ok { color: #4fbdba; }
-    .key-status.error { color: #e06c75; }
-    .toggle-row { display: flex; justify-content: space-between; align-items: center; color: #d7dadc; font-size: 10px; }
-    .toggle-row input { accent-color: #4fbdba; }
     .site-message { color: #818384; font-size: 10px; line-height: 1.6; text-align: center; }
-    .open-instagram { width: 100%; padding: 9px; border: 1px solid #4fbdba; border-radius: 6px; background: #111918; color: #4fbdba; font-size: 10px; cursor: pointer; }
-    #instagram-date-row { display: none; }
     #about-link { text-align: center; }
 
     .popup-header {
@@ -432,28 +414,6 @@
       box-shadow: 0 1px 2px rgba(32, 33, 36, 0.06);
     }
     .panel-title, .resource-header, .color-history-label { color: #62676d; font-size: 11px; font-weight: 600; letter-spacing: 0; text-transform: none; }
-    .form-row label { color: #62676d; font-size: 11px; }
-    .form-row select, .form-row input {
-      border-color: rgba(32, 33, 36, 0.14);
-      background: #f8f9fa;
-      color: #202124;
-      font-family: inherit;
-      font-size: 11px;
-      outline: none;
-    }
-    .form-row select:focus, .form-row input:focus { border-color: #2383e2; box-shadow: 0 0 0 2px rgba(35, 131, 226, 0.12); }
-    .scope-btn, .sort-btn, .small-btn {
-      border-color: rgba(32, 33, 36, 0.1);
-      background: #f8f9fa;
-      color: #303134;
-      font-family: inherit;
-      font-size: 11px;
-      box-shadow: 0 1px 2px rgba(32, 33, 36, 0.06);
-    }
-    .scope-btn:hover, .sort-btn:hover, .small-btn:hover { border-color: rgba(32, 33, 36, 0.2); color: #202124; background: #f1f3f4; }
-    .scope-btn.active { border-color: rgba(35, 131, 226, 0.35); color: #1769aa; background: rgba(35, 131, 226, 0.08); }
-    .open-instagram { border-color: #2383e2; background: #2383e2; color: #ffffff; font-family: inherit; font-size: 11px; font-weight: 600; }
-    .open-instagram:hover { background: #1d72c7; }
     .site-message { color: #62676d; font-size: 11px; }
     .dark-mode-row, .counter, .tab-row {
       border-color: rgba(32, 33, 36, 0.1);
@@ -510,7 +470,6 @@
 
   <nav class="site-tabs" aria-label="Umbra tools">
     <button class="site-tab active" type="button" data-tab="general">General</button>
-    <button class="site-tab" type="button" data-tab="instagram">Instagram</button>
     <button class="site-tab" type="button" data-tab="media">Video Download</button>
     <button class="site-tab" type="button" data-tab="system">System</button>
   </nav>
@@ -533,62 +492,6 @@
       <div class="color-swatches" id="color-swatches"></div>
     </div>
     <button id="suspend-btn">Suspend Unpinned Tabs</button>
-  </section>
-
-  <section class="tab-panel" data-panel="instagram">
-    <div class="panel-card">
-      <div class="panel-title">Collect by</div>
-      <div class="scope-switch">
-        <button type="button" class="scope-btn active" data-scope="items">Post count</button>
-        <button type="button" class="scope-btn" data-scope="dates">Date</button>
-      </div>
-      <div class="form-row" id="instagram-items-row">
-        <label for="instagram-items">Range</label>
-        <select id="instagram-items">
-          <option value="25_reels">Latest 25 posts</option>
-          <option value="50_reels">Latest 50 posts</option>
-          <option value="100_reels">Latest 100 posts</option>
-          <option value="200_reels">Latest 200 posts</option>
-          <option value="1000_reels">Latest 1K posts</option>
-          <option value="all_reels">All posts</option>
-          <option value="custom">Custom count…</option>
-        </select>
-      </div>
-      <div class="form-row" id="instagram-custom-count-row" hidden>
-        <label for="instagram-custom-count">Posts</label>
-        <input id="instagram-custom-count" type="number" min="1" max="10000" value="250">
-      </div>
-      <div class="form-row" id="instagram-date-row">
-        <label for="instagram-date">Range</label>
-        <select id="instagram-date">
-          <option value="1_week">One week</option>
-          <option value="1_month">One month</option>
-          <option value="3_month">Three months</option>
-          <option value="6_month">Six months</option>
-          <option value="1_year">One year</option>
-          <option value="all_reels">All posts</option>
-          <option value="custom">Custom start date…</option>
-        </select>
-      </div>
-      <div class="form-row" id="instagram-custom-date-row" hidden>
-        <label for="instagram-custom-date">Start date</label>
-        <input id="instagram-custom-date" type="date">
-      </div>
-    </div>
-
-    <div class="panel-card">
-      <div class="panel-title">Sort by</div>
-      <div class="sort-grid">
-        <button type="button" class="sort-btn" data-sort="likes">Likes</button>
-        <button type="button" class="sort-btn" data-sort="views">Views</button>
-        <button type="button" class="sort-btn" data-sort="comments">Comments</button>
-        <button type="button" class="sort-btn" data-sort="oldest">Oldest</button>
-        <button type="button" class="sort-btn" data-sort="outlier">Outlier score</button>
-      </div>
-      <button type="button" id="open-instagram" class="open-instagram">Open Instagram</button>
-      <button type="button" id="open-library" class="open-instagram" style="margin-top:8px; background:#111918; color:#4fbdba; border-color:#4fbdba;">Open Feed Library</button>
-    </div>
-
   </section>
 
   <section class="tab-panel" data-panel="media">
