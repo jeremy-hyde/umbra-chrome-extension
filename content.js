@@ -776,6 +776,12 @@ function umbraInitVideoUI(opts) {
   }
 
   function attachDownloadButton(container) {
+    // Custom elements rendering through shadow DOM without a <slot>
+    // (e.g. <wistia-player>) never display light-DOM children —
+    // overlay the parent instead so the button is visible.
+    if (container.shadowRoot && !container.shadowRoot.querySelector('slot') && container.parentElement) {
+      container = container.parentElement;
+    }
     if (container.dataset.umbraDlAttached) return;
     container.dataset.umbraDlAttached = '1';
     container.style.position = 'relative';
@@ -856,10 +862,12 @@ function umbraInitVideoUI(opts) {
       }
       if (el && el !== document.body) attachDownloadButton(el);
     });
-    // Wistia non-iframe embeds (async div or <wistia-player>)
+    // Wistia non-iframe embeds (async div or <wistia-player>).
+    // <wistia-player> always renders via shadow DOM — overlay its parent.
     document.querySelectorAll('[class*="wistia_async_"], wistia-player').forEach((el) => {
       if (el.querySelector('iframe[src*="wistia"]')) return; // iframe path handles it
-      attachDownloadButton(el);
+      const target = el.tagName === 'WISTIA-PLAYER' ? (el.parentElement || el) : el;
+      attachDownloadButton(target);
     });
     // Vidalytics embeds — attach to the visible wrapper (player div may start hidden)
     document.querySelectorAll('[id^="vidalytics_embed_"], iframe[src*="vidalytics.com/embeds"]').forEach((el) => {
