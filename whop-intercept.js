@@ -15,11 +15,25 @@
   }
 
   function capture(url) {
-    // Never overwrite a previously captured master URL (first one is canonical)
-    if (!window.__umbraVideoUrl && isMasterPlaylist(url)) {
+    // Latest master playlist wins — Whop is an SPA and the lesson can change
+    // without a reload.
+    if (isMasterPlaylist(url)) {
       window.__umbraVideoUrl = url;
     }
   }
+
+  // Drop the captured URL on SPA navigation so a stale video is never served.
+  const _pushState = history.pushState;
+  history.pushState = function () {
+    window.__umbraVideoUrl = null;
+    return _pushState.apply(this, arguments);
+  };
+  const _replaceState = history.replaceState;
+  history.replaceState = function () {
+    window.__umbraVideoUrl = null;
+    return _replaceState.apply(this, arguments);
+  };
+  window.addEventListener('popstate', () => { window.__umbraVideoUrl = null; });
 
   // Patch XHR
   const _open = XMLHttpRequest.prototype.open;

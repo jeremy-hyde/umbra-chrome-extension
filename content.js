@@ -694,22 +694,37 @@ if (IS_SKOOL) {
     return url && url.includes('.m3u8') && url.includes('token=');
   }
 
-  function findVideoSrcInDom() {
-    // 1. <mux-video cast-src="..."> — light DOM child of mux-player,
-    //    always holds the master .m3u8 with token even after play starts.
-    for (const el of document.querySelectorAll('mux-video[cast-src]')) {
-      const url = el.getAttribute('cast-src');
-      if (isMasterM3u8(url)) return url;
-    }
-    // 2. <mux-video src="..."> or <mux-player src="...">
-    for (const el of document.querySelectorAll('mux-video[src], mux-player[src]')) {
-      const url = el.getAttribute('src');
-      if (isMasterM3u8(url)) return url;
-    }
-    // 3. Plain <video> with a non-blob src (unlikely on Skool but keep as fallback)
-    for (const vid of document.querySelectorAll('video[src]')) {
-      const url = vid.getAttribute('src');
-      if (url && !url.startsWith('blob:')) return url;
+  // container = the player wrapper the button was attached to. Always scoped
+  // to it first — the document fallback kept grabbing a stale video from a
+  // previous lesson after SPA navigation.
+  function findVideoSrcInDom(container) {
+    const scopes = container ? [container, document] : [document];
+    for (const scope of scopes) {
+      // 1. mux-player gets its src via JS property (Whop) — invisible from the
+      //    isolated world. Its open shadow root holds a <mux-video src> attr.
+      const players = scope.querySelectorAll('mux-player');
+      const list = (scope.matches && scope.matches('mux-player')) ? [scope, ...players] : [...players];
+      for (const p of list) {
+        const inner = p.shadowRoot && p.shadowRoot.querySelector('mux-video[src], video[src]');
+        const url = inner && inner.getAttribute('src');
+        if (isMasterM3u8(url)) return url;
+      }
+      // 2. <mux-video cast-src="..."> — light DOM child of mux-player,
+      //    always holds the master .m3u8 with token even after play starts.
+      for (const el of scope.querySelectorAll('mux-video[cast-src]')) {
+        const url = el.getAttribute('cast-src');
+        if (isMasterM3u8(url)) return url;
+      }
+      // 3. <mux-video src="..."> or <mux-player src="...">
+      for (const el of scope.querySelectorAll('mux-video[src], mux-player[src]')) {
+        const url = el.getAttribute('src');
+        if (isMasterM3u8(url)) return url;
+      }
+      // 4. Plain <video> with a non-blob src (fallback)
+      for (const vid of scope.querySelectorAll('video[src]')) {
+        const url = vid.getAttribute('src');
+        if (url && !url.startsWith('blob:')) return url;
+      }
     }
     return null;
   }
@@ -743,8 +758,8 @@ if (IS_SKOOL) {
       if (id) return { type: 'wistia', url: `https://fast.wistia.net/embed/iframe/${id}`, wistiaId: id };
     }
 
-    // 4. Mux — try DOM attributes first
-    const domUrl = findVideoSrcInDom();
+    // 4. Mux — DOM attributes, scoped to this container first
+    const domUrl = findVideoSrcInDom(container);
     if (domUrl) return { type: 'mux', url: domUrl };
 
     // 5. Intercepted URL from page world
@@ -1174,22 +1189,37 @@ if (IS_WHOP) {
     return url && url.includes('.m3u8') && url.includes('token=');
   }
 
-  function findVideoSrcInDom() {
-    // 1. <mux-video cast-src="..."> — light DOM child of mux-player,
-    //    always holds the master .m3u8 with token even after play starts.
-    for (const el of document.querySelectorAll('mux-video[cast-src]')) {
-      const url = el.getAttribute('cast-src');
-      if (isMasterM3u8(url)) return url;
-    }
-    // 2. <mux-video src="..."> or <mux-player src="...">
-    for (const el of document.querySelectorAll('mux-video[src], mux-player[src]')) {
-      const url = el.getAttribute('src');
-      if (isMasterM3u8(url)) return url;
-    }
-    // 3. Plain <video> with a non-blob src (fallback)
-    for (const vid of document.querySelectorAll('video[src]')) {
-      const url = vid.getAttribute('src');
-      if (url && !url.startsWith('blob:')) return url;
+  // container = the player wrapper the button was attached to. Always scoped
+  // to it first — the document fallback kept grabbing a stale video from a
+  // previous lesson after SPA navigation.
+  function findVideoSrcInDom(container) {
+    const scopes = container ? [container, document] : [document];
+    for (const scope of scopes) {
+      // 1. mux-player gets its src via JS property (Whop) — invisible from the
+      //    isolated world. Its open shadow root holds a <mux-video src> attr.
+      const players = scope.querySelectorAll('mux-player');
+      const list = (scope.matches && scope.matches('mux-player')) ? [scope, ...players] : [...players];
+      for (const p of list) {
+        const inner = p.shadowRoot && p.shadowRoot.querySelector('mux-video[src], video[src]');
+        const url = inner && inner.getAttribute('src');
+        if (isMasterM3u8(url)) return url;
+      }
+      // 2. <mux-video cast-src="..."> — light DOM child of mux-player,
+      //    always holds the master .m3u8 with token even after play starts.
+      for (const el of scope.querySelectorAll('mux-video[cast-src]')) {
+        const url = el.getAttribute('cast-src');
+        if (isMasterM3u8(url)) return url;
+      }
+      // 3. <mux-video src="..."> or <mux-player src="...">
+      for (const el of scope.querySelectorAll('mux-video[src], mux-player[src]')) {
+        const url = el.getAttribute('src');
+        if (isMasterM3u8(url)) return url;
+      }
+      // 4. Plain <video> with a non-blob src (fallback)
+      for (const vid of scope.querySelectorAll('video[src]')) {
+        const url = vid.getAttribute('src');
+        if (url && !url.startsWith('blob:')) return url;
+      }
     }
     return null;
   }
@@ -1239,8 +1269,8 @@ if (IS_WHOP) {
       if (id) return { type: 'wistia', url: `https://fast.wistia.net/embed/iframe/${id}`, wistiaId: id };
     }
 
-    // 4. Mux — try DOM attributes first
-    const domUrl = findVideoSrcInDom();
+    // 4. Mux — DOM attributes, scoped to this container first
+    const domUrl = findVideoSrcInDom(container);
     if (domUrl) return { type: 'mux', url: domUrl };
 
     // 5. Intercepted URL from page world
