@@ -138,7 +138,7 @@ async function umbraResolveWistia(wistiaId) {
 // 'wistia' = Wistia mp4 via their public medias.json API.
 async function umbraGetVideoBlob(modal, onProgress) {
   const type = modal.dataset.type;
-  if (type === 'mux') {
+  if (type === 'mux' || type === 'vidalytics') {
     const url = modal.dataset.url;
     if (!url || !window.UmbraHls) {
       throw new Error(window.UmbraHls ? 'No stream URL captured.' : 'Direct download is not available on this page.');
@@ -626,7 +626,7 @@ function umbraInitVideoUI(opts) {
 
   function openModal(videoUrl, type = 'mux', modalOpts = {}) {
     document.getElementById('umbra-modal-url').textContent = videoUrl;
-    const title = ((opts.findTitleFn && opts.findTitleFn()) || document.title).replace(/[/\\:*?"<>|]+/g, ' ').trim() || opts.defaultTitle;
+    const title = (modalOpts.title || (opts.findTitleFn && opts.findTitleFn()) || document.title).replace(/[/\\:*?"<>|]+/g, ' ').trim() || opts.defaultTitle;
     // 'loom'   = Loom embed (direct mp4 via Loom API, no headers needed)
     // 'wistia' = Wistia embed (direct mp4 via Wistia medias.json API)
     // 'simple' = YouTube (yt-dlp only)
@@ -640,7 +640,7 @@ function umbraInitVideoUI(opts) {
     modal.dataset.title = title;
     modal.dataset.loomId = modalOpts.loomId || '';
     modal.dataset.wistiaId = modalOpts.wistiaId || '';
-    const inBrowser = type === 'mux' || type === 'loom' || type === 'wistia';
+    const inBrowser = type === 'mux' || type === 'loom' || type === 'wistia' || type === 'vidalytics';
     const dlBtn = document.getElementById('umbra-dl-btn');
     if (dlBtn) dlBtn.style.display = inBrowser ? '' : 'none';
     const tsBtn = document.getElementById('umbra-ts-btn');
@@ -739,11 +739,38 @@ function umbraInitVideoUI(opts) {
       if (id) return { type: 'wistia', url: `https://fast.wistia.net/embed/iframe/${id}`, wistiaId: id };
     }
 
-    // 4. Mux — DOM attributes, scoped to this container first
+    // 4. Vidalytics — embed iframe or div#vidalytics_embed_{id}.
+    //    The stream URL lives in {base}loader.min.js next to the embed.
+    const vidIframe = container.querySelector('iframe[src*="vidalytics.com/embeds"]');
+    let vidBase = vidIframe ? (vidIframe.src || '').split('?')[0] : null;
+    if (!vidBase) {
+      const vidEl = (container.id && container.id.startsWith('vidalytics_embed_'))
+        ? container
+        : container.querySelector('[id^="vidalytics_embed_"]');
+      if (vidEl) {
+        const vidId = vidEl.id.slice('vidalytics_embed_'.length);
+        const m = document.documentElement.innerHTML.match(
+          new RegExp(`(?:https?:)?//[^'"\\s]*vidalytics\\.com/embeds/[^'"\\s/]+/${vidId}/`, 'i'));
+        vidBase = m ? (m[0].startsWith('http') ? m[0] : `https:${m[0]}`) : null;
+      }
+    }
+    if (vidBase) {
+      if (!vidBase.endsWith('/')) vidBase += '/';
+      try {
+        const conf = await (await fetch(`${vidBase}loader.min.js`)).text();
+        const hls = (conf.match(/"hls"\s*:\s*\{\s*"source"\s*:\s*"([^"]+)"/) || [])[1];
+        if (hls) {
+          const title = [...conf.matchAll(/"title"\s*:\s*"([^"]+)"/g)].map((x) => x[1])[0];
+          return { type: 'vidalytics', url: hls.replace(/\\\//g, '/'), title };
+        }
+      } catch (_) { /* fall through to generic detection */ }
+    }
+
+    // 5. Mux — DOM attributes, scoped to this container first
     const domUrl = findVideoSrcInDom(container);
     if (domUrl) return { type: 'mux', url: domUrl };
 
-    // 5. Intercepted URL from page world
+    // 6. Intercepted URL from page world
     const intercepted = await getPageVideoUrl();
     return intercepted ? { type: 'mux', url: intercepted } : null;
   }
@@ -768,7 +795,7 @@ function umbraInitVideoUI(opts) {
       e.stopPropagation();
       e.preventDefault();
       const target = await resolveVideoTarget(container);
-      if (target) { openModal(target.url, target.type, { loomId: target.loomId, wistiaId: target.wistiaId }); return; }
+      if (target) { openModal(target.url, target.type, { loomId: target.loomId, wistiaId: target.wistiaId, title: target.title }); return; }
       // Nothing captured yet — hint user
       dlBtn.textContent = '▶ Play video first';
       setTimeout(() => { dlBtn.textContent = '↓ Download'; }, 2500);
@@ -788,7 +815,7 @@ function umbraInitVideoUI(opts) {
         setTimeout(() => { tsBtn.textContent = '↓ Transcript'; }, 2500);
         return;
       }
-      openModal(target.url, target.type, { loomId: target.loomId, wistiaId: target.wistiaId, autoTranscript: true });
+      openModal(target.url, target.type, { loomId: target.loomId, wistiaId: target.wistiaId, title: target.title, autoTranscript: true });
     });
   }
 
@@ -833,6 +860,11 @@ function umbraInitVideoUI(opts) {
     document.querySelectorAll('[class*="wistia_async_"], wistia-player').forEach((el) => {
       if (el.querySelector('iframe[src*="wistia"]')) return; // iframe path handles it
       attachDownloadButton(el);
+    });
+    // Vidalytics embeds — attach to the visible wrapper (player div may start hidden)
+    document.querySelectorAll('[id^="vidalytics_embed_"], iframe[src*="vidalytics.com/embeds"]').forEach((el) => {
+      const target = el.closest('.elVideoWrapper, [data-de-type="video"], [class*="VideoWrapper"], [class*="video-block"]') || el;
+      attachDownloadButton(target);
     });
   }
 
