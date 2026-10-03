@@ -366,13 +366,15 @@ function umbraWireVideoModal(modal) {
   });
 }
 
-// ─── Skool video downloader ──────────────────────────────────────────────────
-// skool-intercept.js runs in MAIN world (registered in manifest.json) and
-// patches fetch/XHR. This isolated-world script handles UI + messaging only.
-if (IS_SKOOL) {
+// ─── Video downloader UI ─────────────────────────────────────────────────────
+// Shared by every site: Skool, Whop and generic pages. video-intercept.js runs
+// in MAIN world (registered in manifest.json) and patches fetch/XHR. This
+// isolated-world code handles UI + messaging only.
+// opts = { headerHost, defaultTitle, findTitleFn, siteMode }
+function umbraInitVideoUI(opts) {
 
   // Build the download button + modal UI styles once
-  const skoolUiCss = `
+  const uiCss = `
     .umbra-dl-wrap {
       position: absolute;
       top: 10px;
@@ -572,10 +574,10 @@ if (IS_SKOOL) {
     #umbra-video-modal .modal-guide-link:hover { border-color: #4fbdba; color: #4fbdba; }
   `;
 
-  const skoolStyleEl = document.createElement('style');
-  skoolStyleEl.id = 'umbra-skool';
-  skoolStyleEl.textContent = skoolUiCss;
-  (document.head || document.documentElement).appendChild(skoolStyleEl);
+  const uiStyleEl = document.createElement('style');
+  uiStyleEl.id = 'umbra-video-ui';
+  uiStyleEl.textContent = uiCss;
+  (document.head || document.documentElement).appendChild(uiStyleEl);
 
   // Build modal DOM
   const modal = document.createElement('div');
@@ -622,22 +624,22 @@ if (IS_SKOOL) {
 
   });
 
-  function openModal(videoUrl, type = 'mux', opts = {}) {
+  function openModal(videoUrl, type = 'mux', modalOpts = {}) {
     document.getElementById('umbra-modal-url').textContent = videoUrl;
-    const title = document.title.replace(/[/\\:*?"<>|]+/g, ' ').trim() || 'skool-video';
+    const title = ((opts.findTitleFn && opts.findTitleFn()) || document.title).replace(/[/\\:*?"<>|]+/g, ' ').trim() || opts.defaultTitle;
     // 'loom'   = Loom embed (direct mp4 via Loom API, no headers needed)
     // 'wistia' = Wistia embed (direct mp4 via Wistia medias.json API)
     // 'simple' = YouTube (yt-dlp only)
-    // 'mux'    = Skool's Mux player (needs Referer + Origin to bypass playback restriction)
-    const cmd = type === 'mux'
-      ? `yt-dlp -o "${title}.%(ext)s" --add-header "Referer:https://skool.com/" --add-header "Origin:https://skool.com" "${videoUrl}"`
+    // 'mux'    = Mux stream (Referer + Origin only needed on Skool/Whop)
+    const cmd = type === 'mux' && opts.headerHost
+      ? `yt-dlp -o "${title}.%(ext)s" --add-header "Referer:https://${opts.headerHost}/" --add-header "Origin:https://${opts.headerHost}" "${videoUrl}"`
       : `yt-dlp -o "${title}.%(ext)s" "${videoUrl}"`;
     document.getElementById('umbra-modal-cmd').textContent = cmd;
     modal.dataset.url = videoUrl;
     modal.dataset.type = type;
     modal.dataset.title = title;
-    modal.dataset.loomId = opts.loomId || '';
-    modal.dataset.wistiaId = opts.wistiaId || '';
+    modal.dataset.loomId = modalOpts.loomId || '';
+    modal.dataset.wistiaId = modalOpts.wistiaId || '';
     const inBrowser = type === 'mux' || type === 'loom' || type === 'wistia';
     const dlBtn = document.getElementById('umbra-dl-btn');
     if (dlBtn) dlBtn.style.display = inBrowser ? '' : 'none';
@@ -650,16 +652,18 @@ if (IS_SKOOL) {
     const status = document.getElementById('umbra-modal-status');
     if (status) status.textContent = '';
     modal.classList.add('open');
-    if (opts.autoTranscript && tsBtn) tsBtn.click();
+    if (modalOpts.autoTranscript && tsBtn) tsBtn.click();
   }
 
-  // Ask skool-intercept.js (MAIN world) for the captured video URL via postMessage.
+  // Ask video-intercept.js (MAIN world) for the captured video URL via postMessage.
   function getPageVideoUrl() {
     return new Promise((resolve) => {
       const nonce = Math.random().toString(36).slice(2);
+      const timer = setTimeout(() => { window.removeEventListener('message', handler); resolve(null); }, 1500);
       const handler = (e) => {
         if (e.source !== window || !e.data || e.data.__umbraType !== 'response_url' || e.data.__umbraNonce !== nonce) return;
         window.removeEventListener('message', handler);
+        clearTimeout(timer);
         resolve(e.data.url || null);
       };
       window.addEventListener('message', handler);
@@ -795,9 +799,15 @@ if (IS_SKOOL) {
       const container = player.parentElement || player;
       attachDownloadButton(container);
     });
-    // Fallback: <mux-video> or plain <video> not inside a mux-player
+    // Fallback: <mux-video> or plain <video> not inside a mux-player.
+    // On generic sites only bother with videos that expose a real source.
     document.querySelectorAll('mux-video, video').forEach((vid) => {
       if (vid.closest('mux-player')) return;
+      if (!opts.siteMode) {
+        const src = vid.getAttribute('src');
+        const hasSrc = (src && !src.startsWith('blob:')) || vid.querySelector('source[src]');
+        if (!hasSrc) return;
+      }
       const container = vid.closest('[class*="video"], [class*="player"], [class*="Video"], [class*="Player"]') || vid.parentElement;
       if (container) attachDownloadButton(container);
     });
@@ -826,496 +836,13 @@ if (IS_SKOOL) {
     });
   }
 
-  const skoolObserver = new MutationObserver(scanForVideos);
-  skoolObserver.observe(document.documentElement, { childList: true, subtree: true });
-  // Initial scan after DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', scanForVideos);
-  } else {
-    scanForVideos();
-  }
-}
-
-// ─── Whop video downloader ───────────────────────────────────────────────────
-// whop-intercept.js runs in MAIN world (registered in manifest.json) and
-// patches fetch/XHR. This isolated-world script handles UI + messaging only.
-// Whop also hosts videos on Mux (stream.mux.com/{id}.m3u8?token=...), so the
-// capture logic is identical to Skool's.
-if (IS_WHOP) {
-
-  // Build the download button + modal UI styles once
-  const whopUiCss = `
-    .umbra-dl-wrap {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 2147483640;
-      display: flex;
-      gap: 6px;
-    }
-    .umbra-dl-btn {
-      padding: 6px 12px;
-      background: rgba(26,26,27,0.88);
-      color: #4fbdba;
-      border: 1px solid #4fbdba;
-      border-radius: 5px;
-      font: 600 11px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      cursor: pointer;
-      backdrop-filter: blur(4px);
-      transition: background 0.15s, color 0.15s;
-    }
-    .umbra-dl-btn:hover { background: #4fbdba; color: #1a1a1b; }
-
-    #umbra-video-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      z-index: 2147483647;
-      align-items: center;
-      justify-content: center;
-    }
-    #umbra-video-modal.open { display: flex; }
-    #umbra-video-modal-box {
-      background: #1a1a1b;
-      border: 1px solid #343536;
-      border-radius: 10px;
-      padding: 24px 20px 20px;
-      width: 480px;
-      max-width: 92vw;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      color: #d7dadc;
-    }
-    #umbra-video-modal h2 {
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: #818384;
-    }
-    #umbra-video-modal .modal-url {
-      background: #272729;
-      border: 1px solid #343536;
-      border-radius: 6px;
-      padding: 10px 12px;
-      font-size: 11px;
-      color: #4fbdba;
-      word-break: break-all;
-      line-height: 1.6;
-    }
-    #umbra-video-modal .modal-cmd {
-      background: #0d1117;
-      border: 1px solid #343536;
-      border-radius: 6px;
-      padding: 10px 12px;
-      font-size: 11px;
-      color: #ff6314;
-      word-break: break-all;
-      line-height: 1.6;
-      font-family: 'SFMono-Regular', Consolas, monospace;
-    }
-    #umbra-video-modal .modal-label {
-      font-size: 10px;
-      color: #4a4a4b;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-    #umbra-video-modal .modal-actions {
-      display: flex;
-      gap: 8px;
-    }
-    #umbra-video-modal button {
-      flex: 1;
-      padding: 9px;
-      border-radius: 6px;
-      border: 1px solid #343536;
-      background: #272729;
-      color: #818384;
-      font-size: 11px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: border-color 0.15s, color 0.15s, background 0.15s;
-    }
-    #umbra-copy-btn:hover { border-color: #4fbdba; color: #4fbdba; background: #0e1918; }
-    #umbra-close-modal-btn:hover { border-color: #e06c75; color: #e06c75; background: #1e1617; }
-    #umbra-copy-btn.copied { border-color: #4fbdba; color: #4fbdba; background: #0e1918; }
-    #umbra-video-modal .modal-help {
-      display: flex;
-      gap: 10px;
-    }
-    #umbra-video-modal .modal-help a {
-      flex: 1;
-      display: block;
-      text-align: center;
-      padding: 7px;
-      border-radius: 6px;
-      border: 1px solid #343536;
-      background: #272729;
-      color: #4a4a4b;
-      font-size: 10px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      text-decoration: none;
-      transition: border-color 0.15s, color 0.15s;
-    }
-    #umbra-video-modal .modal-help a:hover { border-color: #4fbdba; color: #4fbdba; }
-    #umbra-video-modal .modal-instructions {
-      font-size: 10px;
-      color: #4a4a4b;
-      line-height: 1.8;
-      border-top: 1px solid #2a2a2b;
-      padding-top: 12px;
-    }
-    #umbra-video-modal .modal-instructions strong { color: #818384; font-weight: 600; }
-    #umbra-video-modal .modal-instructions code {
-      background: #272729;
-      border: 1px solid #343536;
-      border-radius: 3px;
-      padding: 1px 5px;
-      color: #ff6314;
-      font-family: 'SFMono-Regular', Consolas, monospace;
-      font-size: 10px;
-    }
-    #umbra-video-modal .modal-progress {
-      display: none;
-      align-items: center;
-      gap: 10px;
-    }
-    #umbra-video-modal .umbra-prog-track {
-      flex: 1;
-      height: 4px;
-      border-radius: 2px;
-      background: #272729;
-      overflow: hidden;
-    }
-    #umbra-video-modal .umbra-prog-fill {
-      height: 100%;
-      width: 0;
-      background: #4fbdba;
-      transition: width .2s ease;
-    }
-    #umbra-video-modal .umbra-prog-pct {
-      font-size: 10px;
-      color: #4fbdba;
-      font-variant-numeric: tabular-nums;
-      min-width: 32px;
-      text-align: right;
-    }
-    #umbra-video-modal .modal-status {
-      font-size: 10px;
-      color: #4fbdba;
-      min-height: 12px;
-    }
-    #umbra-video-modal .modal-status.error { color: #e06c75; }
-    #umbra-dl-btn:hover, #umbra-ts-btn:hover { border-color: #4fbdba; color: #4fbdba; background: #0e1918; }
-    #umbra-dl-btn:disabled, #umbra-ts-btn:disabled { opacity: .5; cursor: default; }
-    #umbra-video-modal .modal-ts-check {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 10px;
-      color: #818384;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      cursor: pointer;
-      user-select: none;
-    }
-    #umbra-video-modal .modal-ts-check input { accent-color: #4fbdba; margin: 0; }
-    #umbra-video-modal .modal-guide-link {
-      display: block;
-      text-align: center;
-      padding: 7px;
-      border-radius: 6px;
-      border: 1px solid #343536;
-      background: #272729;
-      color: #4a4a4b;
-      font-size: 10px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      text-decoration: none;
-      transition: border-color 0.15s, color 0.15s;
-    }
-    #umbra-video-modal .modal-guide-link:hover { border-color: #4fbdba; color: #4fbdba; }
-  `;
-
-  const whopStyleEl = document.createElement('style');
-  whopStyleEl.id = 'umbra-whop';
-  whopStyleEl.textContent = whopUiCss;
-  (document.head || document.documentElement).appendChild(whopStyleEl);
-
-  // Build modal DOM
-  const modal = document.createElement('div');
-  modal.id = 'umbra-video-modal';
-  modal.innerHTML = `
-    <div id="umbra-video-modal-box">
-      <h2>UMBRA — Video Download</h2>
-      <div class="modal-label">Video URL</div>
-      <div class="modal-url" id="umbra-modal-url"></div>
-      <div class="modal-actions">
-        <button id="umbra-dl-btn" style="display:none">Download .mp4</button>
-        <button id="umbra-ts-btn" style="display:none">Transcript</button>
-        <button id="umbra-close-modal-btn">Close</button>
-      </div>
-      <label class="modal-ts-check" id="umbra-ts-check-row" style="display:none"><input type="checkbox" id="umbra-ts-check"> Also save transcript (.txt + .srt)</label>
-      <div class="modal-progress" id="umbra-modal-progress"><div class="umbra-prog-track"><div class="umbra-prog-fill"></div></div><span class="umbra-prog-pct"></span></div>
-      <div class="modal-status" id="umbra-modal-status"></div>
-      <div class="modal-label">yt-dlp command</div>
-      <div class="modal-cmd" id="umbra-modal-cmd"></div>
-      <div class="modal-actions"><button id="umbra-copy-btn">Copy yt-dlp</button></div>
-      <a class="modal-guide-link" id="umbra-guide-link" href="#" target="_blank" rel="noopener">↗ Install &amp; usage guide</a>
-    </div>
-  `;
-  document.addEventListener('DOMContentLoaded', () => document.body.appendChild(modal), { once: true });
-  // Fallback if DOMContentLoaded already fired
-  if (document.body) document.body.appendChild(modal);
-  umbraWireVideoModal(modal);
-  const guideLink = modal.querySelector('#umbra-guide-link');
-  if (guideLink) guideLink.href = chrome.runtime.getURL('options.html');
-
-  document.addEventListener('click', (e) => {
-    if (e.target.id === 'umbra-close-modal-btn') modal.classList.remove('open');
-    if (e.target === modal) modal.classList.remove('open');
-
-    if (e.target.id === 'umbra-copy-btn') {
-      const cmd = document.getElementById('umbra-modal-cmd').textContent;
-      navigator.clipboard.writeText(cmd).then(() => {
-        e.target.textContent = 'Copied!';
-        e.target.classList.add('copied');
-        setTimeout(() => { e.target.textContent = 'Copy yt-dlp'; e.target.classList.remove('copied'); }, 1500);
-      });
-    }
-
-
+  // Debounced — this observer runs on every site now.
+  let scanTimer = null;
+  const videoObserver = new MutationObserver(() => {
+    if (scanTimer) return;
+    scanTimer = setTimeout(() => { scanTimer = null; scanForVideos(); }, 300);
   });
-
-  function openModal(videoUrl, type = 'mux', opts = {}) {
-    document.getElementById('umbra-modal-url').textContent = videoUrl;
-    const title = (findWhopVideoTitle() || document.title).replace(/[/\\:*?"<>|]+/g, ' ').trim() || 'whop-video';
-    // 'loom'   = Loom embed (direct mp4 via Loom API, no headers needed)
-    // 'wistia' = Wistia embed (direct mp4 via Wistia medias.json API)
-    // 'simple' = YouTube (yt-dlp only)
-    // 'mux'    = Whop's Mux player (needs Referer + Origin to bypass playback restriction)
-    const cmd = type === 'mux'
-      ? `yt-dlp -o "${title}.%(ext)s" --add-header "Referer:https://whop.com/" --add-header "Origin:https://whop.com" "${videoUrl}"`
-      : `yt-dlp -o "${title}.%(ext)s" "${videoUrl}"`;
-    document.getElementById('umbra-modal-cmd').textContent = cmd;
-    modal.dataset.url = videoUrl;
-    modal.dataset.type = type;
-    modal.dataset.title = title;
-    modal.dataset.loomId = opts.loomId || '';
-    modal.dataset.wistiaId = opts.wistiaId || '';
-    const inBrowser = type === 'mux' || type === 'loom' || type === 'wistia';
-    const dlBtn = document.getElementById('umbra-dl-btn');
-    if (dlBtn) dlBtn.style.display = inBrowser ? '' : 'none';
-    const tsBtn = document.getElementById('umbra-ts-btn');
-    if (tsBtn) tsBtn.style.display = inBrowser ? '' : 'none';
-    const checkRow = document.getElementById('umbra-ts-check-row');
-    if (checkRow) checkRow.style.display = inBrowser ? 'flex' : 'none';
-    const prog = document.getElementById('umbra-modal-progress');
-    if (prog) prog.style.display = 'none';
-    const status = document.getElementById('umbra-modal-status');
-    if (status) status.textContent = '';
-    modal.classList.add('open');
-    if (opts.autoTranscript && tsBtn) tsBtn.click();
-  }
-
-  // Ask whop-intercept.js (MAIN world) for the captured video URL via postMessage.
-  function getPageVideoUrl() {
-    return new Promise((resolve) => {
-      const nonce = Math.random().toString(36).slice(2);
-      const handler = (e) => {
-        if (e.source !== window || !e.data || e.data.__umbraType !== 'response_url' || e.data.__umbraNonce !== nonce) return;
-        window.removeEventListener('message', handler);
-        resolve(e.data.url || null);
-      };
-      window.addEventListener('message', handler);
-      window.postMessage({ __umbraType: 'request_url', __umbraNonce: nonce }, '*');
-    });
-  }
-
-  function isMasterM3u8(url) {
-    return url && url.includes('.m3u8') && url.includes('token=');
-  }
-
-  // container = the player wrapper the button was attached to. Always scoped
-  // to it first — the document fallback kept grabbing a stale video from a
-  // previous lesson after SPA navigation.
-  function findVideoSrcInDom(container) {
-    const scopes = container ? [container, document] : [document];
-    for (const scope of scopes) {
-      // 1. mux-player gets its src via JS property (Whop) — invisible from the
-      //    isolated world. Its open shadow root holds a <mux-video src> attr.
-      const players = scope.querySelectorAll('mux-player');
-      const list = (scope.matches && scope.matches('mux-player')) ? [scope, ...players] : [...players];
-      for (const p of list) {
-        const inner = p.shadowRoot && p.shadowRoot.querySelector('mux-video[src], video[src]');
-        const url = inner && inner.getAttribute('src');
-        if (isMasterM3u8(url)) return url;
-      }
-      // 2. <mux-video cast-src="..."> — light DOM child of mux-player,
-      //    always holds the master .m3u8 with token even after play starts.
-      for (const el of scope.querySelectorAll('mux-video[cast-src]')) {
-        const url = el.getAttribute('cast-src');
-        if (isMasterM3u8(url)) return url;
-      }
-      // 3. <mux-video src="..."> or <mux-player src="...">
-      for (const el of scope.querySelectorAll('mux-video[src], mux-player[src]')) {
-        const url = el.getAttribute('src');
-        if (isMasterM3u8(url)) return url;
-      }
-      // 4. Plain <video> with a non-blob src (fallback)
-      for (const vid of scope.querySelectorAll('video[src]')) {
-        const url = vid.getAttribute('src');
-        if (url && !url.startsWith('blob:')) return url;
-      }
-    }
-    return null;
-  }
-
-  // Whop lesson pages show "Module" + "Lesson" as two stacked spans in the
-  // same column as the player (page <title> is just "Formation | … | Whop").
-  function findWhopVideoTitle() {
-    const player = document.querySelector('mux-player, video');
-    const scope = (player && player.closest('div.flex.flex-col')) || document;
-    for (const block of scope.querySelectorAll('div.flex.flex-col.gap-2')) {
-      const spans = block.querySelectorAll(':scope > span');
-      if (spans.length === 2 && spans[1].classList.contains('font-semibold')) {
-        const lesson = spans[1].textContent.trim();
-        const module = spans[0].textContent.trim();
-        if (lesson) return module ? `${module} - ${lesson}` : lesson;
-      }
-    }
-    return null;
-  }
-
-  // Resolves the video inside a container to { type, url, loomId? }.
-  async function resolveVideoTarget(container) {
-    // 1. Loom iframe
-    const loomIframe = container.querySelector('iframe[src*="loom.com/embed"]');
-    if (loomIframe) {
-      const match = (loomIframe.src || loomIframe.getAttribute('src') || '').match(/loom\.com\/embed\/([a-f0-9]+)/i);
-      if (match) return { type: 'loom', url: `https://www.loom.com/share/${match[1]}`, loomId: match[1] };
-    }
-
-    // 2. YouTube iframe
-    const ytIframe = container.querySelector('iframe[src*="youtube.com/embed"], iframe[src*="youtube-nocookie.com/embed"]');
-    if (ytIframe) {
-      const match = (ytIframe.src || ytIframe.getAttribute('src') || '').match(/youtube(?:-nocookie)?\.com\/embed\/([^?&"]+)/i);
-      if (match) return { type: 'simple', url: `https://www.youtube.com/watch?v=${match[1]}` };
-    }
-
-    // 3. Wistia — iframe embed, async embed div (.wistia_async_{id}) or <wistia-player>
-    const wistiaIframe = container.querySelector('iframe[src*="wistia.com/embed/iframe"], iframe[src*="wistia.net/embed/iframe"]');
-    if (wistiaIframe) {
-      const match = (wistiaIframe.src || '').match(/embed\/iframe\/([a-z0-9]+)/i);
-      if (match) return { type: 'wistia', url: `https://fast.wistia.net/embed/iframe/${match[1]}`, wistiaId: match[1] };
-    }
-    const wistiaSel = '[class*="wistia_async_"], wistia-player[media-id]';
-    const wistiaEl = (container.matches && container.matches(wistiaSel)) ? container : container.querySelector(wistiaSel);
-    if (wistiaEl) {
-      const id = ((wistiaEl.className || '').toString().match(/wistia_async_([a-z0-9]+)/i) || [])[1] || wistiaEl.getAttribute('media-id');
-      if (id) return { type: 'wistia', url: `https://fast.wistia.net/embed/iframe/${id}`, wistiaId: id };
-    }
-
-    // 4. Mux — DOM attributes, scoped to this container first
-    const domUrl = findVideoSrcInDom(container);
-    if (domUrl) return { type: 'mux', url: domUrl };
-
-    // 5. Intercepted URL from page world
-    const intercepted = await getPageVideoUrl();
-    return intercepted ? { type: 'mux', url: intercepted } : null;
-  }
-
-  function attachDownloadButton(container) {
-    if (container.dataset.umbraDlAttached) return;
-    container.dataset.umbraDlAttached = '1';
-    container.style.position = 'relative';
-    const wrap = document.createElement('div');
-    wrap.className = 'umbra-dl-wrap';
-    const dlBtn = document.createElement('button');
-    dlBtn.className = 'umbra-dl-btn';
-    dlBtn.textContent = '↓ Download';
-    const tsBtn = document.createElement('button');
-    tsBtn.className = 'umbra-dl-btn';
-    tsBtn.textContent = '↓ Transcript';
-    wrap.appendChild(dlBtn);
-    wrap.appendChild(tsBtn);
-    container.appendChild(wrap);
-
-    dlBtn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      const target = await resolveVideoTarget(container);
-      if (target) { openModal(target.url, target.type, { loomId: target.loomId, wistiaId: target.wistiaId }); return; }
-      // Nothing captured yet — hint user
-      dlBtn.textContent = '▶ Play video first';
-      setTimeout(() => { dlBtn.textContent = '↓ Download'; }, 2500);
-    });
-
-    tsBtn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      const target = await resolveVideoTarget(container);
-      if (!target) {
-        tsBtn.textContent = '▶ Play video first';
-        setTimeout(() => { tsBtn.textContent = '↓ Transcript'; }, 2500);
-        return;
-      }
-      if (target.type === 'simple') {
-        tsBtn.textContent = 'YT unsupported';
-        setTimeout(() => { tsBtn.textContent = '↓ Transcript'; }, 2500);
-        return;
-      }
-      openModal(target.url, target.type, { loomId: target.loomId, wistiaId: target.wistiaId, autoTranscript: true });
-    });
-  }
-
-  // Watch for video player containers appearing in the DOM
-  function scanForVideos() {
-    // Mux player
-    document.querySelectorAll('mux-player').forEach((player) => {
-      const container = player.parentElement || player;
-      attachDownloadButton(container);
-    });
-    // Fallback: <mux-video> or plain <video> not inside a mux-player
-    document.querySelectorAll('mux-video, video').forEach((vid) => {
-      if (vid.closest('mux-player')) return;
-      const container = vid.closest('[class*="video"], [class*="player"], [class*="Video"], [class*="Player"]') || vid.parentElement;
-      if (container) attachDownloadButton(container);
-    });
-    // Loom, YouTube and Wistia embeds
-    const embedSelectors = [
-      'iframe[src*="loom.com/embed"]',
-      'iframe[src*="youtube.com/embed"]',
-      'iframe[src*="youtube-nocookie.com/embed"]',
-      'iframe[src*="wistia.com/embed/iframe"]',
-      'iframe[src*="wistia.net/embed/iframe"]',
-    ].join(', ');
-    document.querySelectorAll(embedSelectors).forEach((iframe) => {
-      // Walk up past any overflow:hidden ancestor so the button isn't clipped
-      let el = iframe.parentElement;
-      while (el && el !== document.body) {
-        const ov = getComputedStyle(el).overflow;
-        if (ov !== 'hidden') break;
-        el = el.parentElement;
-      }
-      if (el && el !== document.body) attachDownloadButton(el);
-    });
-    // Wistia non-iframe embeds (async div or <wistia-player>)
-    document.querySelectorAll('[class*="wistia_async_"], wistia-player').forEach((el) => {
-      if (el.querySelector('iframe[src*="wistia"]')) return; // iframe path handles it
-      attachDownloadButton(el);
-    });
-  }
-
-  const whopObserver = new MutationObserver(scanForVideos);
-  whopObserver.observe(document.documentElement, { childList: true, subtree: true });
+  videoObserver.observe(document.documentElement, { childList: true, subtree: true });
   // Initial scan after DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', scanForVideos);
@@ -1323,6 +850,27 @@ if (IS_WHOP) {
     scanForVideos();
   }
 }
+
+// Whop lesson pages show "Module" + "Lesson" as two stacked spans in the
+// same column as the player (page <title> is just "Formation | … | Whop").
+function findWhopVideoTitle() {
+  const player = document.querySelector('mux-player, video');
+  const scope = (player && player.closest('div.flex.flex-col')) || document;
+  for (const block of scope.querySelectorAll('div.flex.flex-col.gap-2')) {
+    const spans = block.querySelectorAll(':scope > span');
+    if (spans.length === 2 && spans[1].classList.contains('font-semibold')) {
+      const lesson = spans[1].textContent.trim();
+      const module = spans[0].textContent.trim();
+      if (lesson) return module ? `${module} - ${lesson}` : lesson;
+    }
+  }
+  return null;
+}
+
+if (IS_SKOOL) umbraInitVideoUI({ headerHost: 'skool.com', defaultTitle: 'skool-video', siteMode: true });
+else if (IS_WHOP) umbraInitVideoUI({ headerHost: 'whop.com', defaultTitle: 'whop-video', siteMode: true, findTitleFn: findWhopVideoTitle });
+else umbraInitVideoUI({ headerHost: null, defaultTitle: 'video', siteMode: false });
+
 
 // ─── Notion page → Markdown download ─────────────────────────────────────────
 const IS_NOTION = /(^|\.)notion\.(so|site|com)$/.test(location.hostname);

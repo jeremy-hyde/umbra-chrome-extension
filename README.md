@@ -7,7 +7,7 @@ Mode sombre pour le web, avec des fonctionnalités avancées pour certains sites
 - **Mode sombre** sur tous les sites (inversion CSS)
 - **Thème personnalisé** pour old.reddit.com et github.com
 - **Redirection automatique** de reddit.com vers old.reddit.com
-- **Téléchargement de vidéos** sur skool.com et whop.com (Mux, Loom et Wistia directement dans le navigateur, YouTube via yt-dlp)
+- **Téléchargement de vidéos** sur tous les sites (Mux, Loom et Wistia directement dans le navigateur, YouTube via yt-dlp)
 - **Transcription de vidéos** dans le navigateur (Whisper via OpenRouter, fichiers .txt + .srt)
 - **Suppression des cookies et du stockage** du site actif
 - **Suspension des onglets** non épinglés
@@ -90,15 +90,15 @@ pour afficher le fichier et la ligne responsables.
 
 ---
 
-## Télécharger des vidéos Skool / Whop
+## Télécharger des vidéos
 
-L'extension ajoute les boutons **↓ Download** et **↓ Transcript** sur les players vidéo des pages skool.com et whop.com.
+L'extension ajoute les boutons **↓ Download** et **↓ Transcript** sur les players vidéo de tous les sites (Skool, Whop, Wistia, Loom, YouTube…).
 
 ### Utilisation
 
-1. Va sur une page de cours skool.com ou whop.com contenant une vidéo
+1. Va sur une page contenant une vidéo
 2. Clique sur **↓ Download** qui apparaît sur le player
-3. Pour les vidéos **Mux** (player natif), **Loom** et **Wistia**, le téléchargement se fait directement dans le navigateur — aucun outil requis
+3. Pour les vidéos **Mux**, **Loom** et **Wistia**, le téléchargement se fait directement dans le navigateur — aucun outil requis
 4. Pour les embeds **YouTube**, copie la commande yt-dlp affichée et colle-la dans **PowerShell** (Windows) ou **Terminal** (Mac)
 
 > **Astuce** : si Umbra ne détecte pas le stream, lance la vidéo une fois puis réessaie.

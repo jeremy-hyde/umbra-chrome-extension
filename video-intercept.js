@@ -1,10 +1,10 @@
-// Runs in MAIN world (page JS context) — bypasses Whop's CSP entirely.
+// Runs in MAIN world (page JS context) on every site — bypasses page CSP.
 // Patches fetch + XHR to capture video URLs, and responds to URL requests
 // from the isolated-world content script via postMessage.
 
 (function () {
-  if (window.__umbraWhopInit) return;
-  window.__umbraWhopInit = true;
+  if (window.__umbraInterceptInit) return;
+  window.__umbraInterceptInit = true;
   window.__umbraVideoUrl = null;
 
   // Only capture the master HLS playlist — it has a `token=` query param.
@@ -15,8 +15,7 @@
   }
 
   function capture(url) {
-    // Latest master playlist wins — Whop is an SPA and the lesson can change
-    // without a reload.
+    // Latest master playlist wins — SPAs can switch videos without a reload.
     if (isMasterPlaylist(url)) {
       window.__umbraVideoUrl = url;
     }

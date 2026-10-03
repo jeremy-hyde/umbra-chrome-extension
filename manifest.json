@@ -36,19 +36,13 @@
       "run_at": "document_start"
     },
     {
-      "matches": ["https://skool.com/*", "https://*.skool.com/*"],
-      "js": ["skool-intercept.js"],
+      "matches": ["<all_urls>"],
+      "js": ["video-intercept.js"],
       "run_at": "document_start",
       "world": "MAIN"
     },
     {
-      "matches": ["https://whop.com/*", "https://*.whop.com/*"],
-      "js": ["whop-intercept.js"],
-      "run_at": "document_start",
-      "world": "MAIN"
-    },
-    {
-      "matches": ["https://skool.com/*", "https://*.skool.com/*", "https://whop.com/*", "https://*.whop.com/*"],
+      "matches": ["<all_urls>"],
       "js": ["lib/mux.min.js", "shared/hls-download.js"],
       "run_at": "document_start"
     }
