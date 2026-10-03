@@ -152,6 +152,23 @@
     #cookies-dl-btn.success { border-color: #4fbdba; color: #4fbdba; background: #111918; }
     #cookies-dl-btn.error { border-color: #e06c75; color: #e06c75; background: #1e1617; }
 
+    #page-dl-btn {
+      width: 100%;
+      padding: 9px;
+      background: #272729;
+      border: 1px solid #343536;
+      border-radius: 6px;
+      color: #818384;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    #page-dl-btn:hover { border-color: #56b6c2; color: #56b6c2; background: #122026; }
+    #page-dl-btn.success { border-color: #4fbdba; color: #4fbdba; background: #111918; }
+    #page-dl-btn.error { border-color: #e06c75; color: #e06c75; background: #1e1617; }
+
     #color-pick-btn {
       width: 100%;
       padding: 9px;
@@ -433,7 +450,7 @@
     .tab-suspend-btn { border-color: rgba(32, 33, 36, 0.14); color: #62676d; font-family: inherit; }
     .tab-suspend-btn:hover { border-color: #2383e2; color: #2383e2; }
     .tab-suspend-btn.suspended { border-color: #0f7b6c; color: #0f7b6c; }
-    #clear-btn, #cookies-dl-btn, #suspend-btn, #notion-dl-btn, #color-pick-btn {
+    #clear-btn, #cookies-dl-btn, #suspend-btn, #notion-dl-btn, #color-pick-btn, #page-dl-btn {
       border-color: rgba(32, 33, 36, 0.1);
       background: #f8f9fa;
       color: #303134;
@@ -445,9 +462,9 @@
       box-shadow: 0 1px 2px rgba(32, 33, 36, 0.06);
     }
     #clear-btn:hover { border-color: rgba(212, 76, 71, 0.4); color: #d44c47; background: rgba(212, 76, 71, 0.04); }
-    #cookies-dl-btn:hover, #notion-dl-btn:hover, #color-pick-btn:hover, #suspend-btn:hover { border-color: rgba(35, 131, 226, 0.35); color: #2383e2; background: rgba(35, 131, 226, 0.04); }
-    #clear-btn.cleared, #cookies-dl-btn.success, #notion-dl-btn.success, #suspend-btn.done { border-color: rgba(15, 123, 108, 0.4); color: #0f7b6c; background: rgba(15, 123, 108, 0.05); }
-    #cookies-dl-btn.error, #notion-dl-btn.error { border-color: rgba(212, 76, 71, 0.4); color: #d44c47; background: rgba(212, 76, 71, 0.04); }
+    #cookies-dl-btn:hover, #notion-dl-btn:hover, #color-pick-btn:hover, #suspend-btn:hover, #page-dl-btn:hover { border-color: rgba(35, 131, 226, 0.35); color: #2383e2; background: rgba(35, 131, 226, 0.04); }
+    #clear-btn.cleared, #cookies-dl-btn.success, #notion-dl-btn.success, #suspend-btn.done, #page-dl-btn.success { border-color: rgba(15, 123, 108, 0.4); color: #0f7b6c; background: rgba(15, 123, 108, 0.05); }
+    #cookies-dl-btn.error, #notion-dl-btn.error, #page-dl-btn.error { border-color: rgba(212, 76, 71, 0.4); color: #d44c47; background: rgba(212, 76, 71, 0.04); }
     .divider { border-top-color: rgba(0, 0, 0, 0.08); }
     .color-swatch-item { border-color: rgba(0, 0, 0, 0.15); }
     .color-swatch-item:hover { border-color: rgba(0, 0, 0, 0.35); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14); }
@@ -498,6 +515,11 @@
     <div class="panel-card">
       <div class="panel-title">Video downloads</div>
       <div class="site-message">A Download button is available on videos from Skool and Whop. Start the video first if Umbra must detect its download URL.</div>
+    </div>
+    <div class="panel-card">
+      <div class="panel-title">Page snapshot</div>
+      <div class="site-message">Save the current page as a single .html file — CSS, images and form state inlined.</div>
+      <button id="page-dl-btn">↓ Download Page (HTML)</button>
     </div>
   </section>
 

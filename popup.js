@@ -7,6 +7,7 @@ const clearBtn = document.getElementById('clear-btn');
 const cookiesDlBtn = document.getElementById('cookies-dl-btn');
 const suspendBtn = document.getElementById('suspend-btn');
 const notionDlBtn = document.getElementById('notion-dl-btn');
+const pageDlBtn = document.getElementById('page-dl-btn');
 const colorPickBtn = document.getElementById('color-pick-btn');
 const colorHistory = document.getElementById('color-history');
 const colorSwatches = document.getElementById('color-swatches');
@@ -295,6 +296,41 @@ chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
       }, 2000);
     });
   }
+
+  // Page snapshot — single-file HTML download, works on every site
+  pageDlBtn.addEventListener('click', async () => {
+    pageDlBtn.textContent = 'Snapshotting…';
+    pageDlBtn.style.pointerEvents = 'none';
+    try {
+      const [res] = await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['page-snapshot.js'],
+        world: 'ISOLATED',
+      });
+      const out = res && res.result;
+      if (!out || !out.html) throw new Error('empty snapshot');
+      const blobUrl = URL.createObjectURL(new Blob([out.html], { type: 'text/html' }));
+      const downloadId = await chrome.downloads.download({ url: blobUrl, filename: out.filename, saveAs: false });
+      const onChange = (delta) => {
+        if (delta.id === downloadId && delta.state && delta.state.current !== 'in_progress') {
+          chrome.downloads.onChanged.removeListener(onChange);
+          URL.revokeObjectURL(blobUrl);
+        }
+      };
+      chrome.downloads.onChanged.addListener(onChange);
+      pageDlBtn.textContent = '✓ Downloaded';
+      pageDlBtn.classList.add('success');
+    } catch (err) {
+      pageDlBtn.textContent = '✗ Unavailable';
+      pageDlBtn.classList.add('error');
+      console.error('Umbra: page snapshot failed:', err);
+    }
+    setTimeout(() => {
+      pageDlBtn.textContent = '↓ Download Page (HTML)';
+      pageDlBtn.classList.remove('success', 'error');
+      pageDlBtn.style.pointerEvents = '';
+    }, 2500);
+  });
 
   // Suspend unpinned tabs button
   suspendBtn.addEventListener('click', async () => {

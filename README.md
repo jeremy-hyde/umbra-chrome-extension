@@ -132,4 +132,15 @@ brew install yt-dlp
 | Mux (player natif Skool/Whop) | ✅              | ✅            |
 | Loom                     | ✅                   | ✅            |
 | Wistia                   | ✅                   | ✅            |
+| Vidalytics               | ✅                   | ✅            |
 | YouTube                  | yt-dlp               | ❌            |
+
+## Snapshot de page (HTML)
+
+Depuis la popup (onglet **Video Download** → **↓ Download Page (HTML)**), sauvegarde la page en un **seul fichier `.html`** :
+
+- Tout le CSS est inliné (y compris le CSS-in-JS type styled-components)
+- Les images sont embarquées en `data:` URI (jusqu'à 40 Mo, sinon URL absolue)
+- L'état des formulaires et les canvas sont préservés
+- Tous les scripts sont supprimés (snapshot statique — les trackers avec)
+- Fonctionne sur tous les sites
