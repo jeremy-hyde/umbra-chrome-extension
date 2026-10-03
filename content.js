@@ -555,22 +555,6 @@ if (IS_SKOOL) {
       user-select: none;
     }
     #umbra-video-modal .modal-ts-check input { accent-color: #4fbdba; margin: 0; }
-    #umbra-video-modal .modal-fallback summary {
-      font-size: 10px;
-      color: #4a4a4b;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      cursor: pointer;
-      padding: 4px 0;
-      user-select: none;
-    }
-    #umbra-video-modal .modal-fallback summary:hover { color: #4fbdba; }
-    #umbra-video-modal .modal-fallback.no-summary summary { display: none; }
-    #umbra-video-modal .modal-fallback[open] {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
     #umbra-video-modal .modal-guide-link {
       display: block;
       text-align: center;
@@ -609,12 +593,10 @@ if (IS_SKOOL) {
       <label class="modal-ts-check" id="umbra-ts-check-row" style="display:none"><input type="checkbox" id="umbra-ts-check"> Also save transcript (.txt + .srt)</label>
       <div class="modal-progress" id="umbra-modal-progress"><div class="umbra-prog-track"><div class="umbra-prog-fill"></div></div><span class="umbra-prog-pct"></span></div>
       <div class="modal-status" id="umbra-modal-status"></div>
-      <details class="modal-fallback" id="umbra-fallback">
-        <summary>Fallback — yt-dlp command</summary>
-        <div class="modal-cmd" id="umbra-modal-cmd"></div>
-        <div class="modal-actions"><button id="umbra-copy-btn">Copy yt-dlp</button></div>
-        <a class="modal-guide-link" id="umbra-guide-link" href="#" target="_blank" rel="noopener">↗ Install &amp; usage guide</a>
-      </details>
+      <div class="modal-label">yt-dlp command</div>
+      <div class="modal-cmd" id="umbra-modal-cmd"></div>
+      <div class="modal-actions"><button id="umbra-copy-btn">Copy yt-dlp</button></div>
+      <a class="modal-guide-link" id="umbra-guide-link" href="#" target="_blank" rel="noopener">↗ Install &amp; usage guide</a>
     </div>
   `;
   document.addEventListener('DOMContentLoaded', () => document.body.appendChild(modal), { once: true });
@@ -663,11 +645,6 @@ if (IS_SKOOL) {
     if (tsBtn) tsBtn.style.display = inBrowser ? '' : 'none';
     const checkRow = document.getElementById('umbra-ts-check-row');
     if (checkRow) checkRow.style.display = inBrowser ? 'flex' : 'none';
-    const fallback = document.getElementById('umbra-fallback');
-    if (fallback) {
-      fallback.open = !inBrowser;
-      fallback.classList.toggle('no-summary', !inBrowser);
-    }
     const prog = document.getElementById('umbra-modal-progress');
     if (prog) prog.style.display = 'none';
     const status = document.getElementById('umbra-modal-status');
@@ -1050,22 +1027,6 @@ if (IS_WHOP) {
       user-select: none;
     }
     #umbra-video-modal .modal-ts-check input { accent-color: #4fbdba; margin: 0; }
-    #umbra-video-modal .modal-fallback summary {
-      font-size: 10px;
-      color: #4a4a4b;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      cursor: pointer;
-      padding: 4px 0;
-      user-select: none;
-    }
-    #umbra-video-modal .modal-fallback summary:hover { color: #4fbdba; }
-    #umbra-video-modal .modal-fallback.no-summary summary { display: none; }
-    #umbra-video-modal .modal-fallback[open] {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
     #umbra-video-modal .modal-guide-link {
       display: block;
       text-align: center;
@@ -1104,12 +1065,10 @@ if (IS_WHOP) {
       <label class="modal-ts-check" id="umbra-ts-check-row" style="display:none"><input type="checkbox" id="umbra-ts-check"> Also save transcript (.txt + .srt)</label>
       <div class="modal-progress" id="umbra-modal-progress"><div class="umbra-prog-track"><div class="umbra-prog-fill"></div></div><span class="umbra-prog-pct"></span></div>
       <div class="modal-status" id="umbra-modal-status"></div>
-      <details class="modal-fallback" id="umbra-fallback">
-        <summary>Fallback — yt-dlp command</summary>
-        <div class="modal-cmd" id="umbra-modal-cmd"></div>
-        <div class="modal-actions"><button id="umbra-copy-btn">Copy yt-dlp</button></div>
-        <a class="modal-guide-link" id="umbra-guide-link" href="#" target="_blank" rel="noopener">↗ Install &amp; usage guide</a>
-      </details>
+      <div class="modal-label">yt-dlp command</div>
+      <div class="modal-cmd" id="umbra-modal-cmd"></div>
+      <div class="modal-actions"><button id="umbra-copy-btn">Copy yt-dlp</button></div>
+      <a class="modal-guide-link" id="umbra-guide-link" href="#" target="_blank" rel="noopener">↗ Install &amp; usage guide</a>
     </div>
   `;
   document.addEventListener('DOMContentLoaded', () => document.body.appendChild(modal), { once: true });
@@ -1158,11 +1117,6 @@ if (IS_WHOP) {
     if (tsBtn) tsBtn.style.display = inBrowser ? '' : 'none';
     const checkRow = document.getElementById('umbra-ts-check-row');
     if (checkRow) checkRow.style.display = inBrowser ? 'flex' : 'none';
-    const fallback = document.getElementById('umbra-fallback');
-    if (fallback) {
-      fallback.open = !inBrowser;
-      fallback.classList.toggle('no-summary', !inBrowser);
-    }
     const prog = document.getElementById('umbra-modal-progress');
     if (prog) prog.style.display = 'none';
     const status = document.getElementById('umbra-modal-status');
