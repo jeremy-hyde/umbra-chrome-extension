@@ -626,7 +626,7 @@ function umbraInitVideoUI(opts) {
 
   function openModal(videoUrl, type = 'mux', modalOpts = {}) {
     document.getElementById('umbra-modal-url').textContent = videoUrl;
-    const title = (modalOpts.title || (opts.findTitleFn && opts.findTitleFn()) || document.title).replace(/[/\\:*?"<>|]+/g, ' ').trim() || opts.defaultTitle;
+    const title = (modalOpts.title || (opts.findTitleFn && opts.findTitleFn(modalOpts.container)) || document.title).replace(/[/\\:*?"<>|]+/g, ' ').trim() || opts.defaultTitle;
     // 'loom'   = Loom embed (direct mp4 via Loom API, no headers needed)
     // 'wistia' = Wistia embed (direct mp4 via Wistia medias.json API)
     // 'simple' = YouTube (yt-dlp only)
@@ -672,7 +672,21 @@ function umbraInitVideoUI(opts) {
   }
 
   function isMasterM3u8(url) {
-    return url && url.includes('.m3u8') && url.includes('token=');
+    if (!url || !url.includes('.m3u8')) return false;
+    // Signed Mux URLs carry token=; public ones don't but the master
+    // playlist always lives on stream.mux.com (renditions are on edgemv).
+    return url.includes('token=') || url.includes('://stream.mux.com/');
+  }
+
+  // Build a master-playlist URL from a Mux playback-id attribute — public
+  // streams need no token; signed ones carry playback-token (or a
+  // tokens="{'playback': '...'}" attribute on older mux-player versions).
+  function muxPlaybackUrl(el) {
+    const id = el.getAttribute('playback-id');
+    if (!id) return null;
+    const token = el.getAttribute('playback-token') ||
+      ((el.getAttribute('tokens') || '').match(/"playback"\s*:\s*"([^"]+)"/) || [])[1];
+    return `https://stream.mux.com/${id}.m3u8${token ? `?token=${token}` : ''}`;
   }
 
   // container = the player wrapper the button was attached to. Always scoped
@@ -700,6 +714,15 @@ function umbraInitVideoUI(opts) {
       for (const el of scope.querySelectorAll('mux-video[src], mux-player[src]')) {
         const url = el.getAttribute('src');
         if (isMasterM3u8(url)) return url;
+      }
+      // 3b. playback-id attribute — public Mux players (e.g.
+      //     acquisition.com) expose no src at all, only playback-id.
+      const pidSel = 'mux-player[playback-id], mux-video[playback-id]';
+      const pidEls = scope.querySelectorAll(pidSel);
+      const pidList = (scope.matches && scope.matches(pidSel)) ? [scope, ...pidEls] : [...pidEls];
+      for (const el of pidList) {
+        const url = muxPlaybackUrl(el);
+        if (url) return url;
       }
       // 4. Plain <video> with a non-blob src (fallback)
       for (const vid of scope.querySelectorAll('video[src]')) {
@@ -801,7 +824,7 @@ function umbraInitVideoUI(opts) {
       e.stopPropagation();
       e.preventDefault();
       const target = await resolveVideoTarget(container);
-      if (target) { openModal(target.url, target.type, { loomId: target.loomId, wistiaId: target.wistiaId, title: target.title }); return; }
+      if (target) { openModal(target.url, target.type, { loomId: target.loomId, wistiaId: target.wistiaId, title: target.title, container }); return; }
       // Nothing captured yet — hint user
       dlBtn.textContent = '▶ Play video first';
       setTimeout(() => { dlBtn.textContent = '↓ Download'; }, 2500);
@@ -821,7 +844,7 @@ function umbraInitVideoUI(opts) {
         setTimeout(() => { tsBtn.textContent = '↓ Transcript'; }, 2500);
         return;
       }
-      openModal(target.url, target.type, { loomId: target.loomId, wistiaId: target.wistiaId, title: target.title, autoTranscript: true });
+      openModal(target.url, target.type, { loomId: target.loomId, wistiaId: target.wistiaId, title: target.title, autoTranscript: true, container });
     });
   }
 
@@ -876,13 +899,21 @@ function umbraInitVideoUI(opts) {
     });
   }
 
-  // Debounced — this observer runs on every site now.
+  // Debounced — this observer runs on every site now. Attribute mutations
+  // are watched too: sites like Meta Ad Library mount <video> tags without a
+  // src and fill it in later — a childList-only observer would never rescan
+  // and the button would never appear.
   let scanTimer = null;
   const videoObserver = new MutationObserver(() => {
     if (scanTimer) return;
     scanTimer = setTimeout(() => { scanTimer = null; scanForVideos(); }, 300);
   });
-  videoObserver.observe(document.documentElement, { childList: true, subtree: true });
+  videoObserver.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['src', 'cast-src', 'playback-id'],
+  });
   // Initial scan after DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', scanForVideos);
@@ -907,8 +938,55 @@ function findWhopVideoTitle() {
   return null;
 }
 
+// Meta Ad Library mounts ad <video> elements before they have a src —
+// siteMode attaches the button to every video instead of waiting for one.
+const IS_FB_ADLIB = (HOST === 'facebook.com' || HOST.endsWith('.facebook.com'))
+  && location.pathname.startsWith('/ads/library');
+
+// Ad cards carry a library ID label — localized ("Library ID:" in English,
+// "ID dans la bibliothèque :" in French, "Bibliotheks-ID:" in German…) —
+// plus a link to the advertiser's page. Climb from the video wrapper to the
+// card (the innermost ancestor containing such a leaf), then build
+// "{Advertiser} - {Library ID}". Locale-independent: match a leaf element
+// holding an "ID" word next to a long digit run, else any leaf that holds
+// a 13+ digit run on its own.
+function findFbAdTitle(container) {
+  const STRONG = /\bid\b[^0-9]{0,30}(\d{10,})/i;
+  const LOOSE = /(\d{13,})/;
+  const findId = (node, re) => {
+    for (const leaf of node.querySelectorAll('*')) {
+      if (leaf.children.length) continue;
+      const m = (leaf.textContent || '').trim().match(re);
+      if (m) return m[1];
+    }
+    return null;
+  };
+  let card = container;
+  while (card && card !== document.documentElement && !findId(card, STRONG)) card = card.parentElement;
+  if (!card || card === document.documentElement) {
+    card = container;
+    while (card && card !== document.documentElement && !findId(card, LOOSE)) card = card.parentElement;
+  }
+  if (!card || card === document.documentElement) return null;
+  const libId = findId(card, STRONG) || findId(card, LOOSE);
+  let name = null;
+  for (const a of card.querySelectorAll('a')) {
+    const text = (a.textContent || '').trim();
+    const href = a.href || '';
+    if (!text || text.length > 60) continue;
+    if (!/^https:\/\/(www\.)?facebook\.com\//.test(href)) continue;
+    if (/\/ads\//.test(href) || /l\.facebook\.com/.test(href)) continue;
+    name = text;
+    break;
+  }
+  if (name && libId) return `${name} - ${libId}`;
+  if (libId) return `ad-${libId}`;
+  return name;
+}
+
 if (IS_SKOOL) umbraInitVideoUI({ headerHost: 'skool.com', defaultTitle: 'skool-video', siteMode: true });
 else if (IS_WHOP) umbraInitVideoUI({ headerHost: 'whop.com', defaultTitle: 'whop-video', siteMode: true, findTitleFn: findWhopVideoTitle });
+else if (IS_FB_ADLIB) umbraInitVideoUI({ headerHost: null, defaultTitle: 'ad-library', siteMode: true, findTitleFn: findFbAdTitle });
 else umbraInitVideoUI({ headerHost: null, defaultTitle: 'video', siteMode: false });
 
 

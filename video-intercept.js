@@ -7,11 +7,13 @@
   window.__umbraInterceptInit = true;
   window.__umbraVideoUrl = null;
 
-  // Only capture the master HLS playlist — it has a `token=` query param.
-  // Segment requests (.ts) and sub-playlists (no token) must be ignored,
+  // Only capture the master HLS playlist. Signed players (Skool/Whop) put a
+  // `token=` query param on it; public Mux streams have no token but the
+  // master always lives on stream.mux.com. Segment requests (.ts) and
+  // rendition sub-playlists (served from *.edgemv.mux.com) must be ignored,
   // otherwise we end up with a tiny segment file instead of the full video.
   function isMasterPlaylist(url) {
-    return url.includes('.m3u8') && url.includes('token=');
+    return url.includes('.m3u8') && (url.includes('token=') || url.includes('://stream.mux.com/'));
   }
 
   function capture(url) {
